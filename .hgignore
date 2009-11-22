@@ -1,0 +1,12 @@
+syntax: glob
+
+SConstruct
+.*
+*.so
+*.os
+*.o
+*.a
+*.py
+*.pyc
+*.log
+*~
