@@ -190,6 +190,7 @@ void add_page(ifstream& input, ofstream& output, string page_name)
 void add_header(ofstream& output)
 {
 	output << "#pragma once\n"
-		<< "#include \"fenix.h\"\n";
+		<< "#include \"fenix.h\"\n\n";
+	output << "using namespace fenix::web::toolkit;";
 
 }

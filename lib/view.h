@@ -78,6 +78,16 @@ namespace fenix
 					string _mime_type;
 				};
 
+				class InlineResponse: public Response
+				{
+				public:
+					InlineResponse(string& body, string mime_type)
+						:Response(Response::PLAIN_TEXT, 4*1024, mime_type)
+					{
+						_response.append(body);
+					}
+				};
+
 				class FileResponse: public Response
 				{
 				public:
@@ -221,7 +231,16 @@ namespace fenix
 					void echo(const T& a){insert(escape(_to_s(a)), false);}
 					void print(string a){insert(sanatize(a));}
 
+					void include_js(string js_file)
+					{
+						_js_includes.push_back(js_file);
+					}
+
 					string _title;
+
+				protected:
+					vector<string> _js_includes;
+
 				private:
 					string escape(string s);
 					string sanatize(string s);
@@ -248,8 +267,6 @@ namespace fenix
 						else
 							return "false";
 					}
-
-
 				};
 
 			}

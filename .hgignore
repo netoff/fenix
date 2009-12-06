@@ -10,3 +10,4 @@ SConstruct
 *.pyc
 *.log
 *~
+src/views.h

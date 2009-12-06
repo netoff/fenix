@@ -5,3 +5,4 @@
 #include "dispatcher.h"
 #include "action.h"
 #include "view.h"
+#include "model.h"

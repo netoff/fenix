@@ -16,13 +16,12 @@ int dispatch(view::Response& response, request_rec* apc_request)
 {
 	try
 	{
-		APC_DLOG(apc_request, "Module loaded: %s", "Dispatching function");
-
 		switch(response.getResponseType())
 		{
 		case view::Response::XML:
 		case view::Response::JAVASCRIPT:
 		case view::Response::HTML:
+		case view::Response::PLAIN_TEXT:
 		case view::Response::DHTML:
 			{
 				//TODO: Force mime-type based on response type class?? Or we do not need
@@ -32,14 +31,10 @@ int dispatch(view::Response& response, request_rec* apc_request)
 
 				char* mtype = apr_pstrdup(apc_request->pool, mime_type.c_str());
 
-				APC_DLOG(apc_request, "Module loaded: mime-type: %s", mime_type.c_str());
 				ap_set_content_type(apc_request, mtype);
-				APC_DLOG(apc_request, "Module loaded: body: %s", response.getResponseBodyC());
 
 				char* body = apr_pstrdup(apc_request->pool, response.getResponseBodyC());
 				ap_rputs(body, apc_request);
-
-				APC_DLOG(apc_request, "Module loaded: %s", "DHTML dispatched");
 
 				return OK;
 			}
@@ -73,7 +68,6 @@ int dispatch(view::Response& response, request_rec* apc_request)
 		case view::Response::EXCEPTION:
 		case view::Response::JSON:
 		case view::Response::AJAX:
-		case view::Response::PLAIN_TEXT:
 		case view::Response::FILE:
 			{
 				string filename = response.getResponseBody();
@@ -90,7 +84,6 @@ int dispatch(view::Response& response, request_rec* apc_request)
 	}//TODO: Why this does not catch ANY and EVERY exception at app level???
 	catch(...)
 	{
-		APC_DLOG(apc_request, "Module loaded: %s(%s)", "Exception caught", "EXC");
 		return HTTP_INTERNAL_SERVER_ERROR;
 	}
 }
@@ -147,12 +140,8 @@ int fenix_handler(request_rec* apc_request)
 
 	prepare_request(request, apc_request);
 
-	APC_DLOG(apc_request, "Module loaded: %s", "Request parsed");
 	auto_ptr<view::Response> response(_handle(request));
 
-	APC_DLOG(apc_request, "Module loaded: %s", "Function called");
-
 	rv = dispatch(*response, apc_request);
-	APC_DLOG(apc_request, "Module loaded: %s", "After dispatch");
 	return rv;
 }

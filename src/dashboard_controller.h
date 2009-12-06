@@ -7,11 +7,11 @@ using namespace fenix::web::toolkit;
 
 using namespace pages;
 
-namespace HelloController
+namespace DashboardController
 {
 	FENIX_CONTROLLER(index)
 	{
-		return new Index::Page(Index::_request = request);
+		return new Dashboard::Page(Dashboard::_request = request);
 	}
 
 }
