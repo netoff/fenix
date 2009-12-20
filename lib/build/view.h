@@ -3,7 +3,6 @@
 #include "common.h"
 #include "html_tags.h"
 
-#include "boost/format.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"

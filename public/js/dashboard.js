@@ -1,12 +1,32 @@
 var timestamp;
 var chartData = [];
 var chartPlot;
-const chartWidth = 686;
-const chartHeight = 200;
+var maxVal = 10;
+var maxValMid = 5;
+
+var chartWidth ;
+var chartHeight;
+var unitWidth;
+
 const chartMarginLeft = 40;
 const chartMarginBottom = 20;
 const chartMarginTop = 5;
-const numPoints = 60;
+const numPoints = 59;
+const maxValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+
+function findMax(x, max)
+{
+	if(x <= max) return max;
+	
+	for(var i = 0; i < maxValues.length; i++)
+	{
+		var maxI = maxValues[i];
+		
+		if(x <= maxI) return maxI;
+	}
+	
+	return maxValues[maxValues.length - 1];
+}
 
 function updatePoints(points)
 {
@@ -20,44 +40,71 @@ function updatePoints(points)
 	}
 }
 
+function getStart()
+{
+	if(chartData)
+		return (numPoints + 1 - chartData.length) * unitWidth;
+	else 
+		return 0;
+}
+
 function getX(x)
 {
-	return chartMarginLeft + x *(chartWidth - chartMarginLeft)/numPoints;
+	var ret = chartMarginLeft + x * unitWidth;
+	return parseInt(ret);
 }
 
 function getY(y, max)
 {
-	return chartMarginTop + (chartHeight - chartMarginBottom - chartMarginTop)/max * y;
+	var height = chartHeight - chartMarginBottom - chartMarginTop;
+	var ret = chartMarginTop + (height - height/max * y);
+	
+	return parseInt(ret);
+}
+
+function drawLine(x, y, x1, y1, color, plot)
+{
+	plot.strokeStyle = color;
+	plot.lineWidth = 1;
+	
+	chartPlot.beginPath();
+	
+	plot.moveTo(parseInt(x), parseInt(y));
+	plot.lineTo(parseInt(x1), parseInt(y1));	
+	
+	chartPlot.stroke();
 }
 
 function drawGrid()
 {
 	chartPlot.save();
-	chartPlot.strokeStyle = "#ccc";
-	chartPlot.lineWidth = 1;
 	
-	chartPlot.beginPath();
+	drawLine(chartMarginLeft, chartMarginTop, chartMarginLeft, chartHeight- chartMarginBottom, "#333", chartPlot);
 	
-	chartPlot.moveTo(chartMarginLeft, chartMarginTop);
-	chartPlot.lineTo(chartMarginLeft, chartHeight - chartMarginBottom);
-	chartPlot.moveTo(chartMarginLeft, chartMarginTop);
-	chartPlot.lineTo(chartWidth, chartMarginTop);
-	chartPlot.moveTo(chartMarginLeft, chartMarginTop + (chartHeight - chartMarginBottom - chartMarginTop)/2);
-	chartPlot.lineTo(chartWidth, chartMarginTop + (chartHeight - chartMarginBottom - chartMarginTop)/2);
-	chartPlot.moveTo(chartMarginLeft, chartHeight - chartMarginBottom);
-	chartPlot.lineTo(chartWidth, chartHeight - chartMarginBottom);
-	chartPlot.stroke();
+	drawLine(chartMarginLeft - 20, chartMarginTop, chartMarginLeft, chartMarginTop, "#333", chartPlot);
+	drawLine(chartMarginLeft, chartMarginTop, chartWidth, chartMarginTop, "#ccc", chartPlot);
 	
+	var midline = chartMarginTop + (chartHeight - chartMarginBottom - chartMarginTop)/2;
+	
+	drawLine(chartMarginLeft - 20, midline, chartMarginLeft, midline, "#333", chartPlot);
+	drawLine(chartMarginLeft, midline, chartWidth, midline, "#ccc", chartPlot);
+	drawLine(chartMarginLeft, chartHeight - chartMarginBottom, chartWidth, chartHeight - chartMarginBottom, "#333", chartPlot);
+	
+	drawLine(getX(0), chartHeight - chartMarginBottom, getX(0), chartHeight - chartMarginBottom + 7, "#333", chartPlot);
+	for(i = 1; i < numPoints + 1; i++)
+	{
+		var x = getX(i);
+		drawLine(x, getY(1, 1), x, getY(0, 1), "#ccc", chartPlot);
+		
+		var l = 3;
+		if((i + 1) %15 == 0) l = 7;  
+		drawLine(x, chartHeight - chartMarginBottom, x, chartHeight - chartMarginBottom + l, "#333", chartPlot);
+	}
 	chartPlot.restore();
 }
 
 function drawChart()
-{
-	var maxVal=10;
-	
-    for (var i=0; i < chartData.length; i++)
-      if (chartData[i] > maxVal) maxVal=chartData[i];
-
+{    
 	chartPlot.clearRect(0, 0, chartWidth, chartHeight);
 	
 	drawGrid();
@@ -70,12 +117,32 @@ function drawChart()
     chartPlot.lineJoin = "round";
     chartPlot.beginPath();
   
-    //chartPlot.moveTo(0, 90 - (80.0*chartData[0]/maxVal));
-    chartPlot.moveTo(getX(0), getY(chartData[0], maxVal));
-    for (var i=1; i < chartData.length; i++) 
-    {
-      //chartPlot.lineTo( 10*i, 90-(80.0*chartData[i]/maxVal) );
-      chartPlot.lineTo(getX(i), getY(chartData[i], maxVal));
+  	if(chartData.length > 0)
+  	{
+  		//First you have to find max value then, draw chart
+  		
+  		maxVal = 10;
+  		maxValMid = 5;
+  		
+  		for (var i=0; i < chartData.length; i++) 
+    	{
+    		if(chartData[i] > maxVal)
+			{
+				maxVal = findMax(chartData[i], maxVal);
+				maxValMid = maxVal/2;
+			}
+    	}
+    	
+    	$("#chart-max").html(maxVal);
+    	$("#chart-max_mid").html(maxValMid);
+  	
+    	chartPlot.moveTo(getStart() + getX(0), getY(chartData[0], maxVal));
+    	for (var i=0; i < chartData.length; i++) 
+    	{
+			chartPlot.lineTo(getStart() + getX(i), getY(chartData[i], maxVal));
+    	}
+    	
+    	$("#stat-vps").html(chartData[chartData.length - 1]);
     }
     
     chartPlot.stroke();
@@ -90,10 +157,38 @@ function updateDashboard()
 	$.getScript('/app/stats/views?t=' + timestamp);
 }
 
+function sameHeight(sections)
+{
+	for(var i = 0; i < sections.length; i++)
+	{
+		var max = 0;
+		
+
+		var section = $(sections[i]).find("div.window");
+		
+		for(var j = 0; j < section.length; j++)
+		{
+			if($(section[j]).height() > max)
+				max = $(section[j]).height();
+		}
+
+		for(var j = 0; j < section.length; j++)
+			$(section[j]).height(max);
+	}
+}
 $(document).ready(function()
 {
+	sameHeight($("div.same-height"));
+	
 	timestamp = 0;
-	chartPlot = $('#trafic-live-chart').get(0).getContext('2d');
+	
+	var canvas = $('#trafic-live-chart');
+	
+	chartPlot = canvas.get(0).getContext('2d');
+	
+	chartWidth = canvas.width();
+	chartHeight = canvas.height();
+	unitWidth = (chartWidth - chartMarginLeft)/numPoints;
 	
 	updateDashboard();	
 });

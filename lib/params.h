@@ -36,14 +36,30 @@ namespace fenix
 					}
 				}
 
-				inline bool get_param(string a, int& b)
+				inline bool get_param(const string& a, int& b)
 				{
 
-					trim(a);
+					string s = trim_copy(a);
 
 					try
 					{
-						b = lexical_cast<int>(a);
+						b = lexical_cast<int>(s);
+					}
+					catch(bad_lexical_cast&)
+					{
+						b  = 0;
+						return false;
+					}
+
+					return true;
+				}
+				inline bool get_param(const string& a, long& b)
+				{
+					string s = trim_copy(a);
+
+					try
+					{
+						b = lexical_cast<long>(s);
 					}
 					catch(bad_lexical_cast&)
 					{
@@ -54,13 +70,13 @@ namespace fenix
 					return true;
 				}
 
-				inline bool get_param(string a, float& b)
+				inline bool get_param(const string& a, float& b)
 				{
-					trim(a);
+					string s = trim_copy(a);
 
 					try
 					{
-						b = lexical_cast<float>(a);
+						b = lexical_cast<float>(s);
 					}
 					catch(bad_lexical_cast&)
 					{
@@ -71,13 +87,13 @@ namespace fenix
 					return true;
 				}
 
-				inline bool get_param(string a, double& b)
+				inline bool get_param(const string& a, double& b)
 				{
-					trim(a);
+					string s = trim_copy(a);
 					
 					try
 					{
-						b = lexical_cast<double>(a);
+						b = lexical_cast<double>(s);
 					}
 					catch(bad_lexical_cast&)
 					{
@@ -88,9 +104,10 @@ namespace fenix
 					return true;
 				}
 
-				inline bool get_param(string s, bool& b)
+				inline bool get_param(const string& a, bool& b)
 				{
-					trim(s);
+					string s = trim_copy(a);
+
 					if(s == "1" ||  s == "t" || s == "true")
 					{
 						b = true;

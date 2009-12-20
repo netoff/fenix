@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "common.h"
+#include "datetime.h"
 #include "server.h"
 #include "view.h"
 #include "params.h"
@@ -9,12 +10,11 @@
 #define BOOST_PARAMETER_MAX_ARITY 15
 
 #include "boost/parameter.hpp"
-#include "boost/date_time/gregorian/gregorian.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/tokenizer.hpp"
 
 using namespace boost;
 using namespace boost::parameter;
-using namespace boost::gregorian;
 
 using namespace fenix::web::toolkit::server;
 
@@ -58,7 +58,8 @@ namespace fenix
 						}
 					}
 
-					Request(){}
+					Request()
+						:_timestamp(microsec_clock::universal_time()){}
 
 					bool isRead()const
 					{
@@ -82,8 +83,6 @@ namespace fenix
 					//TODO: Remove welcome page link too
 					string welcomePageLink()const{return _app_context+"/Welcome";}
 					string dispatcherPageLink()const{return _app_context+"/Dispatcher";}
-
-					date requestDate()const{return _date;}
  
 					const map<string, string>& getSysParams(const string& s)const
 					{
@@ -104,7 +103,7 @@ namespace fenix
 					string _server_name;
 					string _home_path;
 
-					uint64_t _timestamp;
+					uint64_t _unix_timestamp;
 					string _md5;
 
 					//This should be core API
@@ -127,13 +126,11 @@ namespace fenix
 					//be there.
 					map<string, map<string, string> > _sparams;
 
+					ptime _timestamp;
 					Type _type;
+
 				private:			
 					string _app_context;
-
-					date _date;
-
-					void init(){ _date = day_clock::local_day(); }
 				};
 				
 				class Action

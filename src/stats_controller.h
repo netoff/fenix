@@ -15,27 +15,41 @@ namespace StatsController
 {
 	FENIX_CONTROLLER(views)
 	{
+		model::Database db("localhost", 1978);
 
-		mt19937 rng;
-		rng.seed(static_cast<unsigned int>(time(0)));
+		string response = "";
+		long t = 0;
+		long timestamp = datetime::timestamp(request._timestamp);
 
-		uniform_int<> ten(0,10);
+		if(get_param(params["t"], t))
+		{
+			if(t == 0) t = timestamp - 1;
 
-		variate_generator<mt19937&, uniform_int<> > stats(rng, ten);
+			if(t < timestamp)
+			{
+				string val = str(format("%i")%t);
+				string points = db.ext("get_stat", "s:x123:vps", val);
 
-		int vps = stats();
-
-		//model::Database db("localhost", 1978);
-		//int vps = db.get<int>("s:1234:vps");
-		//string vps = db.get("s:1234:vps");
-
-		//return new Stats::Page(Stats::_request = request, Stats::_vps = vps);
-
-		string response =  str(format("updatePoints([%i]);\n")%vps);
-
-		response +=
-				"drawChart();\n"
-				"setTimeout('updateDashboard()', 500);";
+				for(++t; t < timestamp; t++)
+				{
+					string val = str(format("%i")%t);
+					string new_point = db.ext("get_stat", "s:x123:vps", val);
+					points += str(format(", %s")%new_point);
+				}
+				response =  str(format("updatePoints([%s]);\ntimestamp = %i;")%points%(timestamp - 1));
+				response +=
+					"drawChart();\n"
+					"setTimeout('updateDashboard()', 500);";
+			}
+			else
+			{
+				response += "setTimeout('updateDashboard()', 500);";
+			}
+		}
+		else
+		{
+			return new BadRequestResponse();
+		}
 
 		return new InlineResponse(response, "text/javascript");
 	}

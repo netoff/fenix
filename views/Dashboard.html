@@ -6,25 +6,31 @@
 
 <div class="span-24">
 
-	<div class="span-24">
-	<div class="span-18 window">
+	<div class="span-24 same-height">
+	<div class="span-18 window margin">
 		<h2>Live Traffic</h2>
-		<p>Hits per second in the last two minutes.</p>
-		<canvas id="trafic-live-chart" height="200px" width="686px"></canvas>
+		
+		  <p>Hits per second in the last two minutes.</p>
+		<div class="relative">
+	  	  <div id="chart-max" class="absolute">10</div>
+	  	  <div id="chart-max_mid" class="absolute">5</div>
+	  	  <div id="chart-label1" class="absolute">1 minute ago</div>
+	  	  <div id="chart-label2" class="absolute">30 seconds ago</div>
+	  	  <div id="chart-label3" class="absolute">1 second ago</div>
+	  	  
+		  <canvas id="trafic-live-chart" height="160px" width="710px"></canvas>
+		</div>
 	</div>
 	<div class="span-6 last">
 	<div class="span-6 last window">
-		<h2>Site Chooser</h2>
-	</div>
-	<div class="span-6 last window">
-		<h2>Traffic Overview</h2>
+		<h2>Overview</h2>
 		<div class="stat-label">
-			<span class="counter">7</span>
+			<span id="stat-vps" class="counter"></span>
 			<span class="title">hits/sec</span>
 		</div>
 		<div class="stat-label">
 			<span class="counter">7</span>
-			<span class="title">hits/sec<br />avergae in last hour</span>
+			<span class="title">hits/minute</span>
 		</div>
 		<div class="stat-label">
 			<span class="counter">123</span>
@@ -34,9 +40,9 @@
 	</div>
 	</div>
 	
-	<div class="span-24">
-	<div class="span-5 window">
-		<h2>Countries List</h2>
+	<div class="span-24 same-height">
+	<div class="span-5 window margin">
+		<h2>Top Countries</h2>
 		<p>Top 10 Countries by
 			number of visitors in a last hour.</p>
 		<ol>
@@ -54,15 +60,15 @@
 	</div>
 	<div class="span-19 last window">
 		<h2>Live Map</h2>
-		<img src="/img/world.png" />
+		<img src="/img/world.png" height="369" />
 	</div> 
 	</div>
 	
 	<div class="span-24">
-	<div class="span-8 window">
+	<div class="span-8 window margin">
 		<h2>Top Pages</h2>
 	</div>
-	<div class="span-8 window">
+	<div class="span-8 window margin">
 		<h2>Top Links</h2>
 	</div>
 	<div class="span-8 last window">

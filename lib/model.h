@@ -80,9 +80,25 @@ namespace fenix
 						}
 					}
 
-					bool put(const string& key, const string& val)
+					int inc(string key)
 					{
-						return true;
+						char* k = key.c_str();
+						return tcrdbaddint(_tyrant_server, (void*)k, strlen(k), 1);
+					}
+
+					string ext(const string& foo, const string& key, const string& val)
+					{
+						string ret = "";
+
+						char* _ret = tcrdbext2(_tyrant_server,
+								foo.c_str(), 0, key.c_str(), val.c_str());
+
+						if(_ret)
+							ret.assign(_ret);
+
+						free(_ret);
+
+						return ret;
 					}
 				private:
 					TCRDB* _tyrant_server;

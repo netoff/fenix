@@ -191,7 +191,7 @@ apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_r
 
 void prepare_request(Request& request, request_rec* apc_request)
 {
-	request._timestamp = apc_request->request_time;
+	//request._timestamp = apc_request->request_time;
 
 	switch(apc_request->method_number)
 	{

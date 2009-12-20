@@ -12,7 +12,7 @@ body
 {
 	background-color: #000;
 	color: #fff;
-	font-family: Verdana;
+	font-family: Verdana, sans-serif;
 }
 p
 {
@@ -82,14 +82,13 @@ h3
 }
 #main-menu li
 {
-	color: #000;
 	background-color: #ADC1D6;
 	display: block;
 	float: left;
 	-moz-border-radius-topleft: 8px;
-	-webkit-border-radius-topleft: 8px;
+	-webkit-border-top-left-radius: 8px;
 	-moz-border-radius-topright: 8px;
-	-webkit-border-radius-topright: 8px;
+	-webkit-border-top-right-radius: 8px;
 	border-top: 2px solid #CFD6DE;
 	border-right: 1px solid #CFD6DE;
 	border-left: 1px solid #CFD6DE;
@@ -108,7 +107,7 @@ h3
 	display: block;
 	width: 156px;
 	height: 48px;
-	color: #000;
+	color: #333;
 	font-size: 2.8em;
 	text-decoration: none;
 }
@@ -118,14 +117,16 @@ h3
 }
 #page-w
 {
-	background-image: url(/img/bckg_black_orange.png);
-	background-repeat: repeat;
+	background-color: #333;
+	
+	background-image: url(/img/stripe_vert.png);
+	background-repeat: repeat-x;
 }
 div.window
 {
+	margin-top: 7px;
 	color: #333;
 	background-color: #fff;
-	margin: 10px;
 	border: 2px solid #FF542E;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -142,34 +143,46 @@ div.window ol
 }
 div.window > h2
 {
-	padding-left: 10px;
+	padding-left: 5px;
 	font-size: 1.8em;
 	background-color: #FF542E;
 	color: #fff;
 }
-div.window.span-5
+div.window.span-5.margin
 {
-	width: 164px;
+	margin-right: 5px;
+	width: 187px;
 }
-div.window.span-6
+div.window.span-8.margin
 {
-	width: 206px;
+	margin-right: 5px;
+	width: 309px;
 }
-div.window.span-8
+div.window.span-18.margin
 {
-	width: 286px;
-}
-div.window.span-18
-{
-	width: 686px;
-}
-div.window.span-19
-{
-	width: 726px;
+	margin-right: 5px;
 }
 div.stat-label
 {
-	height: 100%;
+   background-color: #eee;
+   border-top: 1px solid #7297BA;
+   margin: 0 10px;
+   padding: 0 5px;
+   text-align: right;
+   padding-left: 10px;
+}
+span.counter
+{
+	font-size: 1.6em;
+	font-weight: bold;
+}
+span.title
+{
+	font-size: 1.4em;
+	color: #000;
+}
+/*div.stat-label
+{
 	overflow: auto;
 	margin: 10px;
 	background-color: #ADC1D6;
@@ -193,6 +206,39 @@ div.stat-label > span.title
 	display: block;
 	font-size: 1.8em;
 	font-style: italic;
+}*/
+div.absolute
+{
+	position: absolute;
+}
+div.relative
+{
+	position: relative;
+}
+#chart-max
+{
+   top: 5px;
+   left: 10px;
+}
+#chart-max_mid
+{
+   top: 72px;
+   left: 10px;	
+}
+#chart-label1
+{
+	top: 147px;
+	left: 40px;
+}
+#chart-label2
+{
+	top: 147px;
+	left: 345px;
+}
+#chart-label3
+{
+	top: 147px;
+	right: 2px;
 }
 #footer
 {
