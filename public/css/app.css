@@ -67,7 +67,8 @@ h3
 }
 #main-menu-w
 {
-	background-color: #CFD6DE;
+	background-color: #7297BA;
+	//background-color: #CFD6DE;
 	border-bottom: 5px solid #FF542E;
 	//border-top: 3px solid #ADC1D6;
 }
@@ -82,32 +83,40 @@ h3
 }
 #main-menu li
 {
-	background-color: #ADC1D6;
+	margin: 7px 0 0 0 ;
+	//background-color: #ADC1D6;
+	background-color: #CFD6DE;
 	display: block;
 	float: left;
 	-moz-border-radius-topleft: 8px;
 	-webkit-border-top-left-radius: 8px;
 	-moz-border-radius-topright: 8px;
 	-webkit-border-top-right-radius: 8px;
-	border-top: 2px solid #CFD6DE;
-	border-right: 1px solid #CFD6DE;
-	border-left: 1px solid #CFD6DE;
+	border-top: 2px solid #ADC1D6;
+	border-right: 2px solid #ADC1D6;
+	border-left: 2px solid #ADC1D6;
+	
 }
 #main-menu li.active
 {
+	margin: 3px 1px 0 0 ;
+	border-color: #CFD6DE;
 	background-color: #7297BA;
 }
 #main-menu li.active > a
 {
+	font-size: 3.2em;
+	height: 42px;
 	color: #fff;
+	width: 164px;
 }
 #main-menu li > a
 {
 	padding: 4px 0 0 12px;
 	display: block;
 	width: 156px;
-	height: 48px;
-	color: #333;
+	height: 38px;
+	color: #000;
 	font-size: 2.8em;
 	text-decoration: none;
 }
@@ -164,8 +173,8 @@ div.window.span-18.margin
 }
 div.stat-label
 {
-   background-color: #eee;
-   border-top: 1px solid #7297BA;
+   background-color: #7297BA;
+   border-top: 1px solid #CFD6DE;
    margin: 0 10px;
    padding: 0 5px;
    text-align: right;
@@ -175,11 +184,12 @@ span.counter
 {
 	font-size: 1.6em;
 	font-weight: bold;
+	color: #fff;
 }
 span.title
 {
 	font-size: 1.4em;
-	color: #000;
+	color: #fff;
 }
 /*div.stat-label
 {

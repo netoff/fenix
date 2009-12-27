@@ -36,7 +36,7 @@ namespace StatsController
 					string new_point = db.ext("get_stat", "s:x123:vps", val);
 					points += str(format(", %s")%new_point);
 				}
-				response =  str(format("updatePoints([%s]);\ntimestamp = %i;")%points%(timestamp - 1));
+				response =  str(format("updatePoints([%s]);\ntimestamp = %i;")%points%(timestamp));
 				response +=
 					"drawChart();\n"
 					"setTimeout('updateDashboard()', 500);";
