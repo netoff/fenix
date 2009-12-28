@@ -1,0 +1,6 @@
+Import('env boost_system_lib boost_filesystem_lib')
+
+env = env.Clone()
+
+precompiler = env.Program('precompiler', [Glob('*.cpp')], LIBS = [boost_system_lib, boost_filesystem_lib])
+env.Install('#bin/', precompiler)

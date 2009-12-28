@@ -1,0 +1,14 @@
+import commands
+
+Import('env fenix_lib boost_system_lib')
+
+env = env.Clone()
+
+env.ParseConfig('apxs2 -q CFLAGS')
+env.ParseConfig('apxs2 -q LDFLAGS')
+
+apache_headers = commands.getoutput('apxs2 -q INCLUDEDIR') 
+env.Append(CPPPATH = apache_headers)
+
+mod_fenix = env.SharedLibrary('mod_fenix', [Glob('*.cpp')], LIBS=[fenix_lib, boost_system_lib, 'apr-1', 'aprutil-1'])
+env.InstallAs('#bin/mod_fenix.so', mod_fenix)

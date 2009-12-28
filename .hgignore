@@ -1,6 +1,5 @@
 syntax: glob
 
-SConstruct
 .*
 *.so
 *.os
@@ -11,3 +10,4 @@ SConstruct
 *.log
 *~
 src/views.h
+build/
