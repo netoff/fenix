@@ -1,43 +1,101 @@
 <!--@
 	include_js("jquery.js");
+	include_js("jquery.flot.js");
+	include_js("jquery.flot.crosshair.js");
+	include_js("jquery.flot.stack.js");
+	
 	include_js("dashboard.js");
+	
+	
 	_title = "Dashboard";
 -->
 
 <div class="span-24">
 
 	<div class="span-24 same-height">
-	<div class="span-18 window margin">
-		<h2>Live Traffic</h2>
-		
-		  <p>Hits per second in the last two minutes.</p>
-		<div class="relative">
-	  	  <div id="chart-max" class="absolute">10</div>
-	  	  <div id="chart-max_mid" class="absolute">5</div>
-	  	  <div id="chart-label1" class="absolute">1 minute ago</div>
-	  	  <div id="chart-label2" class="absolute">30 seconds ago</div>
-	  	  <div id="chart-label3" class="absolute">1 second ago</div>
-	  	  
-		  <canvas id="trafic-live-chart" height="160px" width="710px"></canvas>
+		<div class="span-18 window margin">
+			<h2>Live Traffic</h2>
+			
+			<p>Traffic within last minute <span id="chart-legend" class="chart-legend"></span></p>
+			<div id="trafic-live-chart" class="live-chart" style="height:180px;">
+				
+			</div>
+			
+			<p>Traffic within last hour <span id="chart1-legend" class="chart-legend"></span></p>
+			<div id="trafic-live-chart1" class="live-chart" style="height:180px;">
+				
+			</div>
 		</div>
-	</div>
-	<div class="span-6 last">
-	<div class="span-6 last window">
-		<h2>Overview</h2>
-		<div class="stat-label">
-			<span id="stat-vps" class="counter"></span>
-			<span class="title">hits/sec</span>
+		<div class="span-6 last">
+			<div class="span-6 last window">
+				<h2>Overview</h2>
+				<p>Traffic Overview</p>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">visitors online</span>
+				</div>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span id="stat-hps" class="counter">0</span>
+					<span class="title">page hits/sec</span>
+				</div>
+				<div class="stat-label">
+					<span id="stat-nvps" class="counter">0</span>
+					<span class="title">new visitors/sec</span>
+				</div>
+				<div class="stat-label">
+					<span id="stat-rvps" class="counter">0</span>
+					<span class="title">returning visitors/sec</span>
+				</div>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span class="counter" id="stat-hpm">0</span>
+					<span class="title">page hits/min</span>
+				</div>
+				<div class="stat-label">
+					<span id="stat-nvpm" class="counter">0</span>
+					<span class="title">new visitors/min</span>
+				</div>
+				<div class="stat-label">
+					<span id="stat-rvpm" class="counter">0</span>
+					<span class="title">returning visitors/min</span>
+				</div>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">visits today</span>
+				</div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">new visitors today</span>
+				</div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">unique visitors today</span>
+				</div>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">total page hists</span>
+				</div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">total visits</span>
+				</div>
+				<div class="stat-label">
+					<span class="counter">0</span>
+					<span class="title">absolute unique visitors</span>
+				</div>
+				
+				
+			</div>
 		</div>
-		<div class="stat-label">
-			<span class="counter">7</span>
-			<span class="title">hits/minute</span>
-		</div>
-		<div class="stat-label">
-			<span class="counter">123</span>
-			<span class="title">visitors online</span>
-		</div>
-	</div>
-	</div>
 	</div>
 	
 	<div class="span-24 same-height">
@@ -58,7 +116,7 @@
 			<li>Turkey (1)</li>
 		</ol>
 	</div>
-	<div class="span-19 last window">
+	<div class="span-19 last window" style="height:400px;">
 		<h2>Live Map</h2>
 		<img src="/img/world.png" height="369" />
 	</div> 

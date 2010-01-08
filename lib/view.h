@@ -267,6 +267,15 @@ namespace fenix
 							return "false";
 					}
 				};
+				
+				
+				//TODO: this function should return smart_ptr
+				//variable number of templated arguments
+				template <class T>
+				T* render_()
+				{
+					return new T();
+				}
 
 			}
 		}

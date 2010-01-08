@@ -1,25 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-		<script type="text/javascript" src="/js/jquery/jquery.js"></script>
-		<script type="text/javascript" src="/js/fancybox/jquery.fancybox.js"></script>
-		<script type="text/javascript" src="/js/fancybox/jquery.easing.js"></script>
-
-<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print" />
-<link rel="stylesheet" href="/css/fancybox/fancybox.css" type="text/css" media="screen">
-<!--[if IE]>
-	<link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection" />
-<![endif]-->
-<link rel="stylesheet" href="/css/app.css" type="text/css" media="screen, projection" />
-		<title>Embeded SVG on page</title>
+	
+	<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">	
+	<!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+	
+	<!--Overide all other css'-->
+	<link rel="stylesheet" href="/css/app.css" >
+	
+	<!--@
+		foreach(string js_file, T::_js_includes)
+		{
+			insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
+		}
+	-->
+		
+	<title>kliknik | <!--@=T::_title--></title>
 	</head>
 	<body>
-		<div class="container" id="container">
-		<div class="span-24">
-		<!--@
-			applay_layout();
-		-->
+		<div class="container">
+			<div class="span-24" id="head-line">
+				<div class="clock">
+					<span class="timestamp">10:55 10 August 2009 GMT+1</span><br />
+					<span class="location">Belgrade/Serbia</span>
+				</div>
+			</div>
+			<div class="span-24" id="logo">
+				<h1>kliknik.com</h1>
+				<p>Just-in time web statistics</p>
+			</div>
 		</div>
+		<div id="main-menu-w">
+			<div class="container">
+				<div class="span-24" id="main-menu">
+				<ul class="span-24">
+					<li class="active"><a href="#">Dashboard</a></li>
+					<li><a href="#">Visitors</a></li>
+					<li><a href="#">Pages</a></li>
+					<li><a href="#">Referrers</a></li>
+				</ul>
+				</div>
+			</div>	
+		</div>
+		<div id="page-w">
+			<div class="container" id="page">
+				<div class="span-24">
+				<!--@
+					applay_layout();
+				-->
+				</div>
+			</div>
+		</div>
+		<div id="footer-w">
+			<div class="container">
+				<div class="span-24" id="footer">
+					&copy;2009 fenix research
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

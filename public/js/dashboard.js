@@ -1,194 +1,201 @@
-var timestamp;
-var chartData = [];
-var chartPlot;
-var maxVal = 10;
-var maxValMid = 5;
+/*global $ */
 
-var chartWidth ;
-var chartHeight;
-var unitWidth;
-
-const chartMarginLeft = 40;
-const chartMarginBottom = 20;
-const chartMarginTop = 5;
-const numPoints = 59;
-const maxValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
-
-function findMax(x, max)
+function Chart()
 {
-	if(x <= max) return max;
+	this.chartData = [];
 	
-	for(var i = 0; i < maxValues.length; i++)
-	{
-		var maxI = maxValues[i];
-		
-		if(x <= maxI) return maxI;
-	}
+	this.maxVal = 10;
+	this.numPoints = 60;
 	
-	return maxValues[maxValues.length - 1];
+	this.resolution = ""; //sec, min....
+	
+	this.maxValues = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000];
 }
 
-function updatePoints(points)
+Chart.prototype.updatePoints = function (points)
 {
-	for(var i = 0; i < points.length; i++)
+	var i, a;
+	
+	for (i = 0; i < points.length; i++)
 	{
-		chartData.push(points[i]);
-		if (chartData.length > numPoints + 1) 
+		this.chartData.push(points[i]);
+		if (this.chartData.length > this.numPoints + 1) 
 		{
-      		chartData.shift();
-    	}
-	}
-}
-
-function getStart()
-{
-	if(chartData)
-		return (numPoints + 1 - chartData.length) * unitWidth;
-	else 
-		return 0;
-}
-
-function getX(x)
-{
-	var ret = chartMarginLeft + x * unitWidth;
-	return parseInt(ret);
-}
-
-function getY(y, max)
-{
-	var height = chartHeight - chartMarginBottom - chartMarginTop;
-	var ret = chartMarginTop + (height - height/max * y);
-	
-	return parseInt(ret);
-}
-
-function drawLine(x, y, x1, y1, color, plot)
-{
-	plot.strokeStyle = color;
-	plot.lineWidth = 1;
-	
-	chartPlot.beginPath();
-	
-	plot.moveTo(parseInt(x), parseInt(y));
-	plot.lineTo(parseInt(x1), parseInt(y1));	
-	
-	chartPlot.stroke();
-}
-
-function drawGrid()
-{
-	chartPlot.save();
-	
-	drawLine(chartMarginLeft, chartMarginTop, chartMarginLeft, chartHeight- chartMarginBottom, "#333", chartPlot);
-	
-	drawLine(chartMarginLeft - 20, chartMarginTop, chartMarginLeft, chartMarginTop, "#333", chartPlot);
-	drawLine(chartMarginLeft, chartMarginTop, chartWidth, chartMarginTop, "#ccc", chartPlot);
-	
-	var midline = chartMarginTop + (chartHeight - chartMarginBottom - chartMarginTop)/2;
-	
-	drawLine(chartMarginLeft - 20, midline, chartMarginLeft, midline, "#333", chartPlot);
-	drawLine(chartMarginLeft, midline, chartWidth, midline, "#ccc", chartPlot);
-	drawLine(chartMarginLeft, chartHeight - chartMarginBottom, chartWidth, chartHeight - chartMarginBottom, "#333", chartPlot);
-	
-	drawLine(getX(0), chartHeight - chartMarginBottom, getX(0), chartHeight - chartMarginBottom + 7, "#333", chartPlot);
-	for(i = 1; i < numPoints + 1; i++)
-	{
-		var x = getX(i);
-		drawLine(x, getY(1, 1), x, getY(0, 1), "#ccc", chartPlot);
-		
-		var l = 3;
-		if((i + 1) %15 == 0) l = 7;  
-		drawLine(x, chartHeight - chartMarginBottom, x, chartHeight - chartMarginBottom + l, "#333", chartPlot);
-	}
-	chartPlot.restore();
-}
-
-function drawChart()
-{    
-	chartPlot.clearRect(0, 0, chartWidth, chartHeight);
-	
-	drawGrid();
-	
-	chartPlot.save();
-	
-    chartPlot.strokeStyle = "#080";
-    
-    chartPlot.lineWidth = 3;
-    chartPlot.lineJoin = "round";
-    chartPlot.beginPath();
-  
-  	if(chartData.length > 0)
-  	{
-  		//First you have to find max value then, draw chart
-  		
-  		maxVal = 10;
-  		maxValMid = 5;
-  		
-  		for (var i=0; i < chartData.length; i++) 
-    	{
-    		if(chartData[i] > maxVal)
-			{
-				maxVal = findMax(chartData[i], maxVal);
-				maxValMid = maxVal/2;
-			}
-    	}
-    	
-    	$("#chart-max").html(maxVal);
-    	$("#chart-max_mid").html(maxValMid);
-  	
-    	chartPlot.moveTo(getStart() + getX(0), getY(chartData[0], maxVal));
-    	for (var i=0; i < chartData.length; i++) 
-    	{
-			chartPlot.lineTo(getStart() + getX(i), getY(chartData[i], maxVal));
-    	}
-    	
-    	$("#stat-vps").html(chartData[chartData.length - 1]);
-    }
-    
-    chartPlot.stroke();
-    
-    chartPlot.restore();
-}
-
-
-
-function updateDashboard()
-{
-	$.getScript('/app/stats/views?t=' + timestamp);
-}
-
-function sameHeight(sections)
-{
-	for(var i = 0; i < sections.length; i++)
-	{
-		var max = 0;
-		
-
-		var section = $(sections[i]).find("div.window");
-		
-		for(var j = 0; j < section.length; j++)
-		{
-			if($(section[j]).height() > max)
-				max = $(section[j]).height();
+			this.chartData.shift();
 		}
+	}	
+};
 
-		for(var j = 0; j < section.length; j++)
-			$(section[j]).height(max);
-	}
-}
-$(document).ready(function()
+Chart.prototype.findMax = function (x, max)
 {
-	sameHeight($("div.same-height"));
+	var i, maxI;
 	
-	timestamp = 0;
+	if (x <= max) 
+	{
+		return max;
+	}
 	
-	var canvas = $('#trafic-live-chart');
+	for (i = 0; i < this.maxValues.length; i++)
+	{
+		maxI = this.maxValues[i];
+		
+		if (x <= maxI) 
+		{
+			return maxI;
+		}
+	}
 	
-	chartPlot = canvas.get(0).getContext('2d');
+	return this.maxValues[this.maxValues.length - 1];
+};
+
+Chart.prototype.getDataPoints = function (it)
+{
+	var i, a, diff, points = [];
 	
-	chartWidth = canvas.width();
-	chartHeight = canvas.height();
-	unitWidth = (chartWidth - chartMarginLeft)/numPoints;
+	diff = this.numPoints - this.chartData.length;
 	
-	updateDashboard();	
+	for (i = 0; i < this.numPoints; i++)
+	{
+		if (i >= diff)
+		{
+			a = [i, this.chartData[i - diff][it]];
+		}
+		else
+		{
+			a = [i, 0];
+		}
+			
+		points.push(a);
+	}	
+	
+	return points;
+};
+Chart.prototype.setCanvas = function (canvas) 
+{ 
+	this.canvas = canvas; 
+};
+Chart.prototype.setSettings = function (settings) 
+{ 
+	this.settings = settings; 
+};
+Chart.prototype.draw = function ()
+{
+	
+	$.plot(this.canvas, [
+		{ data: this.getDataPoints(1), bars: { show: true, barWidth: 0.7, align: "center" }, label: "new visitors/" + this.resolution, stack: true },
+		{ data: this.getDataPoints(2), bars: { show: true, barWidth: 0.7, align: "center" }, label: "returning visitors/" + this.resolution, stack: true},
+		{ data: this.getDataPoints(0), lines: { show: true, steps: true }, points: { show: true, radius: 1}, label: "page hits/" + this.resolution }], this.settings);
+
+	
+};
+
+var dashboard;
+if (!dashboard) 
+{
+	dashboard = (function ()
+	{
+		return {
+			site_id: "nx3456",
+			
+			timestamp: 0,
+			timestampMin: 0,
+	
+			init: function ()
+			{
+				this.chart.setCanvas($('#trafic-live-chart'));
+				this.chart.resolution = "sec";
+				this.chart.settings = { 
+					legend: { noColumns: 3, container: $('#chart-legend')},
+					colors: ["#f63", "#3cf", "#6f3"],
+					yaxis: { min: 0, tickDecimals: 0},
+					xaxis: { ticks: [[0, "1 minute ago"], [9, ""], [19, ""], [29, "30 seconds ago"], [39, ""], [49, ""], [59, "1 second ago"]]}
+				};
+				
+				this.chart.draw();
+		
+				this.chartMin.setCanvas($('#trafic-live-chart1'));
+				this.chartMin.resolution = "min";
+				this.chartMin.settings = { 
+					legend: { noColumns: 3, container: $('#chart1-legend')},
+					crosshair: { mode: "x"},
+					colors: ["#f63", "#3cf", "#6f3"],
+					yaxis: { min: 0, tickDecimals: 0},
+					xaxis: { ticks: [[0, "1 hour ago"], [9, ""], [19, ""], [29, "30 minutes ago"], [39, ""], [49, ""], [59, "1 minute ago"]]}
+				};				
+				
+				this.chartMin.draw();
+				
+				this.sameHeight($("div.same-height"));
+			},
+	
+			sameHeight: function (sections)
+			{
+				var max, i, j, section;
+		
+				for (i = 0; i < sections.length; i++)
+				{
+					max = 0;
+					
+					section = $("div.window", sections[i]);
+			
+					for (j = 0; j < section.length; j++)
+					{
+						if ($(section[j]).height() > max)
+						{
+							max = $(section[j]).height();
+						}
+					}
+
+					for (j = 0; j < section.length; j++)
+					{
+						$(section[j]).height(max);
+					}
+				}
+			},
+	
+			update: function () 
+			{
+				$.getScript('/app/stats/views?id=' + this.site_id + '&t=' + this.timestamp + '&t1=' + this.timestampMin);
+			},
+	
+			chart: new Chart(),
+			chartMin: new Chart(),
+			
+			updateData: function ()
+			{
+				var points, a, l;
+				
+				points = this.chart.chartData;
+				l = points.length;
+				
+				a = points[l - 1];
+				
+				$("#stat-hps").html(a[0]);
+				$("#stat-nvps").html(a[1]);
+				$("#stat-rvps").html(a[2]);
+			},
+			
+			updateDataMin: function ()
+			{
+				var points, a, l;
+				
+				points = this.chartMin.chartData;
+				l = points.length;
+				
+				a = points[l - 1];
+				
+				$("#stat-hpm").html(a[0]);
+				$("#stat-nvpm").html(a[1]);
+				$("#stat-rvpm").html(a[2]);
+			}
+		};
+	}());
+}
+
+$(function ()
+{
+	dashboard.init();
+
+	//Start the loop
+	dashboard.update();	
 });

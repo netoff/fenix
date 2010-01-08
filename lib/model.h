@@ -86,15 +86,21 @@ namespace fenix
 						return tcrdbaddint(_tyrant_server, (void*)k, strlen(k), 1);
 					}
 
-					string ext(const string& foo, const string& key, const string& val)
+					string query(const string& foo, const string& key, const string& val)
 					{
 						string ret = "";
+						
+						//TODO: check is this proper locking
+						//0 should be no locking
+						int lock = 0;
 
 						char* _ret = tcrdbext2(_tyrant_server,
-								foo.c_str(), 0, key.c_str(), val.c_str());
+								foo.c_str(), lock, key.c_str(), val.c_str());
 
 						if(_ret)
+						{
 							ret.assign(_ret);
+						}
 
 						free(_ret);
 

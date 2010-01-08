@@ -9,10 +9,11 @@ using namespace fenix::web::toolkit;
 FENIX_APPLICATION(HelloWorld)
 {
 	auto_ptr<Action> action = dispatch(
-			_("app")						<< _action<HelloController::index>() ||
-			_("app")/_("index")				<< _action<DashboardController::index>() ||
+			_("app")			<< _action<HelloController::index>() ||
+			_("app")/_("index")		<< _action<DashboardController::index>() ||
 			_("app")/_("stats")/_("views")	<< _action<StatsController::views>() ||
-			_("app")/_("log")/_("hit")		<< _action<LogController::hit>(), request);
+			_("app")/_("log")/_("hit")	<< _action<LogController::hit>() ||
+			_("app")/"lg"			<< _action<LogController::lg>(), request);
 
 	return action->handle(request);
 }

@@ -21,11 +21,49 @@ namespace fenix
 					time_duration diff = (local_time.utc_time() - fenix_epoch);
 					return diff.total_seconds();
 				}
-
-				inline long timestamp(const ptime& utc_time)
+				
+				inline time_duration diff(const ptime& t)
 				{
-					time_duration diff = utc_time - fenix_epoch;
-					return diff.total_seconds();
+					return t - fenix_epoch;
+				}
+				
+				inline date_duration diff_d(const ptime& t)
+				{
+					return t.date() - fenix_epoch.date();
+				}
+
+				inline long timestamp(const ptime& t)
+				{
+					return diff(t).total_seconds();
+				}
+				
+				inline long timestamp_m(const ptime& t)
+				{
+					//TODO: check is this reliable and proper way
+					//to calculate minutes count
+					
+					time_duration d = diff(t);
+					
+					long hours = d.hours();
+					long minutes = d.minutes();
+					
+					//total minutes
+					return hours * 60/*minutes per hour*/ + minutes;
+				}
+				
+				inline long timestamp_h(const ptime& t)
+				{
+					return diff(t).hours();
+				}
+				
+				inline long timestamp_d(const ptime& t)
+				{
+					return diff_d(t).days();
+				}
+				
+				inline long timestamp_d(const local_date_time& l)
+				{
+					return (l.date() - fenix_epoch.date()).days();
 				}
 
 				inline ptime from_timestamp(const long& timestamp)

@@ -10,6 +10,8 @@ html
 }
 body
 {
+	background-image: url(/img/head.png);
+	background-repeat: repeat-x;
 	background-color: #000;
 	color: #fff;
 	font-family: Verdana, sans-serif;
@@ -18,7 +20,7 @@ p
 {
 	font-size: 1.2em;
 	line-height: 1.5;
-	mrgin-bottom: 1.5em;
+	margin-bottom: 1.5em;
 }
 h1
 {
@@ -31,6 +33,10 @@ h2
 h3
 {
 	font-size: 2.4em;
+}
+#header-w
+{
+	height: 117px;
 }
 
 .clock
@@ -67,9 +73,10 @@ h3
 }
 #main-menu-w
 {
-	background-color: #7297BA;
+	height: 56px;
+	//background-color: #7297BA;
 	//background-color: #CFD6DE;
-	border-bottom: 5px solid #FF542E;
+	//border-bottom: 5px solid #FF542E;
 	//border-top: 3px solid #ADC1D6;
 }
 
@@ -126,8 +133,8 @@ h3
 }
 #page-w
 {
+	padding: 0 0 20px 0;
 	background-color: #333;
-	
 	background-image: url(/img/stripe_vert.png);
 	background-repeat: repeat-x;
 }
@@ -174,12 +181,41 @@ div.window.span-18.margin
 div.stat-label
 {
    background-color: #7297BA;
-   border-top: 1px solid #CFD6DE;
+   background-image: url(/img/arr.gif);
+   background-repeat: no-repeat;
+   background-position: 8px 7px; 
+   border-bottom: 1px solid #CFD6DE;
+   border-right: 1px solid #FF542E;
    margin: 0 10px;
-   padding: 0 5px;
-   text-align: right;
-   padding-left: 10px;
+   padding: 2px 5px;
+   text-align: left;
+   padding-left: 25px;
 }
+div.stat-sep
+{
+	height: 3px;
+	background-color: #FF542E;
+	margin: 2px 10px 0 10px;
+	
+}
+
+div.stat-label:hover
+{
+	background-color: #fff;
+	cursor: pointer;
+	border-bottom: 1px solid #333;
+	border-left: 1px solid #333;
+	//border-left: 1px solid #333;
+}
+div.stat-label:hover > span.counter
+{
+	color: #333;
+}
+div.stat-label:hover > span.title
+{
+	color: #333;
+}
+
 span.counter
 {
 	font-size: 1.6em;
@@ -191,32 +227,6 @@ span.title
 	font-size: 1.4em;
 	color: #fff;
 }
-/*div.stat-label
-{
-	overflow: auto;
-	margin: 10px;
-	background-color: #ADC1D6;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-}
-div.stat-label > span.counter
-{
-	margin: 0 5px 0 5px; 
-	clear: left;
-	display: block;
-	float: left;
-	display: block;
-	font-size: 4.8em;
-}
-div.stat-label > span.title
-{
-	padding-top: 10px;
-	display: block;
-	float: left;
-	display: block;
-	font-size: 1.8em;
-	font-style: italic;
-}*/
 div.absolute
 {
 	position: absolute;
@@ -225,37 +235,26 @@ div.relative
 {
 	position: relative;
 }
-#chart-max
+.live-chart
 {
-   top: 5px;
-   left: 10px;
+	margin: 0 15px 30px 30px;
+	clear: both;	
 }
-#chart-max_mid
+.chart-legend
 {
-   top: 72px;
-   left: 10px;	
+	display: block;
+	float: right;	
+	width: 400px;
 }
-#chart-label1
-{
-	top: 147px;
-	left: 40px;
-}
-#chart-label2
-{
-	top: 147px;
-	left: 345px;
-}
-#chart-label3
-{
-	top: 147px;
-	right: 2px;
-}
+
 #footer
 {
-	padding: 10px 0 20px 0;
+	padding: 10px 0 30px 0;
 	font-size: 1.2em;
 }
 #footer-w
 {
-	border-top: 1px solid #ADC1D6;
+	color: #fff;
+	background-color: #333;
+	border-top: 1px solid #FF542E;
 }

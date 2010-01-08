@@ -122,6 +122,15 @@ namespace fenix
 					b = false;
 					return false;
 				}
+				
+				inline bool get_param(const string& a, string& b)
+				{
+					//for now only trim string 
+					//later we could slice it, escape it, etc..
+					b = trim_copy(a);
+					
+					return true;
+				}
 			}
 		}
 	}
