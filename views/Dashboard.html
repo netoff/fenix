@@ -9,20 +9,44 @@
 	
 	_title = "Dashboard";
 -->
+<script>
+$(function (){
+		pages = $("#pages");
+		
+		$("#page1-link").click(function (){
+				pages.animate({left: 0});
+				return false;
+		});
+		$("#page2-link").click(function (){
+				pages.animate({left: -960});
+				return false;
+		});
+		$("#page3-link").click(function (){
+				pages.animate({left: -1920});
+				return false;
+		});
+});
+</script>
 
 <div class="span-24">
-
+	<a href="#" id="page1-link" class="sub-menu">Live Traffic</a>
+	<a href="#" id="page2-link" class="sub-menu">Live Map</a>
+	<a href="#" id="page3-link" class="sub-menu">Content</a>
+	
+	<div id="pages">
+	<div class="page" id="page-1">
+	
 	<div class="span-24 same-height">
 		<div class="span-18 window margin">
 			<h2>Live Traffic</h2>
 			
 			<p>Traffic within last minute <span id="chart-legend" class="chart-legend"></span></p>
-			<div id="trafic-live-chart" class="live-chart" style="height:180px;">
+			<div id="trafic-live-chart" class="live-chart" style="height:160px;">
 				
 			</div>
 			
 			<p>Traffic within last hour <span id="chart1-legend" class="chart-legend"></span></p>
-			<div id="trafic-live-chart1" class="live-chart" style="height:180px;">
+			<div id="trafic-live-chart1" class="live-chart" style="height:160px;">
 				
 			</div>
 		</div>
@@ -97,6 +121,9 @@
 			</div>
 		</div>
 	</div>
+	</div><!--end page1-->
+	
+	<div class="page" id="page2">
 	
 	<div class="span-24 same-height">
 	<div class="span-5 window margin">
@@ -122,6 +149,10 @@
 	</div> 
 	</div>
 	
+	</div><!--end page2-->
+	
+	<div class="page" id="page3">
+	
 	<div class="span-24">
 	<div class="span-8 window margin">
 		<h2>Top Pages</h2>
@@ -133,4 +164,8 @@
 		<h2>Top Search Queries</h2>
 	</div>
 	</div>
+	
+	</div><!--end page3-->
+	
+	</div><!--end pages-->
 </div>

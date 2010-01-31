@@ -10,13 +10,13 @@
 	<link rel="stylesheet" href="/css/app.css" >
 	
 	<!--@
-		foreach(string js_file, T::_js_includes)
+		foreach(string js_file, this->_js_includes)
 		{
 			insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
 		}
 	-->
 		
-	<title>kliknik | <!--@=T::_title--></title>
+	<title>kliknik | <!--@=this->_title--></title>
 	</head>
 	<body>
 		<div id="header-w">
@@ -28,7 +28,7 @@
 					</div>
 				</div>
 				<div class="span-24" id="logo">
-					<h1>kliknik.com</h1>
+					<h1><a href="/app/index">kliknik.com</a></h1>
 					<p>Just-in time web statistics</p>
 				</div>
 			</div>
@@ -37,8 +37,8 @@
 			<div class="container">
 				<div class="span-24" id="main-menu">
 				<ul class="span-24">
-					<li class="active"><a href="#">Dashboard</a></li>
-					<li><a href="#">Visitors</a></li>
+					<li class="active"><a href="/app/index">Dashboard</a></li>
+					<li><a href="/app/visitors">Visitors</a></li>
 					<li><a href="#">Pages</a></li>
 					<li><a href="#">Referrers</a></li>
 				</ul>

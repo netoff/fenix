@@ -6,7 +6,6 @@
 html
 {
 	font-size: 62.5%;
-	
 }
 body
 {
@@ -21,6 +20,10 @@ p
 	font-size: 1.2em;
 	line-height: 1.5;
 	margin-bottom: 1.5em;
+}
+ul, ol, span
+{
+	font-size: 1.2em;
 }
 h1
 {
@@ -127,16 +130,20 @@ h3
 	font-size: 2.8em;
 	text-decoration: none;
 }
-#page
-{
-	
-}
 #page-w
 {
 	padding: 0 0 20px 0;
 	background-color: #333;
 	background-image: url(/img/stripe_vert.png);
 	background-repeat: repeat-x;
+}
+a.sub-menu
+{
+	background-color: #FF542E;
+	color: #fff;
+	font-size: 1.8em;
+	padding: 2px 20px;
+	margin: 0;
 }
 div.window
 {
@@ -146,6 +153,11 @@ div.window
 	border: 2px solid #FF542E;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
+}
+div.window.inline
+{
+	background-color: #eee;
+	border: none;
 }
 div.window p
 {
@@ -164,10 +176,20 @@ div.window > h2
 	background-color: #FF542E;
 	color: #fff;
 }
+div.window > h3
+{
+	padding: 10px;
+}
+
 div.window.span-5.margin
 {
 	margin-right: 5px;
 	width: 187px;
+}
+div.window.span-6.margin
+{
+	margin-right: 5px;
+	width: 227px;
 }
 div.window.span-8.margin
 {
@@ -185,7 +207,6 @@ div.stat-label
    background-repeat: no-repeat;
    background-position: 8px 7px; 
    border-bottom: 1px solid #CFD6DE;
-   border-right: 1px solid #FF542E;
    margin: 0 10px;
    padding: 2px 5px;
    text-align: left;
@@ -195,7 +216,7 @@ div.stat-sep
 {
 	height: 3px;
 	background-color: #FF542E;
-	margin: 2px 10px 0 10px;
+	margin: 3px 10px 0 10px;
 	
 }
 
@@ -204,8 +225,8 @@ div.stat-label:hover
 	background-color: #fff;
 	cursor: pointer;
 	border-bottom: 1px solid #333;
+	border-right: 1px solid #333;
 	border-left: 1px solid #333;
-	//border-left: 1px solid #333;
 }
 div.stat-label:hover > span.counter
 {
@@ -237,7 +258,7 @@ div.relative
 }
 .live-chart
 {
-	margin: 0 15px 30px 30px;
+	margin: 0 15px 10px 20px;
 	clear: both;	
 }
 .chart-legend
@@ -245,6 +266,59 @@ div.relative
 	display: block;
 	float: right;	
 	width: 400px;
+}
+.chart
+{
+	margin: 0 5px 5px 20px;
+	clear: both;
+}
+span
+{
+	font-size: 1.2em;
+}
+span.small
+{
+	font-size: 0.9em;
+}
+
+span.h3
+{
+	font-size: 2.4em;
+	vertical-align: middle;
+}
+span.date-range-predefined-selectors
+{
+
+}
+#date-range-selector-input
+{
+	
+	padding: 5px 5px 5px 35px;
+	font-size: 2.6em;
+	width: 300px;
+	border: none;
+	background-color: #CFD6DE;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	vertical-align: middle;
+	color: #fff;
+}
+#date-range-selector-submit
+{
+	padding: 5px;
+	font-size: 1.8em;
+	margin: 0;
+	vertical-align: middle;
+}
+
+.right
+{
+	text-align: right;
+}
+#date-range-selector-form
+{
+	margin: 0;
+	padding: 10px;
 }
 
 #footer
@@ -257,4 +331,27 @@ div.relative
 	color: #fff;
 	background-color: #333;
 	border-top: 1px solid #FF542E;
+}
+.tickLabel
+{
+	font-size: 1.4em;
+}
+.page
+{
+	float: left;
+	padding: 0 4px;
+}
+#page
+{
+	width: 960px;
+	overflow: hidden;
+	position: relative;
+	height: 600px;
+}
+#pages
+{
+	
+	width: 3400px;
+	position: absolute;
+
 }

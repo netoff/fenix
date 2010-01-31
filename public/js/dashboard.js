@@ -108,7 +108,8 @@ if (!dashboard)
 					legend: { noColumns: 3, container: $('#chart-legend')},
 					colors: ["#f63", "#3cf", "#6f3"],
 					yaxis: { min: 0, tickDecimals: 0},
-					xaxis: { ticks: [[0, "1 minute ago"], [9, ""], [19, ""], [29, "30 seconds ago"], [39, ""], [49, ""], [59, "1 second ago"]]}
+					xaxis: { ticks: [[0, "1 minute ago"], [9, ""], [19, ""], [29, "30 seconds ago"], [39, ""], [49, ""], [59, "1 second ago"]]},
+					grid: { borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
 				};
 				
 				this.chart.draw();
@@ -120,7 +121,8 @@ if (!dashboard)
 					crosshair: { mode: "x"},
 					colors: ["#f63", "#3cf", "#6f3"],
 					yaxis: { min: 0, tickDecimals: 0},
-					xaxis: { ticks: [[0, "1 hour ago"], [9, ""], [19, ""], [29, "30 minutes ago"], [39, ""], [49, ""], [59, "1 minute ago"]]}
+					xaxis: { ticks: [[0, "1 hour ago"], [9, ""], [19, ""], [29, "30 minutes ago"], [39, ""], [49, ""], [59, "1 minute ago"]]},
+					grid: {borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
 				};				
 				
 				this.chartMin.draw();
