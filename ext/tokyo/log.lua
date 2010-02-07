@@ -4,8 +4,19 @@
 local width = {
   sec = 64,
   min = 64,
-  hour = 32768,
+  hour = 32,
   day = 2048 }
+  
+function make_id(key, value)
+  local md5 = _hash("md5", value)
+  
+  
+  if _put(key .. ":" .. md5, value) then
+    return md5
+  else
+    return ""
+  end
+end
 
 function log(key, value)
   --=====================================
@@ -182,23 +193,26 @@ function log(key, value)
 end
 
 local read = {
-
-  get_stats = function (key, value, width)
+  get_val_params = function(v)
     local vals = _split(value, "=")
 
-    if not vals or not (#vals == 2) then
-      -- error in 'query', -1 means no stas/error
-      _log("Error fetching stats 1: " .. key .. ", value: " .. value .. ", width: " .. width)
-      return -1 
+    if vals and #vals == 2 then
+      local timestamp = tonumber(vals[1])
+      local k = vals[2]
+    
+      if timestamp and k then
+        return {timestamp, k}
+      end 
     end
-
-    local timestamp = tonumber(vals[1])
-    local k = vals[2]
- 
+    
+    return {"", ""}
+  end,
+  
+  get_stats = function (key, timestamp, k, width)
     local root_key = key .. ':' .. k .. '*'
     local root_timestamp = tonumber(_get(root_key))
 
-    if root_timestamp and timestamp then
+    if root_timestamp then
       local diff = root_timestamp -  timestamp
       if diff >= 0 and diff < width then
         local t = math.mod(timestamp, width)
@@ -217,20 +231,89 @@ local read = {
 
     -- otherwise return 0, means no stats, nothing is counted
     return 0
-  end }
+  end,
+  
+  get_stats_a = function(key, timestamp, k, width)
+    ret = {}
+    
+    local pattern = key .. ':' .. tostring(t) .. ':' .. k .. '_'
+    local keys = _fwmkeys(pattern)
+    
+    for i, x in iparis(keys) do
+      local id = _split(x, "_")[2]
+      local val = get_stats(key, timestamp, k .. '_' .. id, width)
+            
+      ret[id] = val 
+    end
+    
+    return ret
+  end,
+  
+  combine_stats = function(a)
+    ret = {}
+    
+    for i, r in ipairs(a) do
+      for k, v in pairs(r) do
+        if not ret[k] then
+	  ret[k] = tonumber(v)
+	else
+	  ret[k] = ret[k] + tonumber(v)
+	end
+      end
+    end
+    
+    return ret
+  end
+}
 
 function get_slot_sec(key, value)
-  return read.get_stats(key, value, width.sec)
+  local timestamp
+  local k
+
+  timestamp, k = read.get_val_params(value)
+  
+  return read.get_stats(key, timestamp, k, width.sec)
 end
 
 function get_slot_min(key, value)
-  return read.get_stats(key, value, width.min)
+  local timestamp
+  local k
+  
+  timestamp, k = read.get_val_params(value)
+  
+  return read.get_stats(key, timestamp, k, width.min)
 end
 
 function get_slot_hour(key, value)
-  return read.get_stats(key, value, width.hour)
+  local timestamp
+  local k
+  
+  timestamp, k = read.get_val_params(value)
+  
+  return read.get_stats(key, timestamp, k, width.hour)
 end
 
 function get_slot_day(key, value)
-  return read.get_stats(key, value, width.day)
+  local timestamp
+  local k
+  
+  timestamp, k = read.get_val_params(value)
+  
+  return read.get_stats(key, timestamp, k, width.day)
+end
+
+function get_last_24h(key, value)
+  local timestamp
+  local k 
+  timestamp, k = read.get_val_params(value)
+  
+  local ret = {}
+  local i = 1
+  for i = timestamp, timestamp - 24, -1 do
+    ret[i] = read.get_stats_a(key, timestamp, k, width.hour)
+    
+    i = i + 1
+  end 
+  
+  return read.combine_stats(ret)
 end

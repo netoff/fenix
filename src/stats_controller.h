@@ -31,6 +31,13 @@ namespace StatsController
 		return str(format("[%s, %s, %s]")%hpm %nvpm %rvpm);		
 	}
 	
+	string get_countries(const model::Database& db, const string& key, long timestamp)
+	{
+		string countries = db.query("get_last_24h", key, str(format("%i=scph")%timestamp));
+		
+		return string;
+	}
+	
 	FENIX_CONTROLLER(views)
 	{
 		string site_id;
@@ -42,10 +49,11 @@ namespace StatsController
 			get_param(params["t"], t) &&
 			get_param(params["t1"], t_m))
 		{
-			string response = "";
+			ostringstream response;
 		
 			long timestamp = datetime::timestamp(request._timestamp);
 			long timestamp_m = datetime::timestamp_m(request._timestamp);
+			long timestamp_h = datetime::timestamp_h(request._timestamp);
 			
 			if(t == 0) t = (timestamp > 59 ? timestamp - 59 : 1);
 			if(t_m == 0) t_m = (timestamp_m > 59 ? timestamp_m - 59 : 1);
@@ -65,10 +73,10 @@ namespace StatsController
 					points += ", " + get_stats_per_second(db, key, t);
 				}
 				
-				response +=  str(format("dashboard.chart.updatePoints([%s]);\n")%points );
-				response += str(format("dashboard.timestamp = %i;\n")%timestamp );
-				response += "dashboard.chart.draw();\n";
-				response += "dashboard.updateData();\n";
+				response << "dashboard.chart.updatePoints([" << points << "]);\n";
+				response << "dashboard.timestamp = " << timestamp << ";\n";
+				response << "dashboard.chart.draw();\n";
+				response << "dashboard.updateData();\n";
 					
 			}
 			if(t_m < timestamp_m)
@@ -82,14 +90,18 @@ namespace StatsController
 					points_m += ", " + get_stats_per_minute(db, key, t_m);
 				}
 				
-				response += str(format("dashboard.chartMin.updatePoints([%s]);\n")%points_m );
-				response += str(format("dashboard.timestampMin = %i;\n")%timestamp_m);
-				response += "dashboard.chartMin.draw();\n";
-				response += "dashboard.updateDataMin();\n";
+				response << "dashboard.chartMin.updatePoints([" << points_m << "]);\n";
+				response << "dashboard.timestampMin = " << timestamp_m << ";\n";
+				response << "dashboard.chartMin.draw();\n";
+				response << "dashboard.updateDataMin();\n";
+				
+				string countries = get_countries(db, key, timestamp_h);
+				
+				response << "dashboard.updateCountries(" << countries << ");\n";
 				
 			}
 			
-			response += "setTimeout('dashboard.update()', 500);";
+			response << "setTimeout('dashboard.update()', 500);";
 			
 			return new InlineResponse(response, "text/javascript");
 			//return render_text(response, "text/javascript");

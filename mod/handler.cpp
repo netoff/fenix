@@ -136,7 +136,7 @@ int fenix_handler(request_rec* apc_request)
 		return HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	action::Request request;
+	action::Request request(dir_conf->log_file);
 
 	prepare_request(request, apc_request);
 

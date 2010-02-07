@@ -155,6 +155,17 @@ std::string get_apc_request_params(request_rec* apc_request)
 	return args;
 }
 
+static int _get_note(void* rec, const char* key, const char* val)
+{
+	map<string, string> * hash = (map<string, string>*)rec;
+	(*hash)[key] = string(val);
+}
+
+void parse_notes(request_rec* apc_request, map<string, string>& hash)
+{
+	apr_table_do(_get_note, (void*)&hash, apc_request->notes, NULL);	
+}
+
 apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_request)
 {
 	const char *fname = filename.c_str();
@@ -220,20 +231,21 @@ void prepare_request(Request& request, request_rec* apc_request)
 	}
 
 	request._sparams["http"]["protocol"] =		_S(apc_request->protocol);
-	request._sparams["http"]["uri"] =			_S(apc_request->uri);
+	request._sparams["http"]["uri"] =		_S(apc_request->uri);
 	request._sparams["http"]["unparsed_uri"] = 	_S(apc_request->unparsed_uri);
-	request._sparams["http"]["args"] =			_S(apc_request->args);
+	request._sparams["http"]["args"] =		_S(apc_request->args);
 	request._sparams["http"]["path_info"] =		_S(apc_request->path_info);
 	request._sparams["http"]["filename"] =		_S(apc_request->filename);
-	request._sparams["http"]["port"] =			_S(apc_request->parsed_uri.port_str);
+	request._sparams["http"]["port"] =		_S(apc_request->parsed_uri.port_str);
 	request._sparams["http"]["scheme"] =		_S(ap_http_scheme(apc_request));
 	request._sparams["http"]["hostname"] =		_S(apc_request->hostname);
 	request._sparams["http"]["remote_ip"] =		_S(apc_request->connection->remote_ip);
 	request._sparams["http"]["remote_host"] =	_S(ap_get_remote_host(apc_request->connection, apc_request->per_dir_config, REMOTE_NAME, NULL));
 	request._sparams["http"]["user_agent"] =	_S(apr_table_get(apc_request->headers_in, "User-Agent"));
 	request._sparams["http"]["referer"] =		_S(apr_table_get(apc_request->headers_in, "Referer"));
-	request._sparams["http"]["ajax"] =			_S(apr_table_get(apc_request->headers_in, "X-Requested-With"));
+	request._sparams["http"]["ajax"] =		_S(apr_table_get(apc_request->headers_in, "X-Requested-With"));
 
+	
 
 	//string arguments(_S(apc_request->args));
 	string arguments = get_apc_request_params(apc_request);
@@ -262,9 +274,14 @@ void prepare_request(Request& request, request_rec* apc_request)
 	ch_sep uri_sep("/");
 	tokenizer uric(url, uri_sep);
 
-	foreach(string uri, uric){
-		request._query.push_back(uri);}
-
+	foreach(string uri, uric)
+	{
+		request._query.push_back(uri);
+	}
+		
+	
+	parse_notes(apc_request, request._sparams["notes"]);
+	
 	//auto_ptr<Server> server(new Server(dir_conf->log_file));
 	//request._server = server;
 }

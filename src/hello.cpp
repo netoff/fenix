@@ -9,7 +9,7 @@ FENIX_APPLICATION(HelloWorld)
 			_("app")/_("index")		<< _action<DashboardController::index>() ||
 			_("app")/"index"/"poll"		<< _action<StatsController::views>() ||
 			_("app")/_("stats")/_("views")	<< _action<StatsController::views>() ||
-			_("app")/"lg"			<< _action<LogController::lg>() ||
+			_("lg")/"view"			<< _action<LogController::lg>() ||
 			_("app")/"visitors"		<< _action<PagesController::visitors>() ||
 			_("app")/"visitors"/"poll"	<< _action<PagesController::Poll::visitors>()
 			/*

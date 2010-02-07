@@ -58,19 +58,22 @@ namespace fenix
 						}
 					}
 
-					Request()
-						:_timestamp(microsec_clock::universal_time()){}
+					Request(FILE* log_file)
+					:_log_file(log_file)
+					{_timestamp = microsec_clock::universal_time();}
 
 					bool isRead()const
 					{
 						if(_type == READ)
 							return true;
+						
 						return false;
 					}
 					bool isWrite()const 
 					{
 						if(_type == WRITE)
 							return true;
+						
 						return false;
 					}
 
@@ -80,10 +83,8 @@ namespace fenix
 					void setAppContext(string context){_app_context = context;}
 					string appContext()const{return _app_context;}
 
-					//TODO: Remove welcome page link too
-					string welcomePageLink()const{return _app_context+"/Welcome";}
-					string dispatcherPageLink()const{return _app_context+"/Dispatcher";}
- 
+					
+					
 					const map<string, string>& getSysParams(const string& s)const
 					{
 						map<string, map<string, string> >::const_iterator sys_params = _sparams.find(s);
@@ -129,7 +130,30 @@ namespace fenix
 					ptime _timestamp;
 					Type _type;
 
-				private:			
+				
+					std::ostringstream& log()
+					{
+						return _log;
+					}
+					
+					~Request()
+					{
+						//flush log buffer
+						
+						if(_log_file && !_log.str().empty())
+						{
+							_log << std::endl;
+							
+							fprintf(_log_file, "%s", _log.str().c_str());
+							fflush(_log_file);
+						}
+					}
+					
+				private:					
+					FILE* _log_file;
+					
+					std::ostringstream _log;
+					
 					string _app_context;
 				};
 				

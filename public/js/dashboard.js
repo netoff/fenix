@@ -106,9 +106,9 @@ if (!dashboard)
 				this.chart.resolution = "sec";
 				this.chart.settings = { 
 					legend: { noColumns: 3, container: $('#chart-legend')},
-					colors: ["#f63", "#3cf", "#6f3"],
+					colors: ["#FF9900", "#7297BA", "#6f3"],
 					yaxis: { min: 0, tickDecimals: 0},
-					xaxis: { ticks: [[0, "1 minute ago"], [9, ""], [19, ""], [29, "30 seconds ago"], [39, ""], [49, ""], [59, "1 second ago"]]},
+					xaxis: { ticks: [[0, "1 min ago"], [9, ""], [19, ""], [29, "30 secs ago"], [39, ""], [49, ""], [59, "1 sec ago"]]},
 					grid: { borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
 				};
 				
@@ -119,9 +119,9 @@ if (!dashboard)
 				this.chartMin.settings = { 
 					legend: { noColumns: 3, container: $('#chart1-legend')},
 					crosshair: { mode: "x"},
-					colors: ["#f63", "#3cf", "#6f3"],
+					colors: ["#FF9900", "#7297BA", "#6f3"],
 					yaxis: { min: 0, tickDecimals: 0},
-					xaxis: { ticks: [[0, "1 hour ago"], [9, ""], [19, ""], [29, "30 minutes ago"], [39, ""], [49, ""], [59, "1 minute ago"]]},
+					xaxis: { ticks: [[0, "1 h ago"], [9, ""], [19, ""], [29, "30 mins ago"], [39, ""], [49, ""], [59, "1 min ago"]]},
 					grid: {borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
 				};				
 				
