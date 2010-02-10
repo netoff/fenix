@@ -34,7 +34,7 @@ string make_id(const string& key, const string& val)
 {
 	string ret = "";
 	
-	ret = model::Database(db_hostname, db_port).query("make_id", key, val);
+	ret = model::Database(db_hostname, db_port).ext("make_id", key, val);
 	
 	return ret;
 }

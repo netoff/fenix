@@ -1,3 +1,5 @@
+json = require('json')
+
 -- slots' width 
 -- if you simply change slots' width here
 -- would old data become invalid??
@@ -7,11 +9,14 @@ local width = {
   hour = 32,
   day = 2048 }
   
+local function concat(array)
+  return table.concat(array, "")
+end
+  
 function make_id(key, value)
-  local md5 = _hash("md5", value)
+  local md5 = _hash("md5", value)  
   
-  
-  if _put(key .. ":" .. md5, value) then
+  if _put(concat({key, ":", md5}), value) then
     return md5
   else
     return ""
@@ -99,7 +104,7 @@ function log(key, value)
     a = val
     b = math.mod(timestamp, width)
     
-    local root_key = key .. ':' .. a .. '*'
+    local root_key = concat({key, ':', a, '*'})
 
     _putkeep(root_key, tostring(timestamp))
     local root_timestamp = tonumber(_get(root_key))
@@ -112,7 +117,7 @@ function log(key, value)
 
     local diff = timestamp - root_timestamp
     if diff then
-      local row_key = key .. ':' .. b .. ':' .. a
+      local row_key = concat({key, ':', b, ':', a})
   
       if diff > 0 then
         _lock(root_key)
@@ -137,7 +142,7 @@ function log(key, value)
 
 	delta = math.mod(delta + 1, width) 
 	while delta ~= last do
-	  local remove_key = key .. ':' .. tostring(delta) .. ':' .. a
+	  local remove_key = concat({key, ':', tostring(delta), ':', a})
 	  _out(remove_key)
 	  delta = math.mod(delta + 1, width)
 	end
@@ -191,129 +196,149 @@ function log(key, value)
     end
   end
 end
+  
+local function get_value(key, k, timestamp, width)
+  local root_key = concat({key, ':', k, '*'})
+  local root_timestamp = tonumber(_get(root_key))
 
-local read = {
-  get_val_params = function(v)
-    local vals = _split(value, "=")
-
-    if vals and #vals == 2 then
-      local timestamp = tonumber(vals[1])
-      local k = vals[2]
+  if root_timestamp then
+    local diff = root_timestamp -  timestamp
     
-      if timestamp and k then
-        return {timestamp, k}
-      end 
+    if diff >= 0 and diff < width then
+      local t = math.mod(timestamp, width)        
+      local row_key = concat({key, ':', tostring(t), ':', k})
+ 
+      local ret = _unpack('i', _get(row_key))
+      
+      if ret and #ret == 1 then    
+        return ret[1]
+      end
+    end
+  else
+    _log("Error fetching stats : " .. key .. ", k: " .. k .. ", timestamp: " .. timestamp .. ", width: " .. width)
+  end
+
+  -- otherwise return 0, means no stats, nothing is counted
+  return 0
+end
+
+local function get_values(key, params)
+  local ret = {}
+  
+  local from = params.from
+  local timestamp = params.timestamp
+
+  for i = from, timestamp do
+    local a = {}
+    
+    for j, k in ipairs(params.keys) do
+      table.insert(a, get_value(key, k, i, width[params.slot]))
     end
     
-    return {"", ""}
-  end,
+    table.insert(ret, a)
+  end
   
-  get_stats = function (key, timestamp, k, width)
-    local root_key = key .. ':' .. k .. '*'
-    local root_timestamp = tonumber(_get(root_key))
+  return ret
+end
+  
+local function get_value_a(key, k, timestamp, width)
+  local ret = {}
+   
+  local t = math.mod(timestamp, width) 
+  local pattern = concat({key, ':', tostring(t), ':', k , '_'})
+  local keys = _fwmkeys(pattern)
+    
+  for i, x in ipairs(keys) do
+    local id = _split(x, "_")[2]
+    local val = get_value(key, concat({k, '_', id}), timestamp, width)
+            
+    ret[id] = val 
+  end
+     
+  return ret
+end
 
-    if root_timestamp then
-      local diff = root_timestamp -  timestamp
-      if diff >= 0 and diff < width then
-        local t = math.mod(timestamp, width)
-        
-        row_key = key..':'..tostring(t) .. ':' .. k
- 
-        local ret = _unpack('i', _get(row_key))
-        if ret and #ret == 1 then
-          
-          return ret[1]
+local function get_list(key, params)
+  function combine_stats(s, max)
+    local ret = {}
+    local temp = {}
+    local a = {}
+    
+    for i, r in ipairs(s) do
+      for k, v in pairs(r) do
+        if not a[k] then
+	  a[k] = tonumber(v)
+        else
+	  a[k] = a[k] + tonumber(v)
         end
       end
-    else
-      _log("Error fetching stats 2: "..key..", value: "..value .. ", width: " .. width)
     end
-
-    -- otherwise return 0, means no stats, nothing is counted
-    return 0
-  end,
   
-  get_stats_a = function(key, timestamp, k, width)
-    ret = {}
-    
-    local pattern = key .. ':' .. tostring(t) .. ':' .. k .. '_'
-    local keys = _fwmkeys(pattern)
-    
-    for i, x in iparis(keys) do
-      local id = _split(x, "_")[2]
-      local val = get_stats(key, timestamp, k .. '_' .. id, width)
-            
-      ret[id] = val 
+    for k, v in pairs(a) do
+      table.insert(temp, {k, v})  
     end
-    
-    return ret
-  end,
   
-  combine_stats = function(a)
-    ret = {}
-    
-    for i, r in ipairs(a) do
-      for k, v in pairs(r) do
-        if not ret[k] then
-	  ret[k] = tonumber(v)
-	else
-	  ret[k] = ret[k] + tonumber(v)
-	end
+    table.sort(temp, function(a, b) if a[2] > b[2] then return true end return false end)
+  
+    for i=1, max do
+      if temp[i] then
+        table.insert(ret, temp[i])
       end
     end
-    
+   
     return ret
   end
-}
+  
+  function lookup_stats(s, key, tab)
+    local ret = {}
 
-function get_slot_sec(key, value)
-  local timestamp
-  local k
-
-  timestamp, k = read.get_val_params(value)
+    for i, v in ipairs(s) do
+      local val = _get(concat({key, ":", tab, ":", v[1]}))
+      table.insert(ret, {val, v[2]})
+    end  
   
-  return read.get_stats(key, timestamp, k, width.sec)
-end
-
-function get_slot_min(key, value)
-  local timestamp
-  local k
-  
-  timestamp, k = read.get_val_params(value)
-  
-  return read.get_stats(key, timestamp, k, width.min)
-end
-
-function get_slot_hour(key, value)
-  local timestamp
-  local k
-  
-  timestamp, k = read.get_val_params(value)
-  
-  return read.get_stats(key, timestamp, k, width.hour)
-end
-
-function get_slot_day(key, value)
-  local timestamp
-  local k
-  
-  timestamp, k = read.get_val_params(value)
-  
-  return read.get_stats(key, timestamp, k, width.day)
-end
-
-function get_last_24h(key, value)
-  local timestamp
-  local k 
-  timestamp, k = read.get_val_params(value)
-  
+    return ret
+  end
+ 
   local ret = {}
-  local i = 1
-  for i = timestamp, timestamp - 24, -1 do
-    ret[i] = read.get_stats_a(key, timestamp, k, width.hour)
-    
-    i = i + 1
-  end 
   
-  return read.combine_stats(ret)
+  local timestamp = params.timestamp
+  
+  for i = timestamp, timestamp - (params.count - 1), -1 do
+    table.insert(ret, get_value_a(key, params.key, i, width[params.slot]))
+  end
+  
+  local ret = combine_stats(ret, params.max)
+  
+  if params.lookup then
+    ret = lookup_stats(ret, key, params.lookup)
+  end
+  
+  return ret
+end
+
+function query(key, value)
+  local ret = ""
+  
+  local query = json.decode(value)
+  
+  if query and #query == 2 then
+    local foo = query[1]
+    local params = query[2]
+    local tmp = nil
+    
+    if foo == "get_list" then
+      tmp = get_list(key, params)
+    elseif foo == "get_values" then
+      tmp = get_values(key, params)
+    end
+    
+    if params.encode then
+      ret = json.encode(tmp)
+    elseif type(tmp) == 'string' then
+      ret = tmp      
+    end
+  end
+  
+  return ret
 end

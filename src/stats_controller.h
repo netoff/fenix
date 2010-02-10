@@ -13,29 +13,52 @@ using namespace pages;
 
 namespace StatsController
 {
-	string get_stats_per_second(const model::Database& db, const string& key, long timestamp)
+	string get_stats_per_second(const model::Database& db, const string& key, const long timestamp1, const long timestamp2)
 	{
-		string hps = db.query("get_slot_sec", key, str(format("%i=hps")%timestamp));
-		string nvps = db.query("get_slot_sec", key, str(format("%i=nvps")%timestamp));
-		string rvps = db.query("get_slot_sec", key, str(format("%i=rvps")%timestamp));
+		string query =  "['get_values', {'keys': ['hps', 'nvps', 'rvps'], 'max': 1, 'from': %i, 'timestamp': %i, 'slot': 'sec', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp1 %timestamp2));
 		
-		return str(format("[%s, %s, %s]")%hps %nvps %rvps);
+		return data;
 	}
 	
-	string get_stats_per_minute(const model::Database& db, const string& key, long timestamp)
+	string get_stats_per_minute(const model::Database& db, const string& key, const long timestamp1, const long timestamp2)
 	{
-		string hpm = db.query("get_slot_min", key, str(format("%i=hpm")%timestamp));
-		string nvpm = db.query("get_slot_min", key, str(format("%i=nvpm")%timestamp));
-		string rvpm = db.query("get_slot_min", key, str(format("%i=rvpm")%timestamp));
+		string query = "['get_values', {'keys': ['hpm', 'nvpm', 'rvpm'], 'max': 1, 'from': %i, 'timestamp': %i, 'slot': 'min', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp1 %timestamp2));
 		
-		return str(format("[%s, %s, %s]")%hpm %nvpm %rvpm);		
+		return data;		
 	}
 	
-	string get_countries(const model::Database& db, const string& key, long timestamp)
+	string get_countries_list(const model::Database& db, const string& key, const long timestamp)
 	{
-		string countries = db.query("get_last_24h", key, str(format("%i=scph")%timestamp));
+		string query = "['get_list', {'key': 'scph', 'lookup': false, 'count': 24, 'max': 10, 'timestamp': %i, 'slot': 'hour', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp));
 		
-		return string;
+		return data;
+	}
+	
+	string get_titles_list(const model::Database& db, const string& key, const long timestamp)
+	{
+		string query = "['get_list', {'key': 'tph', 'lookup': 'titles', 'count':24, 'max': 10, 'timestamp': %i, 'slot': 'hour', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp));
+		
+		return data;		
+	}
+	
+	string get_referrers_list(const model::Database& db, const string& key, const long timestamp)
+	{
+		string query = "['get_list', {'key': 'rph', 'lookup': 'referrers', 'count': 24, 'max': 10, 'timestamp': %i, 'slot': 'hour', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp));
+		
+		return data;
+	}
+	
+	string get_search_queries_list(const model::Database& db, const string& key, const long timestamp)
+	{
+		string query = "['get_list', {'key': 'qph', 'lookup': 'queries', 'count': 24, 'max':10, 'timestamp': %i, 'slot': 'hour', 'encode': true}]";
+		string data = db.query(key, str(format(query)%timestamp));
+		
+		return data;
 	}
 	
 	FENIX_CONTROLLER(views)
@@ -55,8 +78,14 @@ namespace StatsController
 			long timestamp_m = datetime::timestamp_m(request._timestamp);
 			long timestamp_h = datetime::timestamp_h(request._timestamp);
 			
-			if(t == 0) t = (timestamp > 59 ? timestamp - 59 : 1);
-			if(t_m == 0) t_m = (timestamp_m > 59 ? timestamp_m - 59 : 1);
+			if(t == 0) 
+			{
+				t = (timestamp > 60 ? timestamp - 60 : 1);
+			}
+			if(t_m == 0) 
+			{
+				t_m = (timestamp_m > 60 ? timestamp_m - 60 : 1);
+			}
 			
 			string key = str(format("s:%s")%site_id);
 			
@@ -64,16 +93,9 @@ namespace StatsController
 
 			if(t < timestamp)
 			{
-				string points = "";
+				string points = get_stats_per_second(db, key, t, timestamp - 1);
 				
-				points += get_stats_per_second(db, key, t);
-
-				for(++t; t < timestamp; t++)
-				{					
-					points += ", " + get_stats_per_second(db, key, t);
-				}
-				
-				response << "dashboard.chart.updatePoints([" << points << "]);\n";
+				response << "dashboard.chart.updatePoints(" << points << ");\n";
 				response << "dashboard.timestamp = " << timestamp << ";\n";
 				response << "dashboard.chart.draw();\n";
 				response << "dashboard.updateData();\n";
@@ -81,29 +103,32 @@ namespace StatsController
 			}
 			if(t_m < timestamp_m)
 			{
-				string points_m = "";
+				string points_m = get_stats_per_minute(db, key, t_m, timestamp_m - 1 );
 				
-				points_m += get_stats_per_minute(db, key, t_m);
-				
-				for(++t_m; t_m < timestamp_m; t_m++)
-				{
-					points_m += ", " + get_stats_per_minute(db, key, t_m);
-				}
-				
-				response << "dashboard.chartMin.updatePoints([" << points_m << "]);\n";
+				response << "dashboard.chartMin.updatePoints(" << points_m << ");\n";
 				response << "dashboard.timestampMin = " << timestamp_m << ";\n";
 				response << "dashboard.chartMin.draw();\n";
 				response << "dashboard.updateDataMin();\n";
 				
-				string countries = get_countries(db, key, timestamp_h);
+				string countries = get_countries_list(db, key, timestamp_h);
+				string pages = get_titles_list(db, key, timestamp_h);
+				string referrers = get_referrers_list(db, key, timestamp_h);
+				string queries = get_search_queries_list(db, key, timestamp_h);
 				
-				response << "dashboard.updateCountries(" << countries << ");\n";
+				response << "dashboard.updateCountriesList(" << countries << ");\n";
+				response << "dashboard.updatePagesList(" << pages << ");\n";
+				response << "dashboard.updateReferrersList(" << referrers << ");\n";
+				response << "dashboard.updateQueriesList(" << queries << ");\n";
+				
+				//response << "dashboard.adjustLayout();\n";
 				
 			}
 			
 			response << "setTimeout('dashboard.update()', 500);";
 			
-			return new InlineResponse(response, "text/javascript");
+			string response_text = response.str();
+			
+			return new InlineResponse(response_text, "text/javascript");
 			//return render_text(response, "text/javascript");
 		}
 		else

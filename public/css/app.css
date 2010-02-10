@@ -393,7 +393,7 @@ span.date-range-predefined-selectors
 	width: 960px;
 	overflow: hidden;
 	position: relative;
-	height: 500px;
+	//height: 500px;
 }
 #pages
 {

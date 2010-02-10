@@ -127,16 +127,18 @@ if (!dashboard)
 				
 				this.chartMin.draw();
 				
-				this.sameHeight($("div.same-height"));
+				this.adjustLayout();				
 			},
 	
 			sameHeight: function (sections)
 			{
-				var max, i, j, section;
+				var max, i, j, section, max1;
+				
+				max = 0;
 		
 				for (i = 0; i < sections.length; i++)
 				{
-					max = 0;
+					//max = 0;
 					
 					section = $("div.window", sections[i]);
 			
@@ -145,14 +147,30 @@ if (!dashboard)
 						if ($(section[j]).height() > max)
 						{
 							max = $(section[j]).height();
-						}
+						}					
 					}
-
+					
 					for (j = 0; j < section.length; j++)
 					{
 						$(section[j]).height(max);
 					}
+					
+					/*$(section).height(max);
+					
+					if(max > max1)
+					{
+						max1 = max;
+					}*/
 				}
+				
+				return max;
+			},
+			
+			adjustLayout: function()
+			{
+				var max = this.sameHeight($("div.same-height"));
+				
+				$("#page-win").height(max + 20);
 			},
 	
 			update: function () 
@@ -189,7 +207,88 @@ if (!dashboard)
 				$("#stat-hpm").html(a[0]);
 				$("#stat-nvpm").html(a[1]);
 				$("#stat-rvpm").html(a[2]);
+			},
+		
+			//private
+			lookupCountry: function (code)
+			{
+				return code;
+			},
+			
+			shortenText: function (text)
+			{
+				if(text.length > 29)
+				{
+					return text.substring(0, 26) + "...";
+				}
+				else
+				{
+					return text;
+				}
+			},
+			
+			makeList: function (list, x, y)
+			{
+				var i, a = [], html;
+				
+				a.push("<div class='stat-sep'></div>");
+				
+				for(i = 0; i < list.length; i++)
+				{
+					a.push("<div class='stat-label'><span class='title'>");
+					if(x)
+					{
+						a.push(x(list[i][0]));
+					}
+					else
+					{
+						a.push(list[i][0]);
+					}
+					a.push("</span><span class='counter'>");
+					if(y)
+					{
+						a.push(y(list[i][1]));
+					}
+					else
+					{
+						a.push(list[i][1]);
+					}
+					a.push("</span></div>");
+				}
+				
+				html = a.join("");
+				
+				return html;
+			},
+			
+			updateCountriesList: function (countries)
+			{
+				var html = this.makeList(countries, this.lookupCountry);
+				
+				$("#countries-list").html(html);
+			},
+			
+			updatePagesList: function (pages)
+			{
+				var html = this.makeList(pages, this.shortenText);
+				
+				$("#pages-list").html(html);
+			},
+			
+			updateReferrersList: function (referrers)
+			{
+				var html = this.makeList(referrers, this.shortenText);
+				
+				$("#referrers-list").html(html);
+			},
+			
+			updateQueriesList: function (queries)
+			{
+				var html = this.makeList(queries, this.shortenText);
+				
+				$("#queries-list").html(html);
 			}
+
 		};
 	}());
 }

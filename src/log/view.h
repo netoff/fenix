@@ -114,7 +114,7 @@ void log_page_view(string site_id, string url, string title, string referrer, st
 	
 	if(!query.empty())
 	{
-		model::Database(db_hostname, db_port).query("log", key, query);
+		model::Database(db_hostname, db_port).ext("log", key, query);
 	}
 		
 }
