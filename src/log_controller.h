@@ -43,7 +43,8 @@ namespace LogController
 			
 			
 			string response = "view log";
-			return new InlineResponse(response, "text/plain");
+			
+			return render_text(response, "text/plain");
 			
 			//return render_<TrackingPixel>();
 		}

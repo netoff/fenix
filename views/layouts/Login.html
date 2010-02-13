@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>	
+		<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
+		<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">	
+		<!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+	
+		<!--Overide all other css'-->
+		<link rel="stylesheet" href="/css/app.css" >
+	
+		<!--@
+			foreach(string js_file, this->_js_includes)
+			{
+				insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
+			}
+			-->
+		
+			<title>kliknik | <!--@=this->_title--></title>
+	</head>
+	<body>
+		<div id="header-w">
+			<div class="container">
+				<div class="span-24" id="head-line">
+				</div>
+			</div>
+		</div>
+		<div id="main-menu-w">
+			<div class="container">
+				<div class="span-24" id="main-menu">
+					<div class="span-4" id="logo">
+						<h1><a href="/app/index">kliknik</a></h1>
+						<p>Just-in-time web analytics</p>
+					</div>
+					<div class="span-14" id="menu">
+						<span class="menu-item"><a href="#" class="active">Login</a></span>
+					</div>
+				</div>
+			</div>	
+		</div>
+		<div id="page-w">
+			<div class="container" id="page">
+				<div class="span-24">
+				<!--@
+					applay_layout();
+				-->
+				</div>
+			</div>
+		</div>
+		<div id="footer-w">
+			<div class="container">
+				<div class="span-24" id="footer">
+					&copy;2009 kliknik | <a href="#">dev@kliknik.com</a>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

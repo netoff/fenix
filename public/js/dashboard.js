@@ -118,7 +118,6 @@ if (!dashboard)
 				this.chartMin.resolution = "min";
 				this.chartMin.settings = { 
 					legend: { noColumns: 3, container: $('#chart1-legend')},
-					crosshair: { mode: "x"},
 					colors: ["#FF9900", "#7297BA", "#6f3"],
 					yaxis: { min: 0, tickDecimals: 0},
 					xaxis: { ticks: [[0, "1 h ago"], [9, ""], [19, ""], [29, "30 mins ago"], [39, ""], [49, ""], [59, "1 min ago"]]},
@@ -287,6 +286,11 @@ if (!dashboard)
 				var html = this.makeList(queries, this.shortenText);
 				
 				$("#queries-list").html(html);
+			},
+			
+			updateClock: function (new_time)
+			{
+				$("#time").text(new_time);
 			}
 
 		};

@@ -16,6 +16,7 @@ using namespace std;
 #include "boost/cstdint.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/foreach.hpp"
+#include "boost/shared_ptr.hpp"
 
 using namespace boost;
 

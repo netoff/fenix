@@ -11,7 +11,8 @@ FENIX_APPLICATION(HelloWorld)
 			_("app")/_("stats")/_("views")	<< _action<StatsController::views>() ||
 			_("lg")/"view"			<< _action<LogController::lg>() ||
 			_("app")/"visitors"		<< _action<PagesController::visitors>() ||
-			_("app")/"visitors"/"poll"	<< _action<PagesController::Poll::visitors>()
+			_("app")/"visitors"/"poll"	<< _action<PagesController::Poll::visitors>() ||
+			_("app")/"login"		<< _action<LoginController::index>()
 			/*
 			_("app")/"pages"		<< _action<PagesController::pages>(),
 			_("app")/"referrers"		<< _action<PagesController::referrers>(),

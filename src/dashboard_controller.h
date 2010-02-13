@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fenix.h"
+#include <fenix.h>
 #include "views.h"
 
 using namespace fenix::web::toolkit;
@@ -11,7 +11,7 @@ namespace DashboardController
 {
 	FENIX_CONTROLLER(index)
 	{
-		return new Dashboard::Page(Dashboard::_request = request);
+		return render_<Dashboard::Page>(Dashboard::_request = request);
 	}
 
 }

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace fenix::web::toolkit;
 
-int dispatch(view::Response& response, request_rec* apc_request)
+int _dispatch(const view::Response& response, request_rec* apc_request)
 {
 	try
 	{
@@ -91,8 +91,9 @@ int dispatch(view::Response& response, request_rec* apc_request)
 int fenix_handler(request_rec* apc_request)
 {
 
-	int rv;
-	view::Response* (*_handle)(const action::Request&) = NULL;
+	int rv = HTTP_INTERNAL_SERVER_ERROR;
+	
+	shared_ptr<view::Response> (*_handle)(const action::Request&) = NULL;
 
 	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
 
@@ -140,8 +141,9 @@ int fenix_handler(request_rec* apc_request)
 
 	prepare_request(request, apc_request);
 
-	auto_ptr<view::Response> response(_handle(request));
+	shared_ptr<view::Response> response(_handle(request));
 
-	rv = dispatch(*response, apc_request);
+	rv = _dispatch(*response, apc_request);
+
 	return rv;
 }

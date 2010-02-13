@@ -7,19 +7,22 @@
 using namespace fenix::web::toolkit::view;
 using namespace boost;
 
-void DHTMLResponse::insert(std::string a, bool new_line)
+void DHTMLResponse::insert(const std::string& a, bool new_line)
 {
 	if(new_line)
 		_response.append('\n' + a);
 	else
 		_response.append(a);
 }
-std::string DHTMLResponse::escape(std::string s)
+std::string DHTMLResponse::escape(const std::string& s)
 {	
-	replace_all(s, "&", "&amp;");
-	replace_all(s, "<", "&lt;");
-	replace_all(s, ">", "&gt;");
-	return s;
+	string t(s);
+	
+	replace_all(t, "&", "&amp;");
+	replace_all(t, "<", "&lt;");
+	replace_all(t, ">", "&gt;");
+	
+	return t;
 }
 
 const char* FileResponse::mime_types[23][2] = {

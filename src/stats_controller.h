@@ -120,21 +120,19 @@ namespace StatsController
 				response << "dashboard.updateReferrersList(" << referrers << ");\n";
 				response << "dashboard.updateQueriesList(" << queries << ");\n";
 				
+				response << "dashboard.updateClock('" << to_simple_string(request._timestamp) << "');\n";
+				
 				//response << "dashboard.adjustLayout();\n";
 				
 			}
 			
 			response << "setTimeout('dashboard.update()', 500);";
 			
-			string response_text = response.str();
-			
-			return new InlineResponse(response_text, "text/javascript");
-			//return render_text(response, "text/javascript");
+			return render_text(response.str(), "text/javascript");
 		}
 		else
 		{
-			return new BadRequestResponse();
-			//return render_<BadRequestResponse>();
+			return render_<BadRequestResponse>();
 		}
 	}
 }

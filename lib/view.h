@@ -52,36 +52,41 @@ namespace fenix
 					typedef ResponseType Type;
 					typedef ResponseVersion Version;
 
-					Type getResponseType(){return _type;}
+					Type getResponseType() const { return _type; }
 
-					string getResponseBody(){return _response;}
-					const char* getResponseBodyC(){return _response.c_str();}
+					string getResponseBody() const { return _response; }
+					const char* getResponseBodyC() const { return _response.c_str(); }
 
-					void setMimeType(string mime_type){_mime_type = mime_type;}
-					string getMimeType(){return _mime_type;}
-					const char* getMimeTypeC(){return _mime_type.c_str();}
+					void setMimeType(string mime_type) { _mime_type = mime_type; }
+					
+					string getMimeType() const { return _mime_type; }
+					const char* getMimeTypeC() const { return _mime_type.c_str(); }
 
 					virtual ~Response(){}
 				protected:
-					Response(ResponseType t, int reserve=0, string mime_type="text/html")
-						:_type(t)
+					Response(ResponseType t, int reserve=0, const string& mime_type="text/html")
+						:_type(t),_mime_type(mime_type),_response()
 					{
-						if(reserve != 0)
+						if(reserve > 0)
+						{
 							_response.reserve(reserve);
+						}
+						
 						_mime_type = mime_type;
 					}
 
 					Type _type;
-
-					string _response;
 					string _mime_type;
+					
+					string _response;
 				};
 
 				class InlineResponse: public Response
 				{
+					const int _response_size = 4*1024;
 				public:
-					InlineResponse(string& body, string mime_type)
-						:Response(Response::PLAIN_TEXT, 4*1024, mime_type)
+					InlineResponse(const string& body, const string& mime_type)
+						:Response(Response::PLAIN_TEXT, _response_size, mime_type)
 					{
 						_response.append(body);
 					}
@@ -93,18 +98,18 @@ namespace fenix
 					static const char* mime_types[23][2];
 
 					typedef const char** s_array;
-					static string get_file_mime_type(string filename)
+					static string get_file_mime_type(const string& filename)
 					{
 						foreach(s_array s, mime_types)
 						{
 							if(ends_with(filename, s[0]))
 								return s[1];
 						}
-						return "";
-				
+						
+						return "";				
 					}
 
-					FileResponse(string filename, string home)
+					FileResponse(const string& filename, const string& home)
 						:Response(Response::FILE, 0, get_file_mime_type(filename))
 					{
 						path p = _get_file_path(filename, home);
@@ -137,9 +142,10 @@ namespace fenix
 
 				class FileNotFoundResponse: public Response
 				{
+					const int _response_size = 0;
 				public:
 					FileNotFoundResponse()
-						:Response(Response::NOT_FOUND, 0, "text/html")
+						:Response(Response::NOT_FOUND, _response_size, "text/html")
 					{
 						_response = "File not found!";
 					}
@@ -147,9 +153,10 @@ namespace fenix
 
 				class ForbidenResponse: public Response
 				{
+					const int _response_size = 0;
 				public:
 					ForbidenResponse()
-						:Response(Response::FORBIDEN, 0, "text/html")
+						:Response(Response::FORBIDEN, _response_size, "text/html")
 					{
 						_response = "Action forbiden!";
 					}
@@ -157,11 +164,41 @@ namespace fenix
 
 				class BadRequestResponse: public Response
 				{
+					const int _response_size = 0;
 				public:
 					BadRequestResponse()
-						:Response(Response::BAD_REQUEST, 0, "text/html")
+						:Response(Response::BAD_REQUEST, _response_size, "text/html")
 					{
 						_response = "Invalid request!";
+					}
+				};
+				
+				class NotFoundResponse: public Response
+				{
+					const int _response_size = 0;
+				public:
+					NotFoundResponse(const string& path="")
+						:Response(Response::NOT_FOUND, _response_size, "text/html")
+					{
+						ostringstream out;
+						
+						out << "<html>";
+						out << "<head><title>Dispatcher exception</title></head>";
+						out << "<body>";
+						out << "<h1>Dispatcher exception</h1>";
+						
+						if(!path.empty())
+						{
+							out << "<p>" << path << " can not be found!";
+						}
+						else
+						{
+							
+							out << "<p>Page can not be found!</p>";
+						}
+						out << "</body></html>";
+						
+						_response = out.str();
 					}
 				};
 
@@ -190,7 +227,7 @@ namespace fenix
 				protected:
 					HTMLResponse(ResponseType response_type)
 						:Response(response_type, 32*1024, "text/html"){}
-					HTMLResponse(ResponseType response_type, string mime_type)
+					HTMLResponse(ResponseType response_type, const string& mime_type)
 						:Response(response_type, 32*1024, mime_type){}
 				};
 
@@ -200,49 +237,49 @@ namespace fenix
 					DHTMLResponse()
 						:HTMLResponse(Response::HTML){}
 				protected:
-					void insert(string a, bool new_line=true);
+					void insert(const string& a, bool new_line=true);
 
 					template <class T>
-					void insert(string a, const T& param, bool new_line=true)
+					void insert(const string& a, const T& param, bool new_line=true)
 					{
 						insert(str(format(a)%param), new_line);
 					}
 
 					template <class T1, class T2>
-					void insert(string a, T1& param1, T2& param2, bool new_line=true)
+					void insert(const string& a, const T1& param1, const T2& param2, bool new_line=true)
 					{
 						insert(str(format(a)%param1%param2));
 					}
 					
 					template <class T1, class T2, class T3>
-					void insert(string a, T1& param1, T2& param2, T3& param3, bool new_line=true)
-				    {
-							insert(str(format(a)%param1%param2%param3));
+					void insert(const string& a, const T1& param1, const T2& param2, const T3& param3, bool new_line=true)
+					{
+						insert(str(format(a)%param1%param2%param3));
 					}
 
 					template <class T1, class T2, class T3, class T4>
-					void insert(string a, T1& param1, T2& param2, T3& param3, T4& param4, bool new_line=true)
-				    {
-							insert(str(format(a)%param1%param2%param3%param4));
+					void insert(const string& a, const T1& param1, const T2& param2, const T3& param3, const T4& param4, bool new_line=true)
+					{
+						insert(str(format(a)%param1%param2%param3%param4));
 					}
 					
 					template <class T>
-					void echo(const T& a){insert(escape(_to_s(a)), false);}
-					void print(string a){insert(sanatize(a));}
+					void echo(const T& a) { insert(escape(_to_s(a)), false); }
+					
+					void print(const string& a) { insert(sanatize(a)); }
 
-					void include_js(string js_file)
+					void include_js(const string& js_file)
 					{
 						_js_includes.push_back(js_file);
 					}
 
 					string _title;
-
 				protected:
 					vector<string> _js_includes;
 
 				private:
-					string escape(string s);
-					string sanatize(string s);
+					string escape(const string& s);
+					string sanatize(const string& s);
 
 					template <class T>
 					string _to_s(T a)
@@ -268,13 +305,36 @@ namespace fenix
 					}
 				};
 				
-				
-				//TODO: this function should return smart_ptr
-				//variable number of templated arguments
-				template <class T>
-				T* render_()
+				struct _deleter
 				{
-					return new T();
+					template<class T>
+					operator() (T* t)
+					{
+						delete t;
+					}
+				};
+				
+				template <class T>
+				shared_ptr<T> render_()
+				{
+					shared_ptr<T> p(new T(), _deleter());
+					
+					return p;
+				}
+				
+				template <class T, class ArgumentsPack>
+				shared_ptr<T> render_(const ArgumentsPack& args)
+				{
+					shared_ptr<T> p(new T(args), _deleter());
+					
+					return p;
+				}
+				
+				inline shared_ptr<InlineResponse> render_text(const string& body, const string& mime_type="text/html")
+				{
+					shared_ptr<InlineResponse> p(new InlineResponse(body, "text/html"), _deleter());
+					
+					return p;
 				}
 
 			}

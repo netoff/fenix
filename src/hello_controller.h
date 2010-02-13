@@ -11,7 +11,7 @@ namespace HelloController
 {
 	FENIX_CONTROLLER(index)
 	{
-		return new Index::Page(Index::_request = request);
+		return render_<Index::Page>((Index::_request = request));
 	}
 
 }

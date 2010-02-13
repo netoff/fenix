@@ -28,16 +28,12 @@ namespace fenix
 		{
 			namespace action
 			{
-				FENIX_SIMPLE_PAGE(DispatcherExceptionPage)
+				//No action
+				struct empty{};
+				
+				FENIX_CONTROLLER(not_found)
 				{
-					insert(_$(H1(Dispatcher Exception)));
-					insert(_$(Page can not be found!));
-				}
-
-				FENIX_CONTROLLER(ExceptionAction)
-				{
-					DispatcherExceptionPage page;
-					return page.handle(request);
+					return render_<NotFoundResponse>();
 				}
 
 				template <class T_action>
@@ -46,8 +42,10 @@ namespace fenix
 					friend std::ostream& operator<<(std::ostream& stream, _action<T_action>)
 					{
 						stream << "Action";
+						
 						return stream;
 					}
+					
 					typedef T_action type;
 				};
 
@@ -63,70 +61,109 @@ namespace fenix
 				struct _matcher
 				{
 					_matcher(){}
-
-					virtual auto_ptr<Action> get_action()
+					
+					_matcher(const string& s)
 					{
-						auto_ptr<Action> action(new ExceptionAction);
-						return action;
+						_pattern.push_back(s);
 					}
+
+					virtual auto_ptr<Action> get_action() = 0;
+					
 					virtual ~_matcher(){}
+					
+					vector<string>& pattern() { return _pattern; }
+					void add_pattern(string s) { _pattern.push_back(s); }
 
+					bool operator()(const Request& req) { return _match(req); }					
+					
+				protected:					
 					vector<string> _pattern;
-					void add_pattern(string s){_pattern.push_back(s);}
-
-					bool operator()(const Request& req){return _match(req);}
-					bool _match(const Request& req)
+				private:
+					bool _match(const Request& req) const
 					{
-						bool match = false;
-
 						if(_pattern.size() != req._query.size())
+						{
 							return false;
+						}
+						
 						int i = 0;
+						
 						foreach(string s, _pattern)
 						{
 							if( i >= req._query.size())
+							{
 								return false;
+							}
 							if(s != req._query[i++])
+							{								
 								return false;
+							}
 						}
+						
 						return true;
 					}
 				};
 
-				template <class T>
+				template <class T=empty>
 				struct matcher:public _matcher
 				{
 
 					matcher(){}
+					
+					matcher(const string& s)
+					:_matcher(s)
+					{
+					}
+					
 					auto_ptr<Action> get_action()
 					{
 						auto_ptr<Action> action(new T());
+						
 						return action;
 					}
 
 				};
-
+				
+				template<>
+				struct matcher<empty>:public _matcher
+				{
+					matcher(){}
+					
+					matcher(const string& s)
+					:_matcher(s)
+					{
+					}
+					
+					auto_ptr<Action> get_action()
+					{
+						auto_ptr<Action> action(new not_found());
+						
+						return action;
+					}
+				};
+				
 				struct dispatcher_context:
 					public proto::context::callable_context<dispatcher_context>
 				{
 					const Request& _req;
+					
 					typedef auto_ptr<_matcher> result_type;
-
 
 					dispatcher_context(const Request& request)
 						:_req(request){}
 
 					auto_ptr<_matcher> operator()(proto::tag::terminal, char const* str)
 					{
-						auto_ptr<_matcher> m(new _matcher());
-						m->add_pattern(string(str));
-					    return m;
+						auto_ptr<_matcher> m(new matcher<>(string(str)));
+						
+						return m;
 					}
 
 					template <class T>
 					auto_ptr<_matcher> operator()(proto::tag::terminal, _action<T>)
 					{
 						auto_ptr<_matcher> m(new matcher<T>());
+						
 						return m;
 					}
 
@@ -136,8 +173,11 @@ namespace fenix
 					{
 						auto_ptr<_matcher> a = proto::eval(left, *this);
 						auto_ptr<_matcher> b = proto::eval(right, *this);
-						if(!b->_pattern.empty())
-							a->add_pattern(b->_pattern[0]);
+						
+						if(!b->pattern().empty())
+						{
+							a->add_pattern(b->pattern()[0]);
+						}
 
 						return a;
 					}				
@@ -147,7 +187,8 @@ namespace fenix
 					{
 						auto_ptr<_matcher> pat = proto::eval(left, *this);
 						auto_ptr<_matcher> m = proto::eval(right, *this);
-						m->_pattern = pat->_pattern;
+						
+						m->pattern().assign(pat->pattern().begin(), pat->pattern().end());
 			
 						return m;
 					}
@@ -158,23 +199,23 @@ namespace fenix
 						auto_ptr<_matcher> a = proto::eval(left, *this);
 
 						if((*a)(_req))
+						{
 							return a;
+						}
 						else 
 						{
 							auto_ptr<_matcher> b = proto::eval(right, *this);
 
 							if((*b)(_req))
+							{
 								return b;
+							}
 						}
 
-						auto_ptr<_matcher> m(new _matcher());
+						//Empty action => dispatcher exception
+						auto_ptr<_matcher> m(new matcher<>());
+						
 						return m;
-							//else
-							//{
-							//	//TODO put this to dispatch funct
-							//	_matcher e(new DispatcherException());
-							//	return e;
-							//}
 					}
 
 				};

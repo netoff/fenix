@@ -19,14 +19,15 @@ namespace fenix
 			{
 			public:
 				Application(){}
+				
 				Application(string name)
 					:_name(name){}
 
 				static view::Response* handle(const action::Request& request)
 				{
-					auto_ptr<action::Action> action(new T_dispatcher());
+					auto_ptr<action::Action> dispatcher(new T_dispatcher());
 
-					return action->handle(request);
+					return dispatcher->handle(request);
 				}
 
 				~Application(){}
@@ -41,8 +42,8 @@ namespace fenix
 			};
 
 #define FENIX_APPLICATION(app)								\
-	extern "C" __attribute__((visibility("default"))) 		\
-			view::Response* handle(const action::Request& request)	\
+	extern "C" __attribute__((visibility("default"))) 				\
+			shared_ptr<view::Response> handle(const action::Request& request)\
 
 		}
 	}

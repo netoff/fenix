@@ -6,3 +6,4 @@
 #include "stats_controller.h"
 #include "log_controller.h"
 #include "visitors_controller.h"
+#include "login_controller.h"

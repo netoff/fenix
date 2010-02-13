@@ -26,8 +26,6 @@ namespace fenix
 		{
 			namespace action
 			{
-				struct empty{};
-
 				class Request
 				{
 				public:
@@ -160,7 +158,7 @@ namespace fenix
 				class Action
 				{
 				public:
-					virtual view::Response* handle(const Request& request)=0;
+					virtual shared_ptr<view::Response> handle(const Request& request)=0;
 
 					virtual ~Action(){}
 				};
@@ -172,25 +170,13 @@ namespace fenix
 				public:
 					typedef SimpleHTMLAction<T_view > type;
 
-					
-					/*view::Response* handle(const Request& request)
-					{
-						empty obj1;
-						return new T_view(request, obj1);
-					}*/
 					view::Response* handle(const Request& request)
 					{
 						return new T_view(request);
 					}
-					virtual ~SimpleHTMLAction(){}
 					
-				/*	static view::Response* call(const Request& request)
-					{
-						empty obj1;
+					virtual ~SimpleHTMLAction(){}
 
-						auto_ptr<type > view(new type()); 
-						return view->handle(request, obj1);
-					}*/
 
 					class null_param{};
 
@@ -282,12 +268,12 @@ VIEW_CLASS(x)::VIEW_CLASS(x)(const Request& request)
 class x: public action::Action													\
 {																				\
 	public:																		\
-	view::Response* handle(const action::Request& request)						\
-	{return _handle(request, request.getParams());}								\
+	  shared_ptr<view::Response> handle(const action::Request& request)						\
+	  { return _handle(request, request.getParams()); }								\
 	private:																	\
-	view::Response* _handle(const action::Request& request, hash& params);		\
+	  shared_ptr<view::Response> _handle(const action::Request& request, hash& params);		\
 };																				\
-view::Response* x::_handle(const action::Request& request, hash& params)
+shared_ptr<view::Response> x::_handle(const action::Request& request, hash& params)
 
 
 

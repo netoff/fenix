@@ -13,7 +13,7 @@ namespace PagesController
 	{
 		typedef Visitors::Page visitors_page;
 		
-		return new visitors_page(_request = request);
+		return render_<Visitors::Page>((_request= request));
 	}
 	
 	namespace Poll
@@ -22,7 +22,7 @@ namespace PagesController
 		{
 			string response = "";
 			
-			return new InlineResponse(response, "text/plain");
+			return render_text("", "text/plain");
 		}
 	}
 }
