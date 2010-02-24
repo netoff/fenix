@@ -3,9 +3,6 @@
 #include "fenix.h"
 #include "views.h"
 
-#include <ctime>
-#include <boost/random.hpp>
-
 using namespace boost;
 
 using namespace fenix::web::toolkit;
@@ -120,7 +117,7 @@ namespace StatsController
 				response << "dashboard.updateReferrersList(" << referrers << ");\n";
 				response << "dashboard.updateQueriesList(" << queries << ");\n";
 				
-				response << "dashboard.updateClock('" << to_simple_string(request._timestamp) << "');\n";
+				response << "dashboard.updateClock('" << datetime::format(request._timestamp, "%H:%M %d-%b-%Y GMT") << "');\n";
 				
 				//response << "dashboard.adjustLayout();\n";
 				

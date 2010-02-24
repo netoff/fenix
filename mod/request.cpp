@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "dir_conf.h"
 #include "request.h"
+#include "cookie.h"
 #include "mod_fenix.h"
 
 #include <httpd.h>
@@ -14,7 +15,6 @@
 #include "boost/algorithm/string.hpp"
 
 using namespace fenix::web::toolkit;
-using namespace fenix::web::toolkit::server;
 
 //POST max size 2MB
 #define HTTP_POST_MAX_SIZE 2*1024*1024
@@ -202,6 +202,7 @@ apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_r
 
 void prepare_request(Request& request, request_rec* apc_request)
 {
+	
 	//request._timestamp = apc_request->request_time;
 
 	switch(apc_request->method_number)
@@ -282,6 +283,12 @@ void prepare_request(Request& request, request_rec* apc_request)
 	
 	parse_notes(apc_request, request._sparams["notes"]);
 	
-	//auto_ptr<Server> server(new Server(dir_conf->log_file));
-	//request._server = server;
+	//parse cookies
+	char* c = apr_table_get(apc_request->headers_in, "Cookie");
+	
+	if(c)
+	{
+		string cookie(c);
+		parse_cookies(cookie, request._pparams);
+	}
 }

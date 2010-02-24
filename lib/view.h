@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "html_tags.h"
+#include "log.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/lexical_cast.hpp"
@@ -61,24 +62,28 @@ namespace fenix
 					
 					string getMimeType() const { return _mime_type; }
 					const char* getMimeTypeC() const { return _mime_type.c_str(); }
+					
+					string get_log_output() const { return _log_output; }
 
 					virtual ~Response(){}
 				protected:
 					Response(ResponseType t, int reserve=0, const string& mime_type="text/html")
-						:_type(t),_mime_type(mime_type),_response()
+					:_type(t),_mime_type(mime_type),_response(),_log_output(log::log_output())
 					{
 						if(reserve > 0)
 						{
 							_response.reserve(reserve);
 						}
 						
-						_mime_type = mime_type;
+						_mime_type = mime_type; 
 					}
 
 					Type _type;
 					string _mime_type;
 					
 					string _response;
+					
+					string _log_output;
 				};
 
 				class InlineResponse: public Response
@@ -89,6 +94,17 @@ namespace fenix
 						:Response(Response::PLAIN_TEXT, _response_size, mime_type)
 					{
 						_response.append(body);
+					}
+				};
+				
+				class RedirectResponse: public Response
+				{
+					const int _response_size = 1024;
+				public:
+					RedirectResponse(const string& url)
+					:Response(Response::REDIRECT, _response_size, "text/plain")
+					{
+						_response.append(url);
 					}
 				};
 
@@ -273,9 +289,15 @@ namespace fenix
 						_js_includes.push_back(js_file);
 					}
 
+					void include_css(const string& css_file)
+					{
+						_css_includes.push_back(css_file);
+					}
+					
 					string _title;
 				protected:
 					vector<string> _js_includes;
+					vector<string> _css_includes;
 
 				private:
 					string escape(const string& s);
@@ -336,7 +358,13 @@ namespace fenix
 					
 					return p;
 				}
-
+				
+				inline shared_ptr<RedirectResponse> render_redirect(const string& url)
+				{
+					shared_ptr<RedirectResponse> p(new RedirectResponse(url), _deleter());
+					
+					return p;
+				}
 			}
 		}
 	}

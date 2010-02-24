@@ -1,14 +1,21 @@
 #pragma once
+
 #include <fenix.h>
 
 #include "log/view.h"
 #include "log/click.h"
 #include "log/event.h"
 
+using namespace fenix::web::toolkit;
+
 namespace LogController
 {
+	
+	
 	FENIX_CONTROLLER(lg)
 	{
+		log::log() << "New log request";
+		
 		string site_id;
 		string event_type;
 		
@@ -49,15 +56,7 @@ namespace LogController
 			//return render_<TrackingPixel>();
 		}
 		else
-		{
-			//return render_<BadRequest>();
-			//return render_<EtcRequest>(param1, param2, param3...);
-			//return render_tracking_pixel();
-			//return render_text("Text Text");
-			//return render_redirect("/file1/file2/file3");
-			//
-			//would create smart ptr, and return it...
-			
+		{			
 			return render_<BadRequestResponse>();
 		}
 	}

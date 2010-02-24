@@ -11,7 +11,7 @@ body
 {
 	background-image: url(/img/head.png);
 	background-repeat: repeat-x;
-	background-color: #000;
+	background-color: #333;
 	color: #fff;
 	font-family: Verdana, sans-serif;
 }
@@ -74,7 +74,7 @@ h3
 }
 #logo h1
 {
-	margin: 5px 0 0 0;
+	margin: 2px 0 0 0 ;
 }
 #logo h1 a, #logo h1 a:hover, #logo h1 a:visited
 {
@@ -416,9 +416,34 @@ div.text p
 }
 label
 {
-	padding-top: 10px;
+	
 	font-size: 1.8em;
 }
+label.error
+{
+	font-size: 1.2em;
+	padding: 1px 2px;
+	margin: 0 0 0 2px;
+}
+input.error
+{
+	color: #333;
+}
+.error
+{
+	margin: 0;
+	padding: 0;
+}
+.form-error
+{
+	margin: 10px 0 0 20px;
+	padding: 10px;
+	
+	background-color: #FBE3E4;
+	border: 1px solid #FBC2C4;
+	color: #8A1F11;
+}
+
 fieldset
 {
 	border: none;
@@ -427,7 +452,7 @@ fieldset
 input[type=text], input[type=password], select
 {
 	width: 100%;
-	margin: 0 0 20px 0;
+	margin: 0;
 	height: 20px;
 }
 #login-form fieldset
@@ -443,7 +468,9 @@ input[type=submit]
 	font-size: 2.4em;
 	float: right;
 	padding: 0 5px ;
+	margin: 10px 0 0 0;
 }
+
 p span.underline
 {
 	font-size: inherit;

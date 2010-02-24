@@ -36,17 +36,10 @@ namespace fenix
 					return render_<NotFoundResponse>();
 				}
 
-				template <class T_action>
+				template <template<class> class T_action, class Authenticate = empty_class>
 				struct _action
-				{
-					friend std::ostream& operator<<(std::ostream& stream, _action<T_action>)
-					{
-						stream << "Action";
-						
-						return stream;
-					}
-					
-					typedef T_action type;
+				{				
+					typedef T_action<Authenticate> Type;
 				};
 
 				struct _param
@@ -67,7 +60,7 @@ namespace fenix
 						_pattern.push_back(s);
 					}
 
-					virtual auto_ptr<Action> get_action() = 0;
+					virtual auto_ptr<Base> get_action() = 0;
 					
 					virtual ~_matcher(){}
 					
@@ -115,9 +108,9 @@ namespace fenix
 					{
 					}
 					
-					auto_ptr<Action> get_action()
+					auto_ptr<Base> get_action()
 					{
-						auto_ptr<Action> action(new T());
+						auto_ptr<Base> action(new T());
 						
 						return action;
 					}
@@ -134,9 +127,9 @@ namespace fenix
 					{
 					}
 					
-					auto_ptr<Action> get_action()
+					auto_ptr<Base> get_action()
 					{
-						auto_ptr<Action> action(new not_found());
+						auto_ptr<Base> action(new not_found<>());
 						
 						return action;
 					}
@@ -159,10 +152,10 @@ namespace fenix
 						return m;
 					}
 
-					template <class T>
-					auto_ptr<_matcher> operator()(proto::tag::terminal, _action<T>)
+					template <template<class> class T, class A>
+					auto_ptr<_matcher> operator()(proto::tag::terminal, _action<T, A>)
 					{
-						auto_ptr<_matcher> m(new matcher<T>());
+						auto_ptr<_matcher> m(new matcher<T<A> >());
 						
 						return m;
 					}
@@ -221,7 +214,7 @@ namespace fenix
 				};
 				
 				template <class Expr>
-				auto_ptr<Action> dispatch(Expr& expr, const Request& request)
+				auto_ptr<Base> dispatch(Expr& expr, const Request& request)
 				{
 					dispatcher_context context(request);
 

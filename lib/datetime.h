@@ -1,6 +1,12 @@
 #pragma once
 
+#include "common.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
+#include <iostream>
+#include <ctime>
+
+#include "log.h"
 
 using namespace boost::gregorian;
 using namespace boost::local_time;
@@ -14,8 +20,8 @@ namespace fenix
 		{
 			namespace datetime
 			{
-				const ptime fenix_epoch(date(2001, 1, 1));
-
+				static const ptime fenix_epoch(date(2001, 1, 1));
+				
 				inline long timestamp(const local_date_time& local_time)
 				{
 					time_duration diff = (local_time.utc_time() - fenix_epoch);
@@ -70,6 +76,26 @@ namespace fenix
 				{
 					ptime t(fenix_epoch.date(), seconds(timestamp));
 					return t;
+				}
+				
+				inline string format(const ptime& t, const string& fmt)
+				{	
+					string ret = "";
+					
+					const int max_size = 256;
+					
+					char buf[max_size];
+					
+					tm c_time = to_tm(t);
+					
+					int length = strftime(buf, max_size, fmt.c_str(), &c_time);
+					
+					if(length > 0)
+					{
+						ret.assign(buf);
+					}
+					
+					return ret;
 				}
 			}
 		}

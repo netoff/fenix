@@ -14,7 +14,7 @@ require 'uri'
 #HUNGARY	 HU
 
 SITE_ID = "nx3456"
-TRACK_URI = "http://log.kliknik.com/lg/view?_e=hit"
+TRACK_URI = "http://log.kliknik.my/lg/view?_e=hit"
 
 COUNTRIES = ["US", "US", "US", "US", "GB", "GB", "RS", "RS", "UA", "TR", "RO", "NO", "ME", "IN", "HU"]
 TITLES = ["Page One", "Page Two", "Page Three", "Page Three"]
@@ -36,9 +36,13 @@ while true do
 			"&_tm=" + aparam(VISITS) + "&_u=" + aparam(URLS) + "&_t=" + 
 			aparam(TITLES) + "&_r=" + aparam(REFERRERS) + "&_c=" + aparam(COUNTRIES)
 		
-		response = Net::HTTP.get(URI.parse(request_url))
-		puts "-> Log"
+		begin
+		  response = Net::HTTP.get(URI.parse(request_url))
+		  puts "-> Log"
+	  	rescue
+		end
 	end
+	
 	sleep(0.8)
 	i += 1
 end

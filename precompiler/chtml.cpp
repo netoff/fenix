@@ -16,7 +16,7 @@ void read_file_to_buffer(ifstream& input, string& buf)
 		buf.append(t_buffer + '\n');
 }
 
-void set_page_header(string input_buf, ofstream& output, PageHeader& header)
+void set_page_header(string input_buf, ostream& output, PageHeader& header)
 {
 
 	pair<string, string> dir;
@@ -38,7 +38,7 @@ void set_page_header(string input_buf, ofstream& output, PageHeader& header)
 class add_code
 {
 public:
-	add_code(ofstream& of):output_file(of){};
+	add_code(ostream& of):output_file(of){};
 
 	void operator()(const char* begin, const char* end)const
 	{
@@ -53,29 +53,29 @@ public:
 		}		
 	}
 private:
-	ofstream& output_file;
+	ostream& output_file;
 };
 
 class add_echo
 {
 public:
-	add_echo(ofstream& of):output_file(of){};
+	add_echo(ostream& of):output_file(of){};
 
 	void operator()(const char* begin, const char* end)const
 	{
 		string code = string(begin, end);
 		
 		trim(code);
-		output_file << str(format("\techo(%s);\n")%code) ;		
+		output_file << "\t" << str(format("this->echo(%s);\n")%code) ;		
 	}
 private:
-	ofstream& output_file;
+	ostream& output_file;
 };
 
 class add_text
 {
 public:
-	add_text(ofstream& of):output_file(of){};
+	add_text(ostream& of):output_file(of){};
 
 	void operator()(const char* begin, const char* end)const
 	{
@@ -83,7 +83,7 @@ public:
 		//escape(text);Escape after chunking
 
 		//Break text into chunks of 1024 chs
-		//Possible compiler limitations for char literals
+		//Possible compiler limitations for char literals??
 		int offset[] = {1024};
 		offset_separator sep(offset, offset+1);
 		tokenizer<offset_separator> chunks(text, sep);
@@ -92,11 +92,11 @@ public:
 		foreach(string chunk, chunks)
 		{
 			escape(chunk);
-			output_file << "\t" << str(format("insert(\"%s\", false);\n")%chunk);
+			output_file << "\t" << str(format("this->insert(\"%s\", false);\n")%chunk);
 		}
 	}
 private:
-	ofstream& output_file;
+	ostream& output_file;
 
 	void escape(string& s)const
 	{
@@ -113,7 +113,7 @@ private:
 	}
 };
 
-void precompile_chtml_file(string input_buf, ofstream& output)
+void precompile_chtml_file(string input_buf, ostream& output)
 {
 	rule<> chtml_syntax = !confix_p(header_open, *anychar_p ,header_close) >>
 			(*text)[add_text(output)] >> 
@@ -132,7 +132,7 @@ void precompile_chtml_file(string input_buf, ofstream& output)
 		throw "Failed parsing chtml file";
 	}
 }
-void add_layout(ifstream& input, ofstream& output, string layout)
+void add_layout(ifstream& input, ostream& output, const string& layout)
 {
 	string input_buf;
 	read_file_to_buffer(input, input_buf);
@@ -145,7 +145,7 @@ void add_layout(ifstream& input, ofstream& output, string layout)
 	output << "}\n\n";
 }
 
-void add_page(ifstream& input, ofstream& output, string page_name)
+void add_page(ifstream& input, ostream& output, const string& page_name, set<string>& params)
 {
 	string input_buf;
 	read_file_to_buffer(input, input_buf);
@@ -153,31 +153,29 @@ void add_page(ifstream& input, ofstream& output, string page_name)
 	PageHeader page_header;
 
 	set_page_header(input_buf, output, page_header);
-
+	
+	foreach(string& param, page_header.params)
+	{
+		params.insert(param);
+	}
+	
 	output << "//--------------------------------------------\n";
 	output << "//Begin File: " << page_name << ".html" << endl;
 
-	output << "namespace " << page_name 
-		<< "\n{" << endl;
-	//TODO: Put parameters in namespace not pages itself
-	foreach(string param, page_header.params)
-	{
-		output << "BOOST_PARAMETER_NAME(" << param << ")" << endl;
-	}
-	output << endl;
-
+	output << "namespace " << page_name << "\n{" << endl;	
+	
 	//Do we use layout for this page
 	if(page_header.use_layout)
 	{
 		string layout = page_header.get_layout();
 
-		output << "FENIX_LAYOUTED_WEB_PAGE(Page, " /*<< page_name << "Page, "*/ << layout << ", " 
-			<< page_header.get_required_params() << ")\n";
+		output << "FENIX_LAYOUTED_WEB_PAGE(Page, " /*<< page_name << "Page, "*/ << layout /*<< ", " 
+			<< page_header.get_required_params()*/ << ")\n";
 		output << "{\n";
 	}
 	else
 	{
-		output << "FENIX_WEB_PAGE(Page, " /*<< page_name << "Page, "*/ << page_header.get_required_params() << ")\n";
+		output << "FENIX_WEB_PAGE(Page, " /*<< page_name << "Page, " << page_header.get_required_params() */<< ")\n";
 		output << "{\n";
 	}
 
@@ -189,8 +187,7 @@ void add_page(ifstream& input, ofstream& output, string page_name)
 
 void add_header(ofstream& output)
 {
-	output << "#pragma once\n"
-		<< "#include \"fenix.h\"\n\n";
-	output << "using namespace fenix::web::toolkit;";
-
+	output << "#pragma once\n" << "#include \"fenix.h\"\n\n";
+	output << "#include \"model/models.h\"\n";
+	output << "using namespace fenix::web::toolkit;\n";
 }

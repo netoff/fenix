@@ -2,29 +2,45 @@
 <html>
 	<head>
 	
-	<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
-	<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">	
-	<!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+	<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print" />	
+	<!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
 	
 	<!--Overide all other css'-->
 	<link rel="stylesheet" href="/css/app.css" >
 	
 	<!--@
+		foreach(string css_file, this->_css_includes)
+		{
+			this->insert("<link rel='stylesheet' href='/css/%s' type='text/css' media='screen' />", css_file);
+		}
+		
 		foreach(string js_file, this->_js_includes)
 		{
-			insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
+			this->insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
 		}
-	-->
 		
+		shared_ptr<tables::User> user = args[_user];
+	-->	
 	<title>kliknik | <!--@=this->_title--></title>
+	<style>
+		span.menu-item a.<!--@= args[_active|"none"]-->
+		{
+			color: #fff;
+			background-color: #CFD6DE;
+			-webkit-border-radius: 2px;
+			-moz-border-radius: 2px;
+		}		
+	</style>
 	</head>
 	<body>
 		<div id="header-w">
 			<div class="container">
 				<div class="span-24" id="head-line">
 					<div class="clock">
-						<span id="time">10:55 10 August 2010</span> 
-						<span>| <span id="user-link"><a href="#">dushan01@kliknik.com</a></span> | <span id="logout-link"><a href="/app/session/clear">logout</a></span></span>
+						<span id="time"><!--@= args[_time] --></span> 
+						<span>| <span id="account-link"><a href="#"><!--@= user->email() --></a></span> 
+						| <span id="logout-link"><a href="/app/logout">logout</a></span></span>
 					</div>
 				</div>
 			</div>
@@ -33,19 +49,23 @@
 			<div class="container">
 				<div class="span-24" id="main-menu">
 					<div class="span-4" id="logo">
-						<h1><a href="/app/index">kliknik</a></h1>
-						<p>Just-in-time web analytics</p>
+						<h1><a href="/app/index"><img src="/img/logo.png" alt="kliknik Just-in-time web analytics" /></a></h1>
 					</div>
 					<div class="span-14" id="menu">
-						<span class="menu-item"><a href="/app/index" class="active">Dashboard</a></span>
-						<span class="menu-item"><a href="/app/visitors">Visits</a></span>
-						<span class="menu-item"><a href="/app/pages">Pages</a></span>
-						<span class="menu-item"><a href="/app/referrers">Referrers</a></span>
+						<span class="menu-item"><a href="/app/index" class="dashboard-menu-item">Dashboard</a></span>
+						<span class="menu-item"><a href="/app/visitors" class="visits-menu-item">Visits</a></span>
+						<span class="menu-item"><a href="/app/pages" class="pages-menu-item">Pages</a></span>
+						<span class="menu-item"><a href="/app/referrers" class="referrers-menu-item">Referrers</a></span>
 					</div>
 					<div class="span-6 last right">
 						<select value="Select site..." id="site-selector" class="span-6 last">
-				  			<option>Site 1</option>
-							<option>Site 2</option>
+						<!--@ 
+							foreach(shared_ptr<tables::Site> site, user->sites<tables::Site>())
+							{
+								this->insert("<option value='%s'>%s</option>", site->id_s(), site->url());
+							};
+							
+						-->
 						</select>
 					</div>
 				</div>
@@ -63,8 +83,7 @@
 		<div id="footer-w">
 			<div class="container">
 				<div class="span-24" id="footer">
-					&copy;2009 kliknik | <a href="#">dev@kliknik.com</a> 
-					| <a href="#">Terms of Service</a> | <a href="#">Privacy Policy</a>
+					&copy;<!--@= (args[_request])._timestamp.date().year() --> kliknik | <a href="#">dev@kliknik.com</a>
 				</div>
 			</div>
 		</div>

@@ -18,10 +18,8 @@ if(!page)
 					
 					return points;
 				}
-				else
-				{
-					return [];
-				}
+				
+				return [];
 			}
 			
 			this.chart.getPoints = function (it)
@@ -30,10 +28,8 @@ if(!page)
 				{
 					return { show: true, radius: 3};
 				}
-				else
-				{
-					return { show: false};
-				}
+				
+				return { show: false };
 			}
 			
 			this.chart.getBars = function (it)
@@ -47,10 +43,8 @@ if(!page)
 				{
 					return {show: true, lineWidth: 4};
 				}
-				else
-				{
-					return {show: false};
-				}
+					
+				return {show: false};
 			}
 			
 			this.chart.setSettings({
@@ -63,17 +57,42 @@ if(!page)
 			
 			this.chart.setSeries(["visits"]);
 			
-			this.chart.updatePoints([10, 12, 13, 14, 11, 11, 9]);
+			//this.chart.updatePoints([10, 12, 13, 14, 11, 11, 9]);
 			
 			this.chart.setCanvas($("#visitors-chart"));
 			
 			this.chart.draw();
+			
+			$("#date-range-selector-input").DatePicker({
+					mode: 'range',
+					calendars: 2,
+					format: 'm/d/Y',
+					date: ['01/11/2010', '02/10/2010']
+			});
 		},
 		
-		chart: new Chart(30, "day")
+		chart: new Chart(30, "day"),
+		
+		update: function ()
+		{
+			var date_range = $("#date-range-selector-input").val();
+			
+			if(date_range)
+			{
+				
+			}
+		}
 	};
 }
 
 $(function (){
-	page.init();		
+	page.init();
+	page.update();
+	
+	$("#date-range-selector-submit").click(function ()
+		{
+			page.update();
+			
+			return false;
+		});
 });

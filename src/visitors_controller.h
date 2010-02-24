@@ -2,6 +2,7 @@
 
 #include "fenix.h"
 #include "views.h"
+#include "aaa.h"
 
 using namespace fenix::web::toolkit;
 
@@ -11,9 +12,8 @@ namespace PagesController
 {
 	FENIX_CONTROLLER(visitors)
 	{
-		typedef Visitors::Page visitors_page;
-		
-		return render_<Visitors::Page>((_request= request));
+		return render_<Visitors::Page>((_request=request, _active="visits-menu-item", 
+			_time = datetime::format(request._timestamp, "%H:%M %d-%b-%Y GMT"), _user = this->_authenticate.get_user()));
 	}
 	
 	namespace Poll

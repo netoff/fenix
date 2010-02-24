@@ -6,3 +6,6 @@
 #include "action.h"
 #include "view.h"
 #include "model.h"
+#include "table.h"
+#include "crypto.h"
+#include "log.h"

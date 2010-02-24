@@ -1,4 +1,4 @@
-#include <memory>
+#include "common.h"
 
 #include "mod_fenix.h"
 #include "dir_conf.h"
@@ -6,16 +6,27 @@
 
 #include "handler.h"
 #include "request.h"
+#include "cookie.h"
 
 #include <apr_strings.h>
 
 using namespace std;
 using namespace fenix::web::toolkit;
 
-int _dispatch(const view::Response& response, request_rec* apc_request)
+int _dispatch(const view::Response& response, request_rec* apc_request, const map<string, pair<string, int> >& session)
 {
 	try
 	{
+		string log_output = response.get_log_output();
+		
+		if(!log_output.empty())
+		{
+			ap_log_rerror("mod/handler.cpp", 0, APLOG_DEBUG, 0, apc_request, log_output.c_str());
+		}
+		
+		//set cookies
+		typedef pair<string, pair<string, int> > cookie_jar;		
+		
 		switch(response.getResponseType())
 		{
 		case view::Response::XML:
@@ -23,7 +34,39 @@ int _dispatch(const view::Response& response, request_rec* apc_request)
 		case view::Response::HTML:
 		case view::Response::PLAIN_TEXT:
 		case view::Response::DHTML:
-			{
+			{	
+				
+				foreach(cookie_jar c, session)
+				{			
+						string cookie_s = "";
+												
+						if(c.second.first.empty())
+						{
+							//clear cookie
+							cookie_s = cookie(c.first, "", "/", -24);
+						}
+						else
+						{	int expire = c.second.second;
+							
+							if(expire == 0)
+							{
+								//set new session cookie
+								cookie_s = cookie(c.first, c.second.first, "/");
+							}
+							if(expire > 0)
+							{
+								//set new cookie
+								cookie_s = cookie(c.first, c.second.first, "/", c.second.second);
+							}						
+						}
+						
+						if(!cookie_s.empty())
+						{
+							apr_table_add(apc_request->headers_out, "Set-Cookie", cookie_s.c_str());
+						}
+				}
+			
+				
 				//TODO: Force mime-type based on response type class?? Or we do not need
 				//cast to something. Response class should not be polymorphic at all??
 				//Performance improvement, uniform API, no type conversion and casting....
@@ -62,6 +105,43 @@ int _dispatch(const view::Response& response, request_rec* apc_request)
 				ap_rputs(response.getResponseBodyC(), apc_request);
 
 				return HTTP_BAD_REQUEST;
+			}
+		case view::Response::REDIRECT:
+			{
+				foreach(cookie_jar c, session)
+				{			
+					string cookie_s = "";
+											
+					if(c.second.first.empty())
+					{
+						//clear cookie
+						cookie_s = cookie(c.first, "", "/", -24);
+					}
+					else
+					{	int expire = c.second.second;
+						
+						if(expire == 0)
+						{
+							//set new session cookie
+							cookie_s = cookie(c.first, c.second.first, "/");
+						}
+						//-1 is cookie readed from request, it is already set, so do not have to set it again??
+						if(expire > 0)
+						{
+							//set new cookie
+							cookie_s = cookie(c.first, c.second.first, "/", c.second.second);
+						}						
+					}
+					
+					if(!cookie_s.empty())
+					{
+						apr_table_add(apc_request->err_headers_out, "Set-Cookie", cookie_s.c_str());
+					}
+				}
+				
+				apr_table_set(apc_request->headers_out, "Location", response.getResponseBodyC());
+				
+				return HTTP_MOVED_TEMPORARILY;  
 			}
 		case view::Response::MESSAGE:
 		case view::Response::RESTRICT:
@@ -127,6 +207,7 @@ int fenix_handler(request_rec* apc_request)
 
 		apr_dso_error(dll_module, err, sizeof(err));
 		ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, apc_request, "Failed loading shared library: %s(%s)", dll_full_name, err);
+		
 		return HTTP_INTERNAL_SERVER_ERROR;
 	}
 	if(rv = apr_dso_sym((void**)&_handle, dll_module, "handle"))
@@ -134,16 +215,18 @@ int fenix_handler(request_rec* apc_request)
 		ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, apc_request, "Failed loading module function: %s", "handle");
 
 		apr_dso_unload(dll_module);
+		
 		return HTTP_INTERNAL_SERVER_ERROR;
 	}
 
-	action::Request request(dir_conf->log_file);
+	action::Request request;
 
 	prepare_request(request, apc_request);
 
 	shared_ptr<view::Response> response(_handle(request));
 
-	rv = _dispatch(*response, apc_request);
+	rv = _dispatch(*response, apc_request, request._pparams);
 
+	
 	return rv;
 }

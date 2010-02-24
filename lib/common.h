@@ -10,6 +10,8 @@
 #include <map>
 #include <list>
 
+#include <stdint.h>
+
 using namespace std;
 
 #include "boost/format.hpp"
@@ -22,3 +24,5 @@ using namespace boost;
 
 #define foreach BOOST_FOREACH
 typedef map<string, string> hash;
+
+class empty_class{};

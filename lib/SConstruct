@@ -4,11 +4,6 @@ Import('env')
 
 env = env.Clone()
 
-#tokyotyrant libraries
-#env.ParseConfig('pkg-config tokyotyrant --libs')
-#env.Append(LINKFLAGS = [commands.getoutput('pkg-config tokyotyrant --libs')])
-#print(env['LINKFLAGS'])
-
 fenix = env.StaticLibrary('fenix', Glob('*.cpp'))
 
 #Use library to link with app

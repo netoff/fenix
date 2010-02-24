@@ -20,7 +20,7 @@ namespace fenix
 				{
 					//TODO: Handle databae error conditions
 				public:
-					Database(string host, int port)
+					Database(const string& host, int port)
 						:_tyrant_server(tcrdbnew())
 					{
 						if(!tcrdbopen(_tyrant_server, host.c_str(), port))
@@ -37,7 +37,10 @@ namespace fenix
 						    //fprintf(stderr, "close error: %s\n", tcrdberrmsg(ecode));
 						}
 
-						tcrdbdel(_tyrant_server);
+						if(_tyrant_server)
+						{
+							tcrdbdel(_tyrant_server);
+						}
 					}
 
 					template<class T>
@@ -127,6 +130,8 @@ namespace fenix
 
 						return ret;
 					}
+					
+					TCRDB* get_db() { return _tyrant_server; }
 				private:
 					TCRDB* _tyrant_server;
 				};

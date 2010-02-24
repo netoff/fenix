@@ -11,3 +11,6 @@ syntax: glob
 *~
 src/views.h
 build/
+.build/
+bck/
+.bck/
