@@ -7,6 +7,15 @@ env = Environment()
 env.Append(CCFLAGS = ['-fvisibility=hidden', '-fpermissive', '-w'])
 env.Append(CPPPATH = ['#lib', '#ext/boost_1_40_0', '#ext/crypto_pp'])
 
+#is it debug environment??
+debug = ARGUMENTS.get('debug', 0)
+final = ARGUMENTS.get('final', 0) 
+if int(debug):
+	env.Append(CCFLAGS = '-DDEBUG')
+elif int(final):
+	env.Append(CCFLAGS = '-O3')
+	
+
 #Boost ibraries for direct linking
 boost_system_lib =                env.Object(Glob('ext/boost_1_40_0/libs/system/src/*.cpp'))
 boost_filesystem_lib =            env.Object(Glob('ext/boost_1_40_0/libs/filesystem/src/*.cpp'))

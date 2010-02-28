@@ -6,6 +6,8 @@
 #include "log/click.h"
 #include "log/event.h"
 
+#include "model/db_conf.h"
+
 using namespace fenix::web::toolkit;
 
 namespace LogController
@@ -13,31 +15,28 @@ namespace LogController
 	
 	
 	FENIX_CONTROLLER(lg)
-	{
-		log::log() << "New log request";
-		
+	{		
 		string site_id;
 		string event_type;
 		
 		if(
-			get_param(params["_id"], site_id) && 
-			get_param(params["_e"], event_type) )
+			get_param(request["_id"], site_id) && 
+			get_param(request["_e"], event_type) )
 		{
 			if(event_type == "hit")
-			{
-				hash notes = request.getSysParams("notes");
-				
-				
+			{			
 				string url, title, referrer, country_code, search_query;
 				long last_view; //seconds ago
 				
-				get_param(params["_u"], url);
-				get_param(params["_t"], title);
-				get_param(params["_r"], referrer);
-				get_param(params["_tm"], last_view);
-				get_param(params["_c"], country_code);
+				get_param(request["_u"], url);
+				get_param(request["_t"], title);
+				get_param(request["_r"], referrer);
+				get_param(request["_tm"], last_view);
+				get_param(request["_c"], country_code);
 				
-				log_page_view(site_id, url, title, referrer, country_code, search_query, last_view, request._timestamp);
+				DB db = get_log_db(request);
+				
+				log_page_view(site_id, url, title, referrer, country_code, search_query, last_view, request._timestamp, db);
 			}
 			if(event_type == "cl")
 			{
@@ -55,9 +54,7 @@ namespace LogController
 			
 			//return render_<TrackingPixel>();
 		}
-		else
-		{			
-			return render_<BadRequestResponse>();
-		}
+		
+		return render_<BadRequestResponse>();		
 	}
 }

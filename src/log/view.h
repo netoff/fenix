@@ -6,7 +6,7 @@
 
 const long session_duration = 60/*seconds*/ * 30/*minutes*/;
 
-void log_page_view(string site_id, string url, string title, string referrer, string country_code, string search_query, long last_view, ptime timestamp)
+void log_page_view(string site_id, string url, string title, string referrer, string country_code, string search_query, long last_view, ptime timestamp, const DB db)
 {
 	string key = str(format("s:%i")%site_id);
 	string query = "";
@@ -17,9 +17,9 @@ void log_page_view(string site_id, string url, string title, string referrer, st
 	string title_id = "";
 	string referrer_id = "";
 	
-	url_id = make_id(key + ":urls", url);
-	title_id = make_id(key + ":titles", title);
-	referrer_id = make_id(key + ":referrers", referrer);
+	url_id = make_id(key + ":urls", url, db);
+	title_id = make_id(key + ":titles", title, db);
+	referrer_id = make_id(key + ":referrers", referrer, db);
 	
 	sec_slot << "hps";
 	min_slot << "hpm";
@@ -114,7 +114,7 @@ void log_page_view(string site_id, string url, string title, string referrer, st
 	
 	if(!query.empty())
 	{
-		model::Database(db_hostname, db_port).ext("log", key, query);
+		model::Database(db.host, db.port).ext("log", key, query);
 	}
 		
 }

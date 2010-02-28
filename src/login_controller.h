@@ -16,6 +16,7 @@ namespace LoginController
 		
 		if(!user_id.empty())
 		{
+			//if user is already loged in, go to the user dashboard
 			return render_redirect("/app/index"); 
 		}
 		
@@ -33,11 +34,13 @@ namespace LoginController
 			{
 				string email, password;
 				
-				if(get_param(params["email"], email) && get_param(params["password"], password) && request.isWrite())
+				if(	get_param(request["email"], email, validators::email()) && 
+					get_param(request["password"], password) && 
+					request.isWrite() )
 				{
-					shared_ptr<tables::User> user(new tables::User(table_db));
+					shared_ptr<tables::User> user(new tables::User(get_users_db(request)));
 					
-					if(user->find(model::Query(table_db).add_string("email", email).add_limit(1)))
+					if(user->find(model::Query(get_users_db(request)).add_string("email", email).add_limit(1)))
 					{
 						user->plain_password(password);
 						
@@ -51,14 +54,14 @@ namespace LoginController
 					
 					return render_<Login::Page>((_request = request, _email = email, 
 						_login_error = "Wrong email address or password. Please try again."));
-				}
-				
-				return render_<BadRequestResponse>();
+				}				
 			}
 			else
 			{
 				return render_redirect("/app/index");
 			}
+			
+			return render_<BadRequestResponse>();
 		}
 		
 		//======================
@@ -68,7 +71,7 @@ namespace LoginController
 		{
 			if(request.isRead())
 			{
-				string user_id = request.getParam("user_id");
+				string user_id = request["user_id"];
 				
 				request.clearSession();
 				
@@ -91,20 +94,20 @@ namespace LoginController
 				string email, password, repeat_password, url, timezone;
 				
 				if(
-					get_param(params["email"], email) &&
-					get_param(params["password"], password) &&
-					get_param(params["repeat_password"], repeat_password) &&
-					get_param(params["url"], url) && /*&&
+					get_param(request["email"], email, validators::email()) &&
+					get_param(request["password"], password) &&
+					get_param(request["repeat_password"], repeat_password) &&
+					get_param(request["url"], url, validators::url()) && /*&&
 					get_param(params["timezone"], timezone)*/
 					request.isWrite())
 				{
 					if(password == repeat_password)
 					{
-						shared_ptr<tables::User> user(new tables::User(table_db));
+						shared_ptr<tables::User> user(new tables::User(get_users_db(request)));
 						
-						if(!user->exists(model::Query(table_db).add_string("email", email)))
+						if(!user->exists(model::Query(get_users_db(request)).add_string("email", email)))
 						{
-							shared_ptr<tables::Site> site(new tables::Site(table_db));
+							shared_ptr<tables::Site> site(new tables::Site(get_users_db(request)));
 							
 							user->email(email).plain_password(password);
 							site->url(url).user(user);	
@@ -117,7 +120,7 @@ namespace LoginController
 						}
 						else
 						{
-							return render_<Login::Page>((_request = request, _signup_error = "Email already exists.", _url = url));
+							return render_<Login::Page>((_request = request, _signup_error = "Email address already in use.", _url = url));
 						}
 					}
 					
@@ -126,6 +129,14 @@ namespace LoginController
 			}
 			
 			return render_<BadRequestResponse>();			
+		}
+		
+		FENIX_CONTROLLER(create_finish)
+		{
+			return render_<Login::Page>((_request = request, 
+				_alert = "<p>Thank you for a sign up.<br /><br /> We are currently in a limited beta. As soon as more "
+				"slots become available, we will send you activation link, "
+				"so you can verify your email address and start using our service.</p>"));
 		}
 	}
 }

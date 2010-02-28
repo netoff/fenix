@@ -19,10 +19,13 @@ namespace fenix
 				//is this safe?
 				extern ostringstream _null_output;
 				
+				#ifdef DEBUG
 				extern thread_specific_ptr<ostringstream> _log_output;
+				#endif
 				
 				inline ostringstream& log()
 				{
+					#ifdef DEBUG
 					if(!_log_output.get())
 					{
 						_log_output.reset(new ostringstream(""));
@@ -32,6 +35,7 @@ namespace fenix
 					{
 						return *_log_output;
 					}
+					#endif
 					
 					//this output goes nowhere. in case _log_output is not defined
 					//return this, because you can not return reference to stack object
@@ -42,10 +46,12 @@ namespace fenix
 				
 				inline string log_output()
 				{
+					#ifdef DEBUG
 					if(_log_output.get())
 					{
 						return (*_log_output).str();
 					}
+					#endif
 					
 					return "";
 				}

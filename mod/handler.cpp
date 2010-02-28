@@ -21,7 +21,7 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 		
 		if(!log_output.empty())
 		{
-			ap_log_rerror("mod/handler.cpp", 0, APLOG_DEBUG, 0, apc_request, log_output.c_str());
+			ap_log_rerror("mod/handler.cpp", 0, APLOG_ERR, 0, apc_request, log_output.c_str());
 		}
 		
 		//set cookies
@@ -226,7 +226,6 @@ int fenix_handler(request_rec* apc_request)
 	shared_ptr<view::Response> response(_handle(request));
 
 	rv = _dispatch(*response, apc_request, request._pparams);
-
 	
 	return rv;
 }

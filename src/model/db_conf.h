@@ -1,17 +1,28 @@
 #pragma once
 
+#include "fenix.h"
+
 #include "model.h"
 #include "table.h"
 
+using namespace fenix::web::toolkit;
 using namespace fenix::web::toolkit::model;
 
-const string db_hostname = "localhost";
-const int db_port = 1978;
+DB get_users_db(const action::Request& request)
+{
+	string hostname = request("config", "users_db_host");
+	int port = action::to_integer(request("config", "users_db_port"));
+	
+	return DB(hostname, port);
+}
 
-const string table_db_hostname = "localhost";
-const int table_db_port = 1980;
-
-const DB table_db(table_db_hostname, table_db_port);
+DB get_log_db(const action::Request& request)
+{
+	string hostname = request("config", "log_db_host");
+	int port = action::to_integer(request("config", "log_db_port"));
+	
+	return DB(hostname, port);
+}
 
 //forward declarations
 class Site;

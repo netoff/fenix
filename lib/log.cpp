@@ -10,7 +10,9 @@ namespace fenix
 			{
 				ostringstream _null_output;
 				
-				thread_specific_ptr<ostringstream> _log_output;				
+				#ifdef DEBUG
+				thread_specific_ptr<ostringstream> _log_output;
+				#endif				
 			}
 		}
 	}

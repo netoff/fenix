@@ -5,10 +5,6 @@
 
 namespace layout
 {
-	template <class ArgumentPack>
-	inline ArgumentPack layout_params(const Request& request)
-	{
-		return 
-	}
+	
 }
 

@@ -95,7 +95,12 @@ if (!dashboard)
 	dashboard = (function ()
 	{
 		return {
-			site_id: "nx3456",
+			site_id: "",
+			
+			setSiteId: function (id)
+			{
+				this.site_id = id;
+			},
 			
 			timestamp: 0,
 			timestampMin: 0,
@@ -299,6 +304,7 @@ if (!dashboard)
 
 $(function ()
 {
+	dashboard.setSiteId(_site_id);
 	dashboard.init();
 
 	//Start the loop

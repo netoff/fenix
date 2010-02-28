@@ -18,10 +18,12 @@ FENIX_APPLICATION(HelloWorld)
 			//Login and sigunp
 			_("app")/"login"		<< _action<LoginController::index>() ||
 			_("app")/"login"/"new"		<< _action<LoginController::account::create>() ||
+			_("app")/"signup_thanks"	<< _action<LoginController::account::create_finish>() ||
 			
 			_("app")/"session"/"new"	<< _action<LoginController::session::create>() ||
 			_("app")/"logout"		<< _action<LoginController::session::clear, auth>() ||
 			
+						
 			_("app")/"pages"		<< _action<PagesController::pages, auth>()||
 			_("app")/"referrers"		<< _action<PagesController::referrers, auth>()
 			/*

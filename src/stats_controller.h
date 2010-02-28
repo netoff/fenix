@@ -65,9 +65,9 @@ namespace StatsController
 		long t = 0;
 		long t_m = 0;
 	
-		if(	get_param(params["id"], site_id) && 
-			get_param(params["t"], t) &&
-			get_param(params["t1"], t_m))
+		if(	get_param(request["id"], site_id) && 
+			get_param(request["t"], t) &&
+			get_param(request["t1"], t_m))
 		{
 			ostringstream response;
 		
@@ -86,7 +86,7 @@ namespace StatsController
 			
 			string key = str(format("s:%s")%site_id);
 			
-			model::Database db("localhost", 1978);
+			model::Database db(get_log_db(request).host, get_log_db(request).port);
 
 			if(t < timestamp)
 			{
@@ -125,11 +125,9 @@ namespace StatsController
 			
 			response << "setTimeout('dashboard.update()', 500);";
 			
-			return render_text(response.str(), "text/javascript");
+			return render_text(response, "text/javascript");
 		}
-		else
-		{
-			return render_<BadRequestResponse>();
-		}
+		
+		return render_<BadRequestResponse>();
 	}
 }

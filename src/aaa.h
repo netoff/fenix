@@ -12,14 +12,16 @@ namespace session_authentication
 	class authenticate
 	{
 	public:
-		authenticate()
-		:_redirect(login_page),_user(new tables::User(table_db)){}
+		authenticate() {}
+		
+		authenticate(const action::Request& request)
+		:_redirect(login_page),_user(new tables::User(get_users_db(request))){}
 		
 		bool operator()(const action::Request& request, string& redirect)
 		{
 			string user_id = request.getSession("user_id");
 			
-			if(!user_id.empty())
+			if(!user_id.empty() && _user.get())
 			{
 				if(_user->find(user_id))
 				{

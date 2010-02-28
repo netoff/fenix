@@ -26,8 +26,20 @@ namespace fenix
 				using boost::lexical_cast;
 				using boost::bad_lexical_cast;
 
-				//template <class T>
-				//bool get_param(string a, T& b);
+				inline int to_integer(const string& s)
+				{
+					int ret = 0;
+
+					try
+					{
+						ret = lexical_cast<int>(s);
+					}
+					catch(bad_lexical_cast&)
+					{
+					}
+					
+					return ret;
+				}
 
 				template <class T>
 				void get_params(string a, vector<T>& b, const string& sep = ",")
@@ -154,10 +166,13 @@ namespace fenix
 				{
 					//for now only trim string 
 					//later we could slice it, escape it, etc..
-					b = trim_copy(a);
 					
-					if(!b.empty())
+					string t = trim_copy(a);
+				
+					if(!t.empty())
 					{
+						b = t;
+					
 						return true;
 					}
 					
@@ -165,28 +180,36 @@ namespace fenix
 				}
 				
 				template <class T>
-				inline bool get_param(const string& a, string& b, T& t);
+				inline bool get_param(const string& a, string& b, const T t);
 				
 				template <>
-				inline bool get_param<validators::email>(const string& a, string& b, validators::email& v)
+				inline bool get_param<validators::email>(const string& a, string& b, const validators::email v)
 				{
-					sregex pattern = sregex::compile("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$", regex_constants::icase);
+					const sregex pattern = sregex::compile("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$", regex_constants::icase);
 					
-					if(regex_match(a, pattern))
+					string t = trim_copy(a);
+					
+					if(regex_match(t, pattern))						
 					{
-						return get_param(a, b);
+						return get_param(t, b);
 					}
+					
+					return false;
 				}
 				
 				template <>
-				inline bool get_param<validators::url>(const string& a, string& b, validators::url& v)
+				inline bool get_param<validators::url>(const string& a, string& b, const validators::url v)
 				{
-					sregex pattern = sregex::compile("^http(s)?://([\\w+?\\.\\w+])+([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+\\\/\?\.\:\;\'\,]*)?$", regex_constants::icase);
+					const sregex pattern = sregex::compile("^http(s)?://([\\w+?\\.\\w+])+([a-zA-Z0-9\\~\\!\\@\\#\\$\\%\\^\\&amp;\\*\\(\\)_\\-\\=\\+/\?\.\:\;\'\,]*)?$", regex_constants::icase);
 					
-					if(regex_match(a, pattern))
+					string t = trim_copy(a);
+					
+					if(regex_match(t, pattern))
 					{
-						return get_param(a, v);
+						return get_param(t, b);
 					}
+					
+					return false;
 				}
 				
 				

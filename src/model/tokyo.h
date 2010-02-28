@@ -30,11 +30,11 @@ string make_query(string& sec, string& min, string& hour, string& day, ptime tim
 	return ret.str();
 }
 
-string make_id(const string& key, const string& val)
+string make_id(const string& key, const string& val, const DB db)
 {
 	string ret = "";
 	
-	ret = model::Database(db_hostname, db_port).ext("make_id", key, val);
+	ret = model::Database(db.host, db.port).ext("make_id", key, val);
 	
 	return ret;
 }

@@ -359,6 +359,11 @@ namespace fenix
 					return p;
 				}
 				
+				inline shared_ptr<InlineResponse> render_text(const ostringstream& body, const string& mime_type="text/html")
+				{
+					return render_text(body.str(), mime_type);
+				}
+				
 				inline shared_ptr<RedirectResponse> render_redirect(const string& url)
 				{
 					shared_ptr<RedirectResponse> p(new RedirectResponse(url), _deleter());

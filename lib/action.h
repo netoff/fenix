@@ -83,21 +83,7 @@ namespace fenix
 
 					typedef pair<string, int> pparam;
 					
-					const map<string, string>& getSysParams(const string& s) const
-					{
-						map<string, map<string, string> >::const_iterator sys_params = _sparams.find(s);
-						
-						if(sys_params == _sparams.end())
-						{
-							return map<string, string>();
-						}
-						else
-						{
-							return (*sys_params).second;
-						}
-					}
-					
-					string getParam(const string& key)
+					string getParam(const string& key) const
 					{
 						map<string, string>::const_iterator iter = _params.find(key);
 						
@@ -109,23 +95,49 @@ namespace fenix
 						return "";
 					}
 					
-					string operator()(const string& key)
+					string getParam(const string& ns, const string& key) const
+					{
+						map<string, map<string, string> >::const_iterator iter = _sparams.find(ns);
+						
+						if(iter != _sparams.end())
+						{
+							map<string, string>::const_iterator iter1 = iter->second.find(key);
+							
+							if(iter1 != iter->second.end())
+							{
+								return iter1->second;
+							}
+						}
+						
+						return "";
+					}
+					
+					void setParam(const string& key, const string& val)
+					{
+						_params[key] = val;
+					}
+					
+					void setParam(const string& ns, const string& key, const string& val)
+					{
+						_sparams[ns][key] = val;
+					}
+					
+					const string operator()(const string& key) const
 					{
 						return getParam(key);
 					}
 					
-					string operator[](const string& key)
+					const string operator()(const string& ns, const string& key) const
+					{
+						return getParam(ns, key);
+					}
+					
+					const string operator[](const string& key) const
 					{
 						return getParam(key);
-					}
-
-					map<string, string>& getParams() const
-					{ 
-						return const_cast<map<string, string>&>(_params);
-					}
+					}					
 					
-					
-					string getSession(const string& key) const
+					const string getSession(const string& key) const
 					{
 						map<string, pparam>::const_iterator iter = _pparams.find(key);
 						
@@ -210,12 +222,14 @@ namespace fenix
 					Action() {}
 					
 					virtual shared_ptr<view::Response> handle(const Request& request)
-					{																	
+					{		
+						_authenticate = Authenticate(request);
+						
 						string redirect = "";
 		  				
 						if(_authenticate(request, redirect))				
 						{
-							return _handle(request, request.getParams());							
+							return _handle(request);							
 						}
 						
 						if(!redirect.empty())						
@@ -233,13 +247,13 @@ namespace fenix
 					Action(const Action& rhs) {}
 					Action& operator=(const Action& rhs) {}
 					
-					virtual shared_ptr<view::Response> _handle(const Request& request, hash& params) = 0;	
+					virtual shared_ptr<view::Response> _handle(const Request& request) = 0;	
 				};
 				
 				template<>
 				inline shared_ptr<view::Response> Action<empty_class>::handle(const Request& request)
 				{
-					return _handle(request, request.getParams());
+					return _handle(request);
 				}
 			}
 		}
@@ -292,10 +306,10 @@ public:										\
 	controller() {}								\
 private:									\
 	virtual shared_ptr<view::Response>					\
-	  	_handle(const action::Request& request, hash& params);		\
+	  	_handle(const action::Request& request);			\
 };										\
 template <class Authenticate>							\
-shared_ptr<view::Response> controller<Authenticate>::_handle(const action::Request& request, hash& params)
+shared_ptr<view::Response> controller<Authenticate>::_handle(const action::Request& request)
 
 
 

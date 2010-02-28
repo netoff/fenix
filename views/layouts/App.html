@@ -60,8 +60,13 @@
 					<div class="span-6 last right">
 						<select value="Select site..." id="site-selector" class="span-6 last">
 						<!--@ 
+							int i = 0;
 							foreach(shared_ptr<tables::Site> site, user->sites<tables::Site>())
 							{
+							 	if(i == 0)
+								{
+									this->insert("<script type='text/javascript'>_site_id = '%s';</script>", site->key());
+								}
 								this->insert("<option value='%s'>%s</option>", site->id_s(), site->url());
 							};
 							

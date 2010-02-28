@@ -15,19 +15,19 @@ static int fenix_fixup(request_rec* apc_request)
 	//TODO use some advanced logic to merge home folder with app filename and log filename
 	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
 	char* app_filename = dir_conf->app_filename;
-	char* log_filename = dir_conf->log_filename;
-
+	//char* log_filename = dir_conf->log_filename;
+	
 	if(app_filename && strcmp(app_filename, ""))
 	{
-		apc_request->handler = "fenix";
+		apc_request->handler = apr_pstrdup(apc_request->pool, "fenix");
 	}
-	//TODO do not open log file on evry request. keep this in server config.
+	/*TODO do not open log file on evry request. keep this in server config.
 	if(log_filename && strcmp(log_filename, ""))
 	{
 		dir_conf->log_file = fopen(log_filename, "a");
 		if(dir_conf->log_file)
 			apr_pool_cleanup_register(apc_request->pool, dir_conf->log_file, (apr_status_t (*)(void*))fclose, apr_pool_cleanup_null) ;
-	}
+	}*/
 
 	return OK;
 }

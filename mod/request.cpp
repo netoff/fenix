@@ -111,6 +111,7 @@ char* get_apc_post_data(request_rec* apc_request)
 //Gets GET or POST params. Values should be url_undecoded and ready to use(tokenize..)
 std::string get_apc_request_params(request_rec* apc_request)
 {
+	//TODO: should we first tokenize and then decode?? potential bug here??
 	std::string ctype;
 	char* args;
 	char* p;
@@ -157,36 +158,54 @@ std::string get_apc_request_params(request_rec* apc_request)
 
 static int _get_note(void* rec, const char* key, const char* val)
 {
-	map<string, string> * hash = (map<string, string>*)rec;
-	(*hash)[key] = string(val);
+	Request* request = (action::Request*)rec;
+	request->setParam("config", key, val);
+	
+	return 1;
 }
 
-void parse_notes(request_rec* apc_request, map<string, string>& hash)
+static int _get_config(void* rec, const char* key, const char* val)
+{	
+	Request* request = (action::Request*)rec;
+	
+	request->setParam("config", key, val);
+	
+	return 1;
+}
+
+void parse_notes(request_rec* apc_request, Request& request)
 {
-	apr_table_do(_get_note, (void*)&hash, apc_request->notes, NULL);	
+	apr_table_do(_get_note, (void*)&request, apc_request->notes, NULL);	
+}
+
+void parse_config(request_rec* apc_request, Request& request)
+{
+	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
+	
+	apr_table_do(_get_config, (void*)&request, dir_conf->app_config, NULL);	
 }
 
 apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_request)
 {
 	const char *fname = filename.c_str();
-    apr_file_t *fd;
-    apr_size_t nbytes;
-    apr_status_t rv;
-    apr_finfo_t finfo;
+	apr_file_t *fd;
+	apr_size_t nbytes;
+	apr_status_t rv;
+	apr_finfo_t finfo;
 
-    rv=apr_stat(&finfo, fname, APR_FINFO_SIZE, apc_request->pool);
-    if (rv != APR_SUCCESS)
+    	rv=apr_stat(&finfo, fname, APR_FINFO_SIZE, apc_request->pool);
+    	if (rv != APR_SUCCESS)
 	{
 		APC_ELOG(apc_request, "Error geting file stats for file: %s", fname);
 		return HTTP_INTERNAL_SERVER_ERROR;
-    }
+	}
 
-    rv=apr_file_open(&fd, fname, APR_READ, APR_OS_DEFAULT, apc_request->pool);
-    if (rv != APR_SUCCESS)
-	{
+    	rv=apr_file_open(&fd, fname, APR_READ, APR_OS_DEFAULT, apc_request->pool);
+    	if (rv != APR_SUCCESS)
+    	{
 		APC_ELOG(apc_request, "Error opening file: %s", fname);
 		return HTTP_INTERNAL_SERVER_ERROR;
-    }
+    	}	
 
 	ap_set_content_length(apc_request, finfo.size);
 	ap_set_content_type(apc_request, mime_type.c_str());
@@ -195,16 +214,17 @@ apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_r
 	apr_file_close(fd);
 
 	if(rv == APR_SUCCESS)
+	{
 		return rv;
+	}
 	else
+	{
 		return HTTP_INTERNAL_SERVER_ERROR;
+	}
 }
 
 void prepare_request(Request& request, request_rec* apc_request)
 {
-	
-	//request._timestamp = apc_request->request_time;
-
 	switch(apc_request->method_number)
 	{
 	case M_GET:
@@ -219,7 +239,8 @@ void prepare_request(Request& request, request_rec* apc_request)
 
 	request._server_name = _S(ap_get_server_banner());
 
-	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
+	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);	
+	
 	char* home_folder = dir_conf->app_home_folder;
 
 	if(home_folder && strcmp(home_folder, ""))
@@ -281,7 +302,8 @@ void prepare_request(Request& request, request_rec* apc_request)
 	}
 		
 	
-	parse_notes(apc_request, request._sparams["notes"]);
+	parse_notes(apc_request, request);
+	parse_config(apc_request, request);
 	
 	//parse cookies
 	char* c = apr_table_get(apc_request->headers_in, "Cookie");

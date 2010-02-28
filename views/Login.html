@@ -7,6 +7,7 @@ param: url
 param: login_error
 param: signup_error
 param: active
+param: alert
 -->
 
 <!--@
@@ -16,6 +17,32 @@ param: active
   include_js("login.js");
   
   _title = "Login";
+-->
+
+<!--@
+	string alert = args[_alert|""];
+	
+	if(!alert.empty())
+	{
+	-->
+		<div class="mask" id="transparent-mask"></div>
+		
+		<div class="alert" class="alert">
+			<form method="get" action="/app/login">
+				<!--@ this->insert(alert); -->
+				
+				<input type="submit" value="OK" />
+			</form>
+		</div>
+		<script type="text/javascript">
+			$(function (){
+					$("#transparent-mask").height($("body").height());
+					$("#transparent-mask").width($("body").width());
+			} );
+		</script>
+	
+<!--@
+	}
 -->
 
 <div class="span-24">

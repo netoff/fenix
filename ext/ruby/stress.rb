@@ -13,7 +13,7 @@ require 'uri'
 #INDIA	 IN
 #HUNGARY	 HU
 
-SITE_ID = "nx3456"
+SITE_ID = "a10007SN"
 TRACK_URI = "http://log.kliknik.my/lg/view?_e=hit"
 
 COUNTRIES = ["US", "US", "US", "US", "GB", "GB", "RS", "RS", "UA", "TR", "RO", "NO", "ME", "IN", "HU"]
