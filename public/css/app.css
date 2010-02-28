@@ -103,17 +103,10 @@ h3
 	margin: 8px 0 0 0;
 	height: 25px;
 }
-#main-menu
-{
-	//background-color: #7297BA;
-}
+
 #main-menu-w
 {
 	height: 53px;
-	//background-color: #7297BA;
-	//background-color: #CFD6DE;
-	//border-bottom: 5px solid #FF542E;
-	//border-top: 3px solid #ADC1D6;
 }
 
 #main-menu > ul
@@ -127,7 +120,6 @@ h3
 #main-menu li
 {
 	margin: 7px 0 0 0 ;
-	//background-color: #ADC1D6;
 	background-color: #CFD6DE;
 	display: block;
 	float: left;
@@ -244,16 +236,11 @@ div.window > h3
 
 div.stat-label
 {
-	background-color: #fff;
-	
-	//background-image: url(/img/arr.gif);
-	//background-repeat: no-repeat;
-	//background-position: 8px 7px; 
+	background-color: #fff; 
 	border-bottom: 1px solid #CFD6DE;
 	margin: 0 10px;
 	padding: 2px 5px;
 	text-align: left;
-	//padding-left: 25px;
 }
 div.stat-sep
 {
@@ -399,7 +386,6 @@ span.date-range-predefined-selectors
 	width: 960px;
 	overflow: hidden;
 	position: relative;
-	//height: 500px;
 }
 #pages
 {
