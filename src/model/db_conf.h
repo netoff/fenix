@@ -8,22 +8,23 @@
 using namespace fenix::web::toolkit;
 using namespace fenix::web::toolkit::model;
 
-DB get_users_db(const action::Request& request)
+Database::obj get_database(const action::Request& request, const string& db)
 {
-	string hostname = request("config", "users_db_host");
-	int port = action::to_integer(request("config", "users_db_port"));
+	string hostname = request("config", "db_host");
+	int port = action::to_integer(request("config", "db_port"));
 	
-	return DB(hostname, port);
+	Database::obj ret(new Database(hostname, db, port));
+	
+	/*request.add_note(Notifier<Database::obj>::get(ret));*/
+	
+	return ret;	
 }
 
-DB get_log_db(const action::Request& request)
+namespace tables
 {
-	string hostname = request("config", "log_db_host");
-	int port = action::to_integer(request("config", "log_db_port"));
-	
-	return DB(hostname, port);
-}
-
 //forward declarations
 class Site;
 class User;
+}
+
+const int SITE_ID_LENGTH = 24;

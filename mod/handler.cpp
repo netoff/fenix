@@ -9,25 +9,75 @@
 #include "cookie.h"
 
 #include <apr_strings.h>
+#include <apr_base64.h>
 
 using namespace std;
 using namespace fenix::web::toolkit;
 
-int _dispatch(const view::Response& response, request_rec* apc_request, const map<string, pair<string, int> >& session)
+typedef const map<string, action::cookie_param> Session;
+typedef pair<string, action::cookie_param> cookie_jar;
+
+static vector<string> get_cookies(Session& session)
 {
-	try
-	{
-		string log_output = response.get_log_output();
-		
-		if(!log_output.empty())
+	vector<string> ret;
+	
+	foreach(cookie_jar c, session)
+	{			
+		string cookie_val = "";
+								
+		if(c.second.val.empty())
 		{
-			ap_log_rerror("mod/handler.cpp", 0, APLOG_ERR, 0, apc_request, log_output.c_str());
+			//clear cookie
+			if(c.second.domain.empty())
+			{
+				cookie_val = cookie(c.first, c.second.val, c.second.path, -24);
+			}
+			else
+			{
+				cookie_val = cookie(c.first, c.second.val, c.second.path, c.second.domain, -24);
+			}
+		}
+		else
+		{	
+			int expire = c.second.expire;
+			
+			if(expire == 0)
+			{
+				//set new session cookie
+				if(c.second.domain.empty())
+				{
+					cookie_val = cookie(c.first, c.second.val, c.second.path);
+				}
+				else
+				{
+					cookie_val = cookie(c.first, c.second.val, c.second.path, c.second.domain);
+				}
+			}
+			if(expire > 0)
+			{
+				//set new cookie
+				if(c.second.domain.empty())
+				{
+					cookie_val = cookie(c.first, c.second.val, c.second.path, c.second.expire);
+				}
+				else
+				{
+					cookie_val = cookie(c.first, c.second.val, c.second.path, c.second.domain, c.second.expire);
+				}									
+			}						
 		}
 		
-		//set cookies
-		typedef pair<string, pair<string, int> > cookie_jar;		
-		
-		switch(response.getResponseType())
+		ret.push_back(cookie_val);
+	}	
+	
+	return ret;
+}
+
+int _dispatch(const shared_ptr<view::Response> response, request_rec* apc_request, Session& session)
+{
+	try
+	{	
+		switch(response->getResponseType())
 		{
 		case view::Response::XML:
 		case view::Response::JAVASCRIPT:
@@ -35,57 +85,54 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 		case view::Response::PLAIN_TEXT:
 		case view::Response::DHTML:
 			{	
+
+				vector<string> cookies = get_cookies(session);
 				
-				foreach(cookie_jar c, session)
-				{			
-						string cookie_s = "";
-												
-						if(c.second.first.empty())
+				foreach(string cookie, cookies)
+				{						
+						if(!cookie.empty())
 						{
-							//clear cookie
-							cookie_s = cookie(c.first, "", "/", -24);
+							apr_table_add(apc_request->headers_out, "Set-Cookie", cookie.c_str());
 						}
-						else
-						{	int expire = c.second.second;
-							
-							if(expire == 0)
-							{
-								//set new session cookie
-								cookie_s = cookie(c.first, c.second.first, "/");
-							}
-							if(expire > 0)
-							{
-								//set new cookie
-								cookie_s = cookie(c.first, c.second.first, "/", c.second.second);
-							}						
-						}
-						
-						if(!cookie_s.empty())
-						{
-							apr_table_add(apc_request->headers_out, "Set-Cookie", cookie_s.c_str());
-						}
-				}
-			
+				}			
 				
 				//TODO: Force mime-type based on response type class?? Or we do not need
 				//cast to something. Response class should not be polymorphic at all??
 				//Performance improvement, uniform API, no type conversion and casting....
-				string mime_type = response.getMimeType() + "; charset=UTF-8";
+				string mime_type = response->getMimeType() + "; charset=UTF-8";
 
 				char* mtype = apr_pstrdup(apc_request->pool, mime_type.c_str());
 
 				ap_set_content_type(apc_request, mtype);
 
-				char* body = apr_pstrdup(apc_request->pool, response.getResponseBodyC());
+				char* body = apr_pstrdup(apc_request->pool, response->getResponseBodyC());
 				ap_rputs(body, apc_request);
 
+				return OK;
+			}
+		case view::Response::BINARY:
+			{
+				string mime_type = response->getMimeType();
+
+				char* mtype = apr_pstrdup(apc_request->pool, mime_type.c_str());
+				char* body = apr_pstrdup(apc_request->pool, response->getResponseBodyC());
+				
+				ap_set_content_type(apc_request, mtype);
+				
+				unsigned char* binary = (unsigned char*)apr_palloc(apc_request->pool, apr_base64_decode_len(body) + 1);
+				int len = apr_base64_decode_binary(binary, body);
+				binary[len] = '\0';//just in case
+				
+				//ap_rputs(binary, apc_request);
+				ap_rwrite((void*)binary, len, apc_request);
+								
 				return OK;
 			}
 		case view::Response::NOT_FOUND:
 			{
 				char* mtype = "text/html";
 				ap_set_content_type(apc_request, mtype);
-				ap_rputs(response.getResponseBodyC(), apc_request);
+				ap_rputs(response->getResponseBodyC(), apc_request);
 
 				return HTTP_NOT_FOUND;
 			}
@@ -93,7 +140,7 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 			{
 				char* mtype = "text/html";
 				ap_set_content_type(apc_request, mtype);
-				ap_rputs(response.getResponseBodyC(), apc_request);
+				ap_rputs(response->getResponseBodyC(), apc_request);
 
 				return HTTP_FORBIDDEN;
 			}
@@ -102,44 +149,23 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 				char* mtype = "text/html";
 
 				ap_set_content_type(apc_request, mtype);
-				ap_rputs(response.getResponseBodyC(), apc_request);
+				ap_rputs(response->getResponseBodyC(), apc_request);
 
 				return HTTP_BAD_REQUEST;
 			}
 		case view::Response::REDIRECT:
 			{
-				foreach(cookie_jar c, session)
-				{			
-					string cookie_s = "";
-											
-					if(c.second.first.empty())
+				vector<string> cookies = get_cookies(session);
+				
+				foreach(string cookie, cookies)
+				{								
+					if(!cookie.empty())
 					{
-						//clear cookie
-						cookie_s = cookie(c.first, "", "/", -24);
-					}
-					else
-					{	int expire = c.second.second;
-						
-						if(expire == 0)
-						{
-							//set new session cookie
-							cookie_s = cookie(c.first, c.second.first, "/");
-						}
-						//-1 is cookie readed from request, it is already set, so do not have to set it again??
-						if(expire > 0)
-						{
-							//set new cookie
-							cookie_s = cookie(c.first, c.second.first, "/", c.second.second);
-						}						
-					}
-					
-					if(!cookie_s.empty())
-					{
-						apr_table_add(apc_request->err_headers_out, "Set-Cookie", cookie_s.c_str());
+						apr_table_add(apc_request->err_headers_out, "Set-Cookie", cookie.c_str());
 					}
 				}
 				
-				apr_table_set(apc_request->headers_out, "Location", response.getResponseBodyC());
+				apr_table_set(apc_request->headers_out, "Location", response->getResponseBodyC());
 				
 				return HTTP_MOVED_TEMPORARILY;  
 			}
@@ -150,8 +176,8 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 		case view::Response::AJAX:
 		case view::Response::FILE:
 			{
-				string filename = response.getResponseBody();
-				string mime_type = response.getMimeType();
+				string filename = response->getResponseBody();
+				string mime_type = response->getMimeType();
 
 				return send_apc_file(filename, mime_type, apc_request);
 			}
@@ -169,63 +195,57 @@ int _dispatch(const view::Response& response, request_rec* apc_request, const ma
 }
 
 int fenix_handler(request_rec* apc_request)
-{
-
-	int rv = HTTP_INTERNAL_SERVER_ERROR;
-	
-	shared_ptr<view::Response> (*_handle)(const action::Request&) = NULL;
-
-	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
-
-	char* home_folder = dir_conf->app_home_folder;
-	char* dll_filename = dir_conf->app_filename;
-	char* dll_full_name;
-
-	apr_dso_handle_t* dll_module;
+{	
+	int ret = HTTP_INTERNAL_SERVER_ERROR;	
 
 	if(!apc_request->handler || strcmp(apc_request->handler, "fenix"))
+	{
 		return DECLINED;
+	}
 
 	if (apc_request->method_number == M_OPTIONS)
 	{
 		apc_request->allowed |= (1 << M_GET);
 		apc_request->allowed |= (1 << M_POST);
-        return DECLINED;
+		
+		return DECLINED;
 	}
 
 	if(apc_request->method_number != M_GET && apc_request->method_number != M_POST)
+	{
 		return HTTP_METHOD_NOT_ALLOWED;
+	}
 
-
-	apr_filepath_merge(&dll_full_name, home_folder, dll_filename, APR_FILEPATH_NATIVE, apc_request->pool);
-
-	//TODO: Do not reload shared library on every request.
-	//Slows down and waste resources...
-	if(rv = apr_dso_load(&dll_module, dll_full_name, apc_request->pool))
+	fenix_dir_conf* dir_conf = (fenix_dir_conf*)ap_get_module_config(apc_request->per_dir_config, &fenix_module);
+	
+	/*if(!dir_conf->module)
 	{
-		char err[1024] = "";
-
-		apr_dso_error(dll_module, err, sizeof(err));
-		ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, apc_request, "Failed loading shared library: %s(%s)", dll_full_name, err);
-		
+		return HTTP_INTERNAL_SERVER_ERROR;
+	}*/
+	
+	if(!dir_conf->handle)
+	{
 		return HTTP_INTERNAL_SERVER_ERROR;
 	}
-	if(rv = apr_dso_sym((void**)&_handle, dll_module, "handle"))
+	
+	shared_ptr<view::Response> (*_handle)(const action::Request&) = dir_conf->handle;
+	/*
+	ret = apr_dso_sym((void**)&_handle, dir_conf->module, application_entry_point);
+	
+	if(ret)
 	{
-		ap_log_rerror(APLOG_MARK, APLOG_ERR, rv, apc_request, "Failed loading module function: %s", "handle");
-
-		apr_dso_unload(dll_module);
+		ap_log_rerror(APLOG_MARK, APLOG_ERR, ret, apc_request, "Failed loading application entry point: '%s'", application_entry_point);
 		
 		return HTTP_INTERNAL_SERVER_ERROR;
-	}
+	}*/
 
 	action::Request request;
 
 	prepare_request(request, apc_request);
 
-	shared_ptr<view::Response> response(_handle(request));
+	shared_ptr<view::Response> response = _handle(request);
 
-	rv = _dispatch(*response, apc_request, request._pparams);
+	ret = _dispatch(response, apc_request, request._pparams);
 	
-	return rv;
+	return ret;
 }

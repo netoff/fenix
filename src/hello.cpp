@@ -1,31 +1,51 @@
 #include "controllers.h"
 #include "aaa.h"
 
+extern const char* ROOT_PATH = "analytics";
+extern const char* app_secret_key = SECRET_KEY;
+
 using namespace fenix::web::toolkit;
 
-FENIX_APPLICATION(HelloWorld)
+template <int T>
+struct auth
 {
-	typedef session_authentication::authenticate auth;
-	
+	typedef session_authentication::authenticate<T> Type;
+};
+
+FENIX_APPLICATION(HelloWorld)
+{	
 	auto_ptr<action::Base> action = dispatch(
-			_("app")/"index"		<< _action<DashboardController::index, auth>() ||
-			_("app")/"index"/"poll"		<< _action<StatsController::views, auth>() ||
-			_("app")/"stats"/"views"	<< _action<StatsController::views, auth>() ||
+		#ifdef DEBUG
+			_root/"_debug"/"db" 		<< _action<DebugController::db>() ||
+		#endif
+			
+			_root/"index"		<< _action<DashboardController::index, auth<1>::Type>() ||			
+			
 			_("lg")/"view"			<< _action<LogController::lg>() ||
-			_("app")/"visitors"		<< _action<PagesController::visitors, auth>() ||
-			_("app")/"visitors"/"poll"	<< _action<PagesController::Poll::visitors, auth>() ||
 			
 			//Login and sigunp
-			_("app")/"login"		<< _action<LoginController::index>() ||
-			_("app")/"login"/"new"		<< _action<LoginController::account::create>() ||
-			_("app")/"signup_thanks"	<< _action<LoginController::account::create_finish>() ||
+			_root/"login"		<< _action<LoginController::index>() ||
+			_root/"login"/"new"		<< _action<LoginController::account::create>() ||			
+			_root/"session"/"new"	<< _action<LoginController::session::create>() ||
+			_root/"logout"		<< _action<LoginController::session::clear, auth<1>::Type>() ||
+			//=======================================================================			
 			
-			_("app")/"session"/"new"	<< _action<LoginController::session::create>() ||
-			_("app")/"logout"		<< _action<LoginController::session::clear, auth>() ||
+			_root/"visitors"		<< _action<PagesController::visitors, auth<1>::Type>() ||					
+			_root/"pages"		<< _action<PagesController::pages, auth<1>::Type>()||			
+			_root/"referrers"		<< _action<PagesController::referrers, auth<1>::Type>()||
 			
-						
-			_("app")/"pages"		<< _action<PagesController::pages, auth>()||
-			_("app")/"referrers"		<< _action<PagesController::referrers, auth>()
+			_root/"poll"/"index"		<< _action<StatsController::views, auth<0>::Type>() ||
+			_root/"stats"/"views"	<< _action<StatsController::views, auth<0>::Type>() ||
+			
+			_root/"poll"/"visitors"	<< _action<PagesController::Poll::visitors, auth<0>::Type>() ||
+			_root/"poll"/"pages" << _action<PagesController::Poll::pages, auth<0>::Type>()||
+			_root/"poll"/"referrers" << _action<PagesController::Poll::referrers, auth<0>::Type>() ||
+			_root/"poll"/"account"/"time" << _action<PagesController::Poll::Account::time, auth<0>::Type>() ||
+			
+			//Admin panel
+			_("admin")/"panel" << _action<PagesController::Admin::index, auth<0>::Type>() ||
+			_("admin")/"activate" << _action<PagesController::Admin::activate, auth<0>::Type>()
+			//_admin_root...
 			/*
 			_("lg")/"hit"			<< _action<LogController::hit>(),
 			_("lg")/"click"			<< _action<LogController::click>(),

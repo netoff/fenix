@@ -115,7 +115,7 @@ std::string get_apc_request_params(request_rec* apc_request)
 	std::string ctype;
 	char* args;
 	char* p;
-
+	
 	switch(apc_request->method_number)
 	{
 	case M_GET:
@@ -151,7 +151,7 @@ std::string get_apc_request_params(request_rec* apc_request)
 		if (*p == '+')
 			*p = ' ';
 	}
-	ap_unescape_url(args);
+	//ap_unescape_url(args);
 
 	return args;
 }
@@ -260,14 +260,13 @@ void prepare_request(Request& request, request_rec* apc_request)
 	request._sparams["http"]["filename"] =		_S(apc_request->filename);
 	request._sparams["http"]["port"] =		_S(apc_request->parsed_uri.port_str);
 	request._sparams["http"]["scheme"] =		_S(ap_http_scheme(apc_request));
-	request._sparams["http"]["hostname"] =		_S(apc_request->hostname);
+	string _h = 															_S(apc_request->hostname);
+	request._sparams["http"]["hostname"] =		_h;
 	request._sparams["http"]["remote_ip"] =		_S(apc_request->connection->remote_ip);
 	request._sparams["http"]["remote_host"] =	_S(ap_get_remote_host(apc_request->connection, apc_request->per_dir_config, REMOTE_NAME, NULL));
 	request._sparams["http"]["user_agent"] =	_S(apr_table_get(apc_request->headers_in, "User-Agent"));
 	request._sparams["http"]["referer"] =		_S(apr_table_get(apc_request->headers_in, "Referer"));
 	request._sparams["http"]["ajax"] =		_S(apr_table_get(apc_request->headers_in, "X-Requested-With"));
-
-	
 
 	//string arguments(_S(apc_request->args));
 	string arguments = get_apc_request_params(apc_request);
@@ -275,6 +274,13 @@ void prepare_request(Request& request, request_rec* apc_request)
 
 	typedef char_separator<char> ch_sep;
 	typedef tokenizer<ch_sep> tokenizer;
+	
+	tokenizer parts(_h, ch_sep("."));
+	
+	foreach(string part, parts)
+	{
+		request._host.push_front(part);
+	}
 
 	ch_sep arg_sep("&");
 	ch_sep keyval_sep("=");
@@ -287,7 +293,7 @@ void prepare_request(Request& request, request_rec* apc_request)
 		vector<string> kv_vec(kv.begin(), kv.end());
 
 		string key = (kv_vec.size() > 0)?kv_vec[0]:"";
-		string val = (kv_vec.size() > 1)?kv_vec[1]:"";
+		string val = (kv_vec.size() > 1)?decode_param(kv_vec[1]):"";
 		request._params[key] = val;
 	}
 
@@ -299,8 +305,7 @@ void prepare_request(Request& request, request_rec* apc_request)
 	foreach(string uri, uric)
 	{
 		request._query.push_back(uri);
-	}
-		
+	}		
 	
 	parse_notes(apc_request, request);
 	parse_config(apc_request, request);
@@ -311,6 +316,6 @@ void prepare_request(Request& request, request_rec* apc_request)
 	if(c)
 	{
 		string cookie(c);
-		parse_cookies(cookie, request._pparams);
+		parse_cookies(cookie, request);
 	}
 }

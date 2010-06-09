@@ -1,98 +1,70 @@
-var page;
-if(!page)
-{
-	page = {
-		//page init function
-		init: function ()
-		{
-			this.chart.getDataPoints = function (it)
-			{
-				var i, points = [];
-				
-				if(it === 0)
-				{
-					for(i = 0; i < this.chartData.length; i++)
-					{		
-						points.push([i, this.chartData[i]]);
-					}
-					
-					return points;
-				}
-				
-				return [];
-			}
-			
-			this.chart.getPoints = function (it)
-			{
-				if(it === 0)
-				{
-					return { show: true, radius: 3};
-				}
-				
-				return { show: false };
-			}
-			
-			this.chart.getBars = function (it)
-			{
-				return {show: false};
-			}
-			
-			this.chart.getLines = function (it)
-			{	
-				if(it === 0)
-				{
-					return {show: true, lineWidth: 4};
-				}
-					
-				return {show: false};
-			}
-			
-			this.chart.setSettings({
-				legend: { noColumns: 3, container: $("#chart-legend")},
-				colors: ["#7297BA"],
-				yaxis: {min: 0, tickDecimals: 0},
-				xaxis: {tickDecimals: 0},
-				grid: {borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
-			});
-			
-			this.chart.setSeries(["visits"]);
-			
-			//this.chart.updatePoints([10, 12, 13, 14, 11, 11, 9]);
-			
-			this.chart.setCanvas($("#visitors-chart"));
-			
-			this.chart.draw();
-			
-			$("#date-range-selector-input").DatePicker({
-					mode: 'range',
-					calendars: 2,
-					format: 'm/d/Y',
-					date: ['01/11/2010', '02/10/2010']
-			});
-		},
-		
-		chart: new Chart(30, "day"),
-		
-		update: function ()
-		{
-			var date_range = $("#date-range-selector-input").val();
-			
-			if(date_range)
-			{
-				
-			}
-		}
-	};
-}
-
 $(function (){
-	page.init();
-	page.update();
-	
-	$("#date-range-selector-submit").click(function ()
-		{
-			page.update();
+	page.init(function(page){
+			page.setEndpoint("/analytics/poll/visitors");
 			
-			return false;
-		});
+			var visits = $('#stat-vs'), visits_per_day =$('#stat-vspd'),
+					new_visitors = $('#stat-nv'), new_visitors_per_day = $('#stat-nvpd'),
+					visitors_list_by_country = $('#visitors-segments');
+					
+			function updateOverview(overview)
+			{
+				if(overview && overview.length > 3)
+				{
+					visits.html(overview[0]);
+					visits_per_day.html(overview[1]);
+					new_visitors.html(overview[2]);
+					new_visitors_per_day.html(overview[3]);					
+				}
+			};
+			
+			function updateSegments(segments)
+			{				
+				if(segments)
+				{
+					var countries = segments.countries,
+							len = countries.length;
+					
+					page.updateSegmentedList(visitors_list_by_country, ["#", "Country", "Visits", "New Visitor", "%New"], len,
+						function(i){
+							var row = [];
+							
+							if(i < len)
+							{
+								var country = countries[i];
+								row.push(i+1);row.push(lookupCountry(country.name));row.push(country.visits);
+								row.push(country.new_visits);row.push(country.percent);
+							}
+							
+							return row;
+					});
+				}
+			};
+			
+			page.updateFromFeed = function (feed)
+			{
+				if(feed)
+				{
+					var points = feed.points,
+							type = feed.type,
+							overview = feed.overview,
+							segments = feed.by;
+							
+					if(points && points.length > 0 && type && overview && segments)
+					{
+						var series = [];
+						if(type === "-1") {series = ['new visitors', 'returning visitors', 'repeating visitors', 'visits'];}
+						if(type === "2") {series = ['new visitors'];}
+						if(type === "3") {series = ['returning visitors'];}
+						if(type === "4") {series = ['repeating visitors'];}
+						
+						page.chart.setSeries(series);
+						page.chart.setPoints(points);
+						page.chart.draw();
+						
+						updateOverview(overview);
+						updateSegments(segments);
+					}
+				}
+			};
+	});
 });

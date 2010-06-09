@@ -14,18 +14,16 @@ namespace tables
 	class Site: public Table<Site>
 	{
 	public:
-		Site(DB db)
-		:Table<Site>(db, "Site")
-		{
-		}		
+		TABLE(Site)		
 		
-		STR_FIELD(url)
-		STR_FIELD(timezone)
-		STR_FIELD(key)
+		STRING_FIELD(url)
+		STRING_FIELD(timezone)
+		STRING_FIELD(key)
 		
 		
 		FOREIGN_KEY_FIELD(user)
 	protected:
+		/*
 		virtual void _on_create(const string& id)
 		{
 			int64_t guid = 0;
@@ -62,6 +60,6 @@ namespace tables
 			}
 			
 			return region + base36;
-		}
+		}*/
 	};
 }

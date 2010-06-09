@@ -19,7 +19,9 @@ namespace fenix
 		{
 			namespace view
 			{
-				class Response
+				static const string pixel_bin = "R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+				
+				class Response: private noncopyable
 				{
 				public:
 					enum ResponseType
@@ -43,7 +45,9 @@ namespace fenix
 						JSON,
 						JAVASCRIPT,
 						EXCEPTION,
-						AJAX
+						AJAX,
+						//base_64 encoded, eg. tracking pixel
+						BINARY
 					};
 					enum ResponseVersion
 					{
@@ -63,12 +67,12 @@ namespace fenix
 					string getMimeType() const { return _mime_type; }
 					const char* getMimeTypeC() const { return _mime_type.c_str(); }
 					
-					string get_log_output() const { return _log_output; }
+					//string get_log_output() const { return log::_flush_log(); }
 
 					virtual ~Response(){}
 				protected:
-					Response(ResponseType t, int reserve=0, const string& mime_type="text/html")
-					:_type(t),_mime_type(mime_type),_response(),_log_output(log::log_output())
+					Response(ResponseType t, int reserve, const string& mime_type)
+					:_type(t),_mime_type(mime_type),_response()
 					{
 						if(reserve > 0)
 						{
@@ -82,13 +86,11 @@ namespace fenix
 					string _mime_type;
 					
 					string _response;
-					
-					string _log_output;
 				};
 
 				class InlineResponse: public Response
 				{
-					const int _response_size = 4*1024;
+					static const int _response_size = 4*1024;
 				public:
 					InlineResponse(const string& body, const string& mime_type)
 						:Response(Response::PLAIN_TEXT, _response_size, mime_type)
@@ -99,7 +101,7 @@ namespace fenix
 				
 				class RedirectResponse: public Response
 				{
-					const int _response_size = 1024;
+					static const int _response_size = 1024;
 				public:
 					RedirectResponse(const string& url)
 					:Response(Response::REDIRECT, _response_size, "text/plain")
@@ -158,7 +160,7 @@ namespace fenix
 
 				class FileNotFoundResponse: public Response
 				{
-					const int _response_size = 0;
+					static const int _response_size = 0;
 				public:
 					FileNotFoundResponse()
 						:Response(Response::NOT_FOUND, _response_size, "text/html")
@@ -169,7 +171,7 @@ namespace fenix
 
 				class ForbidenResponse: public Response
 				{
-					const int _response_size = 0;
+					static const int _response_size = 0;
 				public:
 					ForbidenResponse()
 						:Response(Response::FORBIDEN, _response_size, "text/html")
@@ -180,7 +182,7 @@ namespace fenix
 
 				class BadRequestResponse: public Response
 				{
-					const int _response_size = 0;
+					static const int _response_size = 0;
 				public:
 					BadRequestResponse()
 						:Response(Response::BAD_REQUEST, _response_size, "text/html")
@@ -191,7 +193,7 @@ namespace fenix
 				
 				class NotFoundResponse: public Response
 				{
-					const int _response_size = 0;
+					static const int _response_size = 0;
 				public:
 					NotFoundResponse(const string& path="")
 						:Response(Response::NOT_FOUND, _response_size, "text/html")
@@ -217,12 +219,22 @@ namespace fenix
 						_response = out.str();
 					}
 				};
+				
+				class TrackingPixel: public Response
+				{				
+				public:
+					TrackingPixel()
+					:Response(Response::BINARY, 64, "image/gif")
+					{
+						this->_response = pixel_bin;
+					}
+				};
 
-				class HTMLResponse: public Response
+				class HTMLResponse: public Response, private noncopyable
 				{
 				public:
 					HTMLResponse(string html)
-						:Response(Response::HTML)
+						:Response(Response::HTML, html.size(), "text/html")
 					{
 						_response = html;
 					}
@@ -247,11 +259,13 @@ namespace fenix
 						:Response(response_type, 32*1024, mime_type){}
 				};
 
-				class DHTMLResponse: public HTMLResponse
+				class DHTMLResponse: public HTMLResponse, private noncopyable
 				{
 				public:
 					DHTMLResponse()
 						:HTMLResponse(Response::HTML){}
+						
+					virtual ~DHTMLResponse(){}
 				protected:
 					void insert(const string& a, bool new_line=true);
 
@@ -330,7 +344,7 @@ namespace fenix
 				struct _deleter
 				{
 					template<class T>
-					operator() (T* t)
+					void operator() (T* t)
 					{
 						delete t;
 					}
@@ -352,14 +366,14 @@ namespace fenix
 					return p;
 				}
 				
-				inline shared_ptr<InlineResponse> render_text(const string& body, const string& mime_type="text/html")
+				inline shared_ptr<InlineResponse> render_text(const string& body, const string& mime_type)
 				{
-					shared_ptr<InlineResponse> p(new InlineResponse(body, "text/html"), _deleter());
+					shared_ptr<InlineResponse> p(new InlineResponse(body, mime_type), _deleter());
 					
 					return p;
 				}
 				
-				inline shared_ptr<InlineResponse> render_text(const ostringstream& body, const string& mime_type="text/html")
+				inline shared_ptr<InlineResponse> render_text(const ostringstream& body, const string& mime_type)
 				{
 					return render_text(body.str(), mime_type);
 				}
@@ -367,6 +381,13 @@ namespace fenix
 				inline shared_ptr<RedirectResponse> render_redirect(const string& url)
 				{
 					shared_ptr<RedirectResponse> p(new RedirectResponse(url), _deleter());
+					
+					return p;
+				}
+				
+				inline shared_ptr<RedirectResponse> render_redirect(const string& root, const string& url)
+				{
+					shared_ptr<RedirectResponse> p(new RedirectResponse(root + url), _deleter());
 					
 					return p;
 				}

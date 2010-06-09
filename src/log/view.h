@@ -1,120 +1,74 @@
 #pragma once
 
 #include <fenix.h>
+
+#include "log_request.h"
+
 #include "../model/db_conf.h"
-#include "../model/tokyo.h"
 
 const long session_duration = 60/*seconds*/ * 30/*minutes*/;
 
-void log_page_view(string site_id, string url, string title, string referrer, string country_code, string search_query, long last_view, ptime timestamp, const DB db)
+typedef ostringstream os;	
+
+static string log_new_visitor(const string& ts, const string& req)
 {
-	string key = str(format("s:%i")%site_id);
-	string query = "";
+	os ret; ret << "log.log_new_visitor(" <<  ts << ", "<< req << ")";
+	return ret.str();
+}
+static string log_returning_visitor(const string& ts, const string& req)
+{
+	os ret; ret << "log.log_returning_visitor(" << ts << ", " << req << ")";
+	return ret.str();
+}
+static string log_repeating_visitor(const string& ts, const string& req)
+{
+	os ret; ret << "log.log_repeating_visitor(" << ts << ", " << req << ")";
+	return ret.str();
+}
+static string log_page_view(const string& ts, const string& req)
+{
+	os ret; ret << "log.log_page_view(" << ts << ", " << req << ")";
+	return ret.str();
+}
+
+void log_page_view(const LogRequest& req, long last_view, ptime timestamp, const ScopedMiddleware& mid)
+{
+	ostringstream query;
 	
-	ostringstream sec_slot, min_slot, hour_slot, day_slot;
+	string ts_obj = ts_object(timestamp);
+	string req_obj = req.to_object();
 	
-	string url_id = "";
-	string title_id = "";
-	string referrer_id = "";
-	
-	url_id = make_id(key + ":urls", url, db);
-	title_id = make_id(key + ":titles", title, db);
-	referrer_id = make_id(key + ":referrers", referrer, db);
-	
-	sec_slot << "hps";
-	min_slot << "hpm";
-	hour_slot << "hph";
-	day_slot << "hpd";
-	
-	if(!url.empty())
-	{		
-		hour_slot << "|uph_" << url_id;
-		day_slot << "|upd_" << url_id;
-	}
-	if(!title.empty())
-	{
-		
-		hour_slot << "|tph_" << title_id;
-		day_slot << "|tpd_" << title_id;
-	}
-	if(!referrer.empty())
-	{
-		hour_slot << "|rph_" << referrer_id;
-		day_slot << "|rpd_" << referrer_id;
-	}
-	
-	//------------------------------
 	//new visitor
 	if(last_view < 0)
 	{
-		sec_slot << "|nvps" ;
-		min_slot << "|nvpm";
-		
-		hour_slot << "|sph|nvph" << "|scph_" << country_code;
-		day_slot << "|spd|nvpd" << "|scpd_" << country_code
-			<< "|scnpd_" << country_code;
-		
-		if(!url_id.empty())
-		{
-			day_slot << "|unpd_" << url_id;
-		}
-		if(!title_id.empty())
-		{
-			day_slot << "|tnpd_" << title_id;
-		}
-		if(!referrer_id.empty())
-		{
-			day_slot << "|rnpd_" << referrer_id;
-		}
-	}
+		query << log_new_visitor(ts_obj, req_obj);
 	
+	} 	
 	//-----------------------------
 	//new session
-	if(last_view > session_duration )
+	else if(last_view > session_duration )
 	{
-		
-		sec_slot << "|rvps";
-		min_slot << "|rvpm";
-		hour_slot << "|sph" << "|scph_" << country_code;
-		day_slot << "|spd" << "|scpd_" << country_code;
-		
-		if(!url_id.empty())
-		{
-			day_slot << "|uspd_" << url_id;
-		}
-		if(!title_id.empty())
-		{
-			day_slot << "|tspd_" << title_id;
-		}
-		if(!referrer_id.empty())
-		{
-			day_slot << "|rspd_" << referrer_id;
-		}
-					
 		ptime last_view_time = timestamp - posix_time::seconds(last_view);
 		
 		if(last_view_time.date() < timestamp.date())
 		{
-			//it was yesterday, or some days ago => returning visitor				
-			day_slot << "|rvpd";				
+			query << log_returning_visitor(ts_obj, req_obj);
 		}
 		else
 		{
-			//it is today => repeating visitor				
-			day_slot << "|rpvpd";				
+			query << log_repeating_visitor(ts_obj, req_obj);
 		}
 	}
-	
-	string sec = sec_slot.str();
-	string min = min_slot.str();
-	string hour = hour_slot.str();
-	string day = day_slot.str();
-	
-	query = make_query(sec, min, hour, day, timestamp);
-	
-	if(!query.empty())
+	else
 	{
-		model::Database(db.host, db.port).ext("log", key, query);
+		query << log_page_view(ts_obj, req_obj);
+	}
+
+	string q = query.str();
+	
+	if(!q.empty())
+	{
+		mid.insert(q);
 	}
 		
 }

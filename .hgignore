@@ -14,3 +14,4 @@ build/
 .build/
 bck/
 .bck/
+bin/logger

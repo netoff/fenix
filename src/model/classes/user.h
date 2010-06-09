@@ -3,6 +3,8 @@
 #include "../db_conf.h"
 #include "fenix.h"
 
+#include "datetime.h"
+
 using namespace fenix::web::toolkit;
 
 namespace tables
@@ -10,20 +12,24 @@ namespace tables
 	class User: public Table<User>
 	{
 	public:
-		User(DB db)
-		:Table<User>(db, "User")
-		{
-		}
+		TABLE(User)
 		
-		STR_FIELD(email)
-		STR_FIELD(state)
+		STRING_FIELD(email)
+		STRING_FIELD(state)
 		
-		STR_FIELD_A(plain_password)
+		STRING_FIELD_A(plain_password)
 		
-		STR_FIELD_PRIV(password)
-		STR_FIELD_PRIV(salt)
+		STRING_PRIV(password)
+		STRING_PRIV(salt)
 		
 		HAS(sites, Site, user_id)
+		
+		STRING_FIELD(role)
+		
+		STRING_FIELD(timestamp)
+		STRING_FIELD(registration_date)
+		STRING_FIELD(last_login)
+		STRING_FIELD(last_activity)
 
 		bool authenticate()
 		{
@@ -36,6 +42,29 @@ namespace tables
 		bool activated()
 		{
 			return (this->state() == "activated");
+		}
+		bool is_activated()
+		{
+			return this->activated();
+		}
+		
+		void activate()
+		{
+			this->state("activated");
+		}
+		
+		void log_login()
+		{
+			ptime now = microsec_clock::universal_time();
+			
+			this->last_login(datetime::format(now, "%H:%M %d-%b-%Y GMT+0"));
+		}
+		
+		void log_activity()
+		{
+			ptime now = microsec_clock::universal_time();
+			
+			this->last_activity(datetime::format(now, "%H:%M %d-%b-%Y GMT+0"));
 		}
 	protected:
 		/*virtual bool _before_save()
@@ -58,7 +87,13 @@ namespace tables
 			this->password(pwd);
 			this->salt(slt);
 			
+			this->role("admin");			
 			this->state("registered");
+			
+			ptime now = microsec_clock::universal_time();
+			
+			this->registration_date(datetime::format(now, "%H:%M %d-%b-%Y GMT+0"));
+			this->timestamp(to_string(datetime::timestamp(now)));
 			
 			return true;			
 		}

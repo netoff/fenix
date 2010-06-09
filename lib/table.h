@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "model.h"
+#include "model_obj.h"
 
 static const unsigned int max_str_length = 2 * 1024;
 static const unsigned int max_text_length = 128 * 1024; 
@@ -13,335 +14,222 @@ namespace fenix
 		namespace toolkit
 		{
 			namespace model
-			{
-				struct DB
-				{
-					DB(const string& h, int p)
-					:host(h),port(p){}
+			{	
+				struct Query
+				{					
+					Query(){}
 					
-					string host;
-					int port;
-				};
-				
-				struct Row
-				{
-					Row(TCMAP* row)
-					:_row(row)
+					~Query(){}
+					
+					Query& add_cond(const string& key, const string& val)
 					{
-					}
-					
-					Row(const Row& rhs)
-					:_row(rhs._row)
-					{						
-					}
-					
-					Row& operator=(const Row& rhs)
-					{
-						if(_row)
-						{
-							tcmapdel(_row);
-						}
-						
-						_row = tcmapdup(rhs._row);
+						this->_cols[key] = val;
 						
 						return *this;
 					}
 					
-					~Row()
+					/*
+					Query& add_bool;
+					Query& add_num;
+					*/
+					
+					string to_json()
 					{
-						if(_row)
+						ostringstream out;
+						
+						out << "{";
+						
+						typedef pair<string, string> tuple;
+						
+						bool first = true;
+						
+						foreach(tuple p, this->_cols)
 						{
-							tcmapdel(_row);
+							string a = p.first;
+							string b = p.second;
+							
+							if(!first)
+							{
+								out <<", "; 
+							}
+							
+							ostringstream val;
+							
+							if(a == "_id")
+							{
+								val << "ObjectId(\"" << b.substr(0, 24) << "\")";
+							}
+							else
+							{
+								val << "\"" << b << "\"";
+							}
+							
+							out << " " << a << ": " << val.str();
+							
+							first = false;
 						}
+						
+						out << "}";
+						
+						return out.str();
 					}
 					
-					TCMAP* _get_row()
-					{
-						tcmapdup(_row);
-					}
 				private:
-					TCMAP* _row;
+					Query(const Query& rhs);
+					Query& operator=(const Query& rhs);
+					
+					hash _cols;
+				};				
+				
+				
+				class ObjBase
+				{
+				public:
+					ObjBase(Database::obj db)
+					:_db(db),_id(""),_queried(false){}
+					
+					virtual ~ObjBase(){}
+					
+					virtual bool find(const string& id)=0;
+					
+					virtual bool find(const Query& query)=0;			
+					
+					virtual bool save(bool fail_on_assoc = false)=0;
+					
+					virtual string id()
+					{
+						return this-> _id;
+					}
+					
+					bool new_record()
+					{
+						return (this->_id == "" && !this->_queried);
+					}
+					bool found()
+					{
+						return (this->_id != "" && this->_queried);
+					}
+					
+				protected:
+					virtual void unload(DatabaseObj obj) = 0;
+					virtual void load(const DatabaseObj obj) = 0; 
+					
+					Database::obj _db;
+					
+					string _id;
+					bool _queried;					
+										
 				};
 				
-				struct RowSet
+				template<class T>
+				class Table: public ObjBase
 				{
-					RowSet(RDBQRY* query)
-					:_list(tcrdbqrysearch(query))
-					{
-					}
+				public:
+					typedef T Type;
+					typedef shared_ptr<T> obj;
+					typedef vector<shared_ptr<T> > collection;
 					
-					~RowSet()
+					virtual ~Table(){}
+					
+					static obj get(Database::obj db)
 					{
-						if(_list)
+						obj ret(new T(db));						
+						return ret;
+					}
+
+					virtual bool find(const string& id)
+					{	
+						if(!id.empty())
 						{
-							tclistdel(_list);
-						}
-					}
-					
-					bool empty()
-					{
-						return !(tclistnum(_list) > 0);	
-					}
-					
-					vector<string> keys()
-					{
-						vector<string> ret;
-						
-						int i, key_size;
-						char* key;
-						
-						for(i = 0; i < tclistnum(_list); i++)
-						{
-							key = tclistval(_list, i, &key_size);
+							DatabaseObj res = this->_db->find(Query().add_cond("_id", id).to_json(), this->_type); 
 							
-							if(key)
+							this->load(res);
+							
+							if(!res->is_empty())
 							{
-								ret.push_back(string(key, key_size));
+								return true;
 							}
+						}
+						
+						return false;
+					}
+					
+					virtual bool find(const Query& query)
+					{						
+						DatabaseObj res = this->_db->find(query.to_json(), this->_type); 
+							
+						this->load(res);
+						
+						if(!res->is_empty())
+						{
+							return true;
+						}
+						
+						return false;
+					}					
+					
+					collection find_all(const Query& query)
+					{
+						//log::log() << "__find_all: " << query;
+						
+						collection ret;
+						
+						DatabaseColl cursor = this->_db->find_all(query.to_json(), this->_type);
+						
+						foreach(DatabaseObj raw_obj, cursor)
+						{
+							obj o(Type::get(this->_db));
+							
+							o->load(raw_obj);
+							ret.push_back(o);
 						}
 						
 						return ret;						
 					}
 					
-					vector<Row> rows()
+					collection find_all()
 					{
-						//not implemented yet
-						return vector<Row>();
-					}
-				private:
-					RowSet(const RowSet& rhs){}
-					RowSet& operator=(const RowSet& rhs){}
-					
-					TCLIST* _list;
-				};
-				
-				struct Query
-				{					
-					Query(DB db)
-					:_db(new model::Database(db.host, db.port)),_query(tcrdbqrynew(_db->get_db())){}
-					
-					~Query()
-					{
-						if(_query)
-						{
-							tcrdbqrydel(_query);
-						}
-					}
-					
-					Query& add_string(const string& col, const string& val)
-					{
-						tcrdbqryaddcond(_query, col.c_str(), RDBQCSTREQ, val.c_str());
-						
-						return *this;
-					}
-					
-					Query& add_int(const string& col, const string& val)
-					{
-						tcrdbqryaddcond(_query, col.c_str(), RDBQCNUMEQ, val.c_str());
-						
-						return *this;
-					}
-					
-					Query& add_limit(int limit)
-					{
-						tcrdbqrysetlimit(_query, limit, 0);
-						
-						return *this;
-					}
-					
-					//return keys of rows
-					vector<string> get_keys() const
-					{
-						vector<string> ret;
-												
-						RowSet result_set(_query);
-						
-						if(!result_set.empty())
-						{
-							return result_set.keys();
-						}
-						
-						return ret;
-					}
-				private:
-					Query(const Query& rhs) {}
-					Query& operator=(const Query& rhs) {}
-					
-					auto_ptr<model::Database> _db;
-					RDBQRY* _query;					
-				};				
-				
-				
-				class Base
-				{
-				public:
-					Base(){}
-					
-					virtual ~Base(){}
-					
-					virtual bool find(const string& id) = 0;
-					virtual bool save(bool fail_on_assoc = false) = 0;
-					
-					virtual string id_s() = 0;
-					virtual int64_t id() = 0;
-					
-				};
-				
-				template<class T>
-				class Table:public Base
-				{
-				public:
-					typedef T Type;
-					
-					Table(DB db, const string& type)
-					:_id("-1"),_db(db),_cols(tcmapnew()),_type(type) 
-					{
-					}
-					
-					virtual ~Table()
-					{
-						if(_cols)
-						{
-							tcmapdel(_cols);
-						}
-					}				
-					
-					int64_t id()
-					{
-						int64_t ret = 0;
-						
-						if(get_param(_id, ret))
-						{
-							return ret;
-						}
-						
-						return -1;
-					}
-					
-					virtual string id_s()
-					{
-						if(!this->_id.empty())
-						{
-							return this->_id;
-						}
-						
-						return "";
+						return this->find_all(Query());
 					}
 					
 					virtual bool save(bool fail_on_assoc = false)
 					{
 						//create new
-						if(this->_id.empty() || this->_id == "-1")
+						if(this->new_record())
 						{							
-							if(this->_before_create())
+							if(!this->_before_create())
 							{							
-								//create logic
-								typedef pair<string, shared_ptr<Base> > assoc;
-								
-								foreach(assoc p, _assocs)
-								{
-									if(p.second->save(fail_on_assoc))
-									{
-										this->_set(p.first + "_id", p.second->id_s());
-									}
-									else
-									{
-										if(fail_on_assoc)
-										{
-											return false;
-										}									
-									}									
-								}
-								
-								shared_ptr<model::Database> db(new model::Database(_db.host, _db.port));
-								
-								string guid = _get_uid(db);
-								
-								if(!guid.empty() && guid != "-1" && _cols)
-								{
-									//set type
-									_set("type", _type);
-									
-									_on_create(guid);
-									
-									if(tcrdbtblput(db->get_db(),
-											(void*)guid.c_str(), strlen(guid.c_str()), _cols))
-									{
-										this->_id = guid;
-										return true;
-									}								
-								}
+								return false;								
 							}
 						}
 						else
 						{
-							if(this->_before_save())
+							if(!this->_before_save())
 							{							
-								//save logic
-								typedef pair<string, shared_ptr<Base> > assoc;
+								return false;
+							}
+						}
+						
+						typedef pair<string, shared_ptr<ObjBase> > assoc;
 								
-								foreach(assoc p, _assocs)
+						foreach(assoc p, _assocs)
+						{
+							if(p.second->save(fail_on_assoc))
+							{
+								this->_set(p.first + "_id", p.second->id());
+							}
+							else
+							{
+								if(fail_on_assoc)
 								{
-									if(p.second->save(fail_on_assoc))
-									{
-										this->_set(p.first + "_id", p.second->id_s());
-									}
-									else
-									{
-										if(fail_on_assoc)
-										{
-											return false;
-										}									
-									}									
-								}
-								
-								shared_ptr<model::Database> db(new model::Database(_db.host, _db.port));
-								
-								if(!_id.empty() && _id != "-1")
-								{	
-									if(tcrdbtblput(db->get_db(),
-											(void*)_id.c_str(), strlen(_id.c_str()), _cols))
-									{
-										return true;
-									}								
-								}
-							}
+									return false;
+								}									
+							}									
 						}
 						
-						return false;
-					}
-					
-					virtual bool find(const string& key)
-					{	
-						shared_ptr<model::Database> db(new model::Database(_db.host, _db.port));			
-						
-						TCMAP* found = tcrdbtblget(db->get_db(), (void*)key.c_str(), strlen(key.c_str()));
-						
-						if(found)
+						if(this->_save(fail_on_assoc))
 						{
-							//reset old data
-							if(_cols)
-							{
-								tcmapdel(_cols);
-							}
-							
-							_cols = found;
-							_id = key;
-							
-							return true;
-						}
-						
-						return false;
-					}	
-					
-					virtual bool find(const Query& query)
-					{
-						vector<string> keys = query.get_keys();
-						
-						if(!keys.empty())
-						{
-							//find first
-							this->find(keys[0]);
+							this->_on_create(this->_id);
 							
 							return true;
 						}
@@ -349,96 +237,105 @@ namespace fenix
 						return false;
 					}
 					
-					vector<shared_ptr<Type> > find_all(const Query& query)
-					{
-						vector<shared_ptr<Type> > ret;
-						
-						vector<string> keys = query.get_keys();
-						
-						foreach(string id, keys)
-						{
-							shared_ptr<Type> p(new T(_db));
-							
-							if(p->find(id))
-							{
-								ret.push_back(p);
-							}
-						}
-						
-						return ret;
-					}
 					
 					virtual bool exists(const Query& query)
 					{
-						return !(query.get_keys().empty());
-					}
-					
-					virtual bool found()
-					{
-						return (_id != "-1");
+						return this->_db->exists(query.to_json(), this->_type);
 					}
 				protected:
+					Table(Database::obj db, const string& type)
+					:_type(type),ObjBase(db) 
+					{
+					}
+					
 					virtual bool _before_save() { return true; }
 					virtual bool _before_create() { return true; }
 					virtual void _on_create(const string& id) {}
 					
+					virtual void unload(DatabaseObj obj)
+					{
+						if(!this->new_record())
+						{
+							obj->_id = this->_id;							
+						}
+						
+						obj->_cols = this->_cols;
+					}
+					
+					virtual void load(const DatabaseObj obj)
+					{
+						this->_queried = true;
+						
+						if(!obj->is_empty())
+						{
+							this->_id = obj->_id;
+							this->_cols = obj->_cols;
+						}
+						else
+						{
+							this->_id = "";
+							this->_cols.clear();
+						}
+					}
+					
 					void _set(const string& col, const string& val)
 					{
-						tcmapput2(_cols, col.c_str(), val.c_str());
+						this->_cols[col] = val;
 					}
 					
 					bool _get(const string& col, string& val) const
 					{
-						char* v = tcmapget2(_cols, col.c_str());
+						hash::const_iterator it = this->_cols.find(col);
 						
-						if(v)
+						if(it != this->_cols.end())
 						{
-							val.assign(v);
-							
+							val = it->second;
 							return true;
 						}
 						
 						return false;
 					}	
 					
-					map<string, shared_ptr<Base> > _assocs;
-					
-					string _id;
-					DB _db;
+					map<string, shared_ptr<ObjBase> > _assocs;
 				private:
-					string _get_uid(shared_ptr<model::Database> db)
-					{
-						string ret = "-1";
+					bool _save(bool fail_on_assoc = false)
+					{						
+						DatabaseObj raw_obj(new _DatabaseObj());
 						
-						int64_t id = tcrdbtblgenuid(db->get_db());
+						this->unload(raw_obj);
 						
-						if(id > -1)
+						string id = this->_db->save(this->_id, raw_obj->to_json(), this->_type);
+						
+						if(!id.empty())
 						{
-							try
+							if(this->new_record())
 							{
-								ret = lexical_cast<string>(id);
+								this->_id = id;
 							}
-							catch(bad_lexical_cast&)
-							{
-							}
+							
+							return true;
 						}
-					
-						return ret;
+							
+						return false;
 					}
 					
 					Table(const Table& rhs);
 					Table& operator=(const Table& rhs);
-
-					TCMAP* _cols;	
 					
-					string _type;													
+					string _type;		
+					
+					hash _cols;
 				};
+				
+				#define TABLE(name) \
+				name(Database::obj db)\
+				:Table<name>(db, #name){}
 			}
 		}
 	}
 }
 
-#define STR_FIELD(field) 			\
+#define STRING_FIELD(field)	 		\
 public:						\
 string field() 					\
 { 						\
@@ -461,7 +358,7 @@ Type& field(const string& val)			\
 }
 
 
-#define STR_FIELD_PRIV(field) 			\
+#define STRING_PRIV(field) 			\
 private:					\
 string field() 					\
 { 						\
@@ -484,7 +381,7 @@ Type& field(const string& val)			\
 }						\
 public:
 
-#define STR_FIELD_A(field) 			\
+#define STRING_FIELD_A(field) 			\
 private:					\
 	string _##field;			\
 public:						\
@@ -504,14 +401,14 @@ Type& field(const string& val)			\
 #define FOREIGN_KEY_FIELD(field)		\
 public:						\
 template <class T>				\
-shared_ptr<T> field()				\
+typename T::obj field()				\
 {						\
-	shared_ptr<T> p(new T());		\
+	typename T::obj p(new T(this->_db));	\
 	p->find(field##_id());			\
 						\
 	return p;				\
 }						\
-void field(shared_ptr<Base> ref)		\
+void field(shared_ptr<ObjBase> ref)		\
 {						\
 	this->_assocs[#field] = ref;		\
 }						\
@@ -523,19 +420,18 @@ string field##_id()				\
 		return ret;			\
 	}					\
 						\
-	return "-1";				\	
+	return "";				\
 }
 
 #define HAS(field, type, foreign_key)		\
 public:						\
 template <class T>				\
-vector<shared_ptr<T> > field()			\
+typename T::collection field()			\
 {						\
-	shared_ptr<T> p(new T(_db));		\
+	typename T::obj p(new T(this->_db));	\
 						\
-	return p->find_all(Query(_db).		\
-		add_string("type", #type).	\
-		add_string(#foreign_key, _id));	\
+	return p->find_all(Query().		\
+		add_cond(#foreign_key, _id));	\
 }
 	
 	

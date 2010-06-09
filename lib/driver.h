@@ -1,11 +1,3 @@
-/*
- * driver.h
- *
- *  Created on: Nov 10, 2009
- *      Author: duca
- *
- *      Simple protocol application driver
- */
 #pragma once
 
 #include "action.h"

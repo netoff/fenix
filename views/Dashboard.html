@@ -5,39 +5,28 @@ param: user
 -->
 
 <!--@
+	//#ifdef DEBUG
 	include_js("jquery.js");
 	include_js("jquery.flot.js");
 	include_js("jquery.flot.crosshair.js");
 	include_js("jquery.flot.stack.js");
+	include_js("date.js");
 	
 	include_js("dashboard.js");
-	
+	//#elif
+	//include_js("jquery.common.js");
+	//include_js("dashboard.min.js")
+	//#endif
 	
 	_title = "Dashboard";
 -->
-<script>
-$(function (){
-		pages = $("#pages");
-		
-		$("#page1-link").click(function (){
-				pages.animate({left: 0});
-				return false;
-		});
-		$("#page2-link").click(function (){
-				pages.animate({left: -960});
-				return false;
-		});
-		$("#page3-link").click(function (){
-				pages.animate({left: -1920});
-				return false;
-		});
-});
-</script>
-
 <div class="span-20 prepend-4">
-	<a href="#" id="page1-link" class="sub-menu">Live Traffic</a>
-	<a href="#" id="page2-link" class="sub-menu">Live Map</a>
-	<a href="#" id="page3-link" class="sub-menu">Live Content</a>
+	<a href="#" id="page1" class="sub-menu">Live Traffic</a>
+	<a href="#" id="page2" class="sub-menu">Live Map</a>
+	<a href="#" id="page3" class="sub-menu">Live Content</a>
+	<!--
+	<a href="#" class="sub-menu">Live Events</a>
+	<a href="#" class="sub-menu">Live Funnells</a>-->
 </div>
 
 <div class="span-24" id="page-win">
@@ -51,14 +40,14 @@ $(function (){
 			<h2>Live Traffic</h2>
 			
 			<p>Traffic within last minute <span id="chart-legend" class="chart-legend"></span></p>
-			<div id="trafic-live-chart" class="live-chart" style="height:160px;">
-				
-			</div>
+			<div id="trafic-live-chart" class="live-chart" style="height:100px;"></div>
 			
 			<p>Traffic within last hour <span id="chart1-legend" class="chart-legend"></span></p>
-			<div id="trafic-live-chart1" class="live-chart" style="height:160px;">
-				
-			</div>
+			<div id="trafic-live-chart1" class="live-chart" style="height:100px;"></div>
+			
+			<p>Traffic within last 24 hours <span id="chart2-legend" class="chart-legend"></span></p>
+			<div id="trafic-live-chart2" class="live-chart" style="height:100px;"></div>
+			
 		</div></div>
 		<div class="span-6 last">
 			<div class="span-6 last"><div class="window">
@@ -67,16 +56,10 @@ $(function (){
 				
 				<div class="stat-sep"></div>
 				<div class="stat-label">
-					<span class="counter">0</span>
-					<span class="title">visitors online</span>
-				</div>
-				
-				<div class="stat-sep"></div>
-				<div class="stat-label">
 					<span id="stat-hps" class="counter">0</span>
 					<span class="title">page hits/sec</span>
 				</div>
-				<div class="stat-label">
+				<div class="stat-label alt">
 					<span id="stat-nvps" class="counter">0</span>
 					<span class="title">new visitors/sec</span>
 				</div>
@@ -90,7 +73,7 @@ $(function (){
 					<span class="counter" id="stat-hpm">0</span>
 					<span class="title">page hits/min</span>
 				</div>
-				<div class="stat-label">
+				<div class="stat-label alt">
 					<span id="stat-nvpm" class="counter">0</span>
 					<span class="title">new visitors/min</span>
 				</div>
@@ -101,29 +84,43 @@ $(function (){
 				
 				<div class="stat-sep"></div>
 				<div class="stat-label">
-					<span class="counter">0</span>
-					<span class="title">visits today</span>
+					<span class="counter" id="stat-hph">0</span>
+					<span class="title">page hits/hour</span>
+				</div>
+				<div class="stat-label alt">
+					<span id="stat-nvph" class="counter">0</span>
+					<span class="title">new visitors/hour</span>
 				</div>
 				<div class="stat-label">
-					<span class="counter">0</span>
+					<span id="stat-rvph" class="counter">0</span>
+					<span class="title">returning visitors/hour</span>
+				</div>
+				
+				<div class="stat-sep"></div>
+				<div class="stat-label">
+					<span id="stat-vtd" class="counter">0</span>
+					<span class="title">visits today</span>
+				</div>
+				<div class="stat-label alt">
+					<span id="stat-nvtd" class="counter">0</span>
 					<span class="title">new visitors today</span>
 				</div>
 				<div class="stat-label">
-					<span class="counter">0</span>
+					<span id="stat-uvtd" class="counter">0</span>
 					<span class="title">unique visitors today</span>
 				</div>
 				
 				<div class="stat-sep"></div>
 				<div class="stat-label">
-					<span class="counter">0</span>
+					<span id="stat-tph" class="counter">0</span>
 					<span class="title">total page hists</span>
 				</div>
-				<div class="stat-label">
-					<span class="counter">0</span>
+				<div class="stat-label alt">
+					<span id="stat-tvs" class="counter">0</span>
 					<span class="title">total visits</span>
 				</div>
 				<div class="stat-label">
-					<span class="counter">0</span>
+					<span id="stat-uvs" class="counter">0</span>
 					<span class="title">absolute unique visitors</span>
 				</div>
 				
@@ -144,15 +141,18 @@ $(function (){
 		<div id="countries-list">
 		  <div class="stat-sep"></div>
 		  <div class="stat-label">
-		    <span class="title"></span>
+		    <span class="title">There is no any data.</span>
 		    <span class="counter"></span>
 		  </div>
 		</div>
 	</div></div>
-	<div class="span-18 last" style="height:400px;"><div class="window">
-		<h2>Live Map</h2>
-		<img src="/img/world.png" height="349" />
-	</div></div> 
+	<div class="span-18 last" style="height:440px;">
+		<div class="window">
+			<h2>Live Map</h2>
+			<div id="visitors-map"><img src="/img/world.png" height="349" /></div>
+			<div id="visitors-list"><ul></ul></div>
+		</div>
+	</div> 
 	</div>
 	
 	</div><!--end page2-->
@@ -168,7 +168,7 @@ $(function (){
 		<div id="pages-list">
 		  <div class="stat-sep"></div>
 		  <div class="stat-label">
-		    <span class="title"></span>
+		    <span class="title">There is no any data.</span>
 		    <span class="counter"></span>
 		  </div>
 		</div>
@@ -176,13 +176,13 @@ $(function (){
 	<div class="span-8"><div class="window">
 		<h2>Top Referrers</h2>
 		
-		<p>10 most popular Referrers by
+		<p>10 best Referrers by
 		number of visits within last 24 hours.</p>
 		
 		<div id="referrers-list">
 		  <div class="stat-sep"></div>
 		  <div class="stat-label">
-		    <span class="title"></span>
+		    <span class="title">There is no any data.</span>
 		    <span class="counter"></span>
 		  </div>
 		</div>
@@ -196,7 +196,7 @@ $(function (){
 		<div id="queries-list">
 		  <div class="stat-sep"></div>
 		  <div class="stat-label">
-		    <span class="title"></span>
+		    <span class="title">There is no any data.</span>
 		    <span class="counter"></span>
 		  </div>
 		</div>

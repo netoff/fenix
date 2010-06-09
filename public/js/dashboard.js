@@ -52,12 +52,12 @@ var countries = { "--": "N/A", "AP": "Asia/Pacific Region","EU": "Europe","AD":"
   "ZW":"Zimbabwe","A1":"Anonymous Proxy","A2":"Satellite Provider","O1":"Other","AX":"Aland Islands","GG":"Guernsey",
   "IM":"Isle of Man","JE":"Jersey","BL": "Saint Barthelemy","MF":"Saint Martin"};
 
-function Chart()
+function Chart(nPoints)
 {
 	this.chartData = [];
 	
 	this.maxVal = 10;
-	this.numPoints = 60;
+	this.numPoints = nPoints;
 	
 	this.resolution = ""; //sec, min....
 	
@@ -134,8 +134,8 @@ Chart.prototype.draw = function ()
 {
 	
 	$.plot(this.canvas, [
-		{ data: this.getDataPoints(1), bars: { show: true, barWidth: 0.7, align: "center" }, label: "new visitors/" + this.resolution, stack: true },
-		{ data: this.getDataPoints(2), bars: { show: true, barWidth: 0.7, align: "center" }, label: "returning visitors/" + this.resolution, stack: true},
+		{ data: this.getDataPoints(1), bars: { show: true, barWidth: 0.9, align: "center" }, label: "new visitors/" + this.resolution, stack: true },
+		{ data: this.getDataPoints(2), bars: { show: true, barWidth: 0.9, align: "center" }, label: "returning visitors/" + this.resolution, stack: true},
 		{ data: this.getDataPoints(0), lines: { show: true, steps: true }, points: { show: true, radius: 1}, label: "page hits/" + this.resolution }], this.settings);
 
 	
@@ -156,6 +156,8 @@ if (!dashboard)
 			
 			timestamp: 0,
 			timestampMin: 0,
+			timestampHour: 0,
+			timestampMicro: 0,
 	
 			init: function ()
 			{
@@ -183,7 +185,32 @@ if (!dashboard)
 				
 				this.chartMin.draw();
 				
-				this.adjustLayout();				
+				this.chartHour.setCanvas($('#trafic-live-chart2'));
+				this.chartHour.resolution = "hour";
+				this.chartHour.settings = {
+					legend: {noColumns: 3, container: $('#chart2-legend')},
+					colors: ["#FF9900", "#7297BA", "#6f3"],
+					yaxis: {min: 0, tickDecimals: 0},
+					xaxis: {ticks: [[0, "1 d ago"], [5, ""], [11, "12 hrs ago"],[17, ""], [23, "1hr ago"]]},
+					grid: {borderWidth: 0, tickColor: "#ccc", backgroundColor: {colors: ["#fff", "#ddd"]}}
+				};
+				
+				this.chartHour.draw();
+				
+				this.adjustLayout();
+
+				pages = $("#pages");
+						
+				$(".sub-menu").click(function (){
+					var id = $(this).attr("id"), i, ll;
+					
+					i = parseInt(id.split("page")[1]);
+					ll = -960 * (i - 1); 
+					
+					pages.animate({left: ll});
+					
+					return false;
+				});
 			},
 	
 			sameHeight: function (sections)
@@ -231,38 +258,160 @@ if (!dashboard)
 	
 			update: function () 
 			{
-				$.getScript('/app/stats/views?id=' + this.site_id + '&t=' + this.timestamp + '&t1=' + this.timestampMin);
-			},
+				function loop()
+				{
+					setTimeout("dashboard.update()", 500);
+				}
+				$.ajax({
+						type: "GET",
+						url: "/analytics/stats/views",
+						cache: false,
+						data: {
+							'id': _site_id,
+							't': this.timestamp, 't1': this.timestampMin, 't2': this.timestampHour,
+							't0': this.timestampMicro 
+						},
+						dataType: "script",
+						complete: loop
+				});
+			},			
 	
-			chart: new Chart(),
-			chartMin: new Chart(),
+			chart: new Chart(60),
+			chartMin: new Chart(60),
+			chartHour: new Chart(24),
 			
-			updateData: function ()
+			updateData: function (points, timestamp)
 			{
-				var points, a, l;
-				
-				points = this.chart.chartData;
-				l = points.length;
-				
-				a = points[l - 1];
-				
-				$("#stat-hps").html(a[0]);
-				$("#stat-nvps").html(a[1]);
-				$("#stat-rvps").html(a[2]);
+				if(points && points.length > 0)
+				{
+					this.chart.updatePoints(points);
+					this.timestamp = timestamp;
+					this.chart.draw();
+					
+					var a = points[points.length - 1];
+					
+					$("#stat-hps").html(a[0]);
+					$("#stat-nvps").html(a[1]);
+					$("#stat-rvps").html(a[2]);
+				}
 			},
 			
-			updateDataMin: function ()
+			updateDataMin: function (points, timestamp)
 			{
-				var points, a, l;
+				if(points && points.length > 0)
+				{
+					this.chartMin.updatePoints(points);
+					this.timestampMin = timestamp;
+					this.chartMin.draw();
 				
-				points = this.chartMin.chartData;
-				l = points.length;
+					var a = points[points.length - 1];
 				
-				a = points[l - 1];
+					$("#stat-hpm").html(a[0]);
+					$("#stat-nvpm").html(a[1]);
+					$("#stat-rvpm").html(a[2]);
+				}
+			},
+			
+			updateDataHour: function (points, timestamp_h)
+			{
+				this.chartHour.updatePoints(points);
+				this.timestampHour = timestamp_h;
+				this.chartHour.draw();
 				
-				$("#stat-hpm").html(a[0]);
-				$("#stat-nvpm").html(a[1]);
-				$("#stat-rvpm").html(a[2]);
+				if(points && points.length > 0)
+				{
+					$("#stat-hph").html(points[points.length - 1][0]);
+					$("#stat-nvph").html(points[points.length - 1][1]);
+					$("#stat-rvph").html(points[points.length - 1][2]);
+				}
+			},
+			
+			updateRaw: function (raw)
+			{
+				var visitors = raw[1],
+						ts = raw[0];
+						
+				var map = $("#visitors-map");
+				
+				function formatTimeFromEpoche(microsecs)
+				{
+					var epoch = Date.parse("1/1/2001");
+					var d = epoch.add({seconds: microsecs/1000000});
+					
+					return d.toString("HH:mm:ss") + " GMT+0";
+				}
+				
+				function addVisitorOnMap(lon, lat)//longitude, latitude
+				{
+					if(lon && lat || (lon !== 0 || lat !== 0))
+					{			
+						var x = "" + (180+lon - 10) * (687 / 360) + "px";
+						var y = "" + (90-lat - 1) * (347 / 180) + "px";
+						$("<div class='fadeOut'>&nbsp;</div>").css(
+							{position: "absolute", 
+							width: "4px", height: "4px",
+							margin: 0, padding: 0,
+							'background-color': "#f00", left: x , top: y, display: 'none'})
+								.appendTo(map).fadeIn(function(){$(this).delay(2000).fadeOut(2000, function(){$(this).remove()});});
+					}
+				}
+				this.timestampMicro = ts;
+				
+				if(visitors && visitors.length > 0)
+				{				
+					var i, a = [];
+					for(i = 0; i < visitors.length; i++)
+					{
+						var visitor = visitors[i];
+						addVisitorOnMap(visitor._long, visitor._lat);
+						
+						a.push("<li style='display:none'>");					
+						a.push("<span class='_time'>");
+						a.push(formatTimeFromEpoche(visitor._uid));a.push("</span>:")
+						if(visitor._event === 2){a.push("New Vistior");}
+						if(visitor._event === 3){a.push("Returning Vistior");}
+						if(visitor._event === 4){a.push("Repeating Vistior");}
+						a.push(" from <span class='_country'>");
+							a.push(this.lookupCountry(visitor._country));
+						if(visitor._city && visitor._city != "")
+						{	
+							a.push(", </span><span class='_city'>");
+							a.push(visitor._city);
+						}
+						if(visitor._engine && visitor._engine != "")
+						{
+							a.push(", </span> referred by <span class='_referrer'><strong>");
+							a.push(visitor._engine);a.push("</strong>");
+						}
+						else
+						{
+							if(visitor._referrer && visitor._referrer != "")
+							{
+								a.push(", </span> referred by <span class='_referrer'><strong>");
+								a.push(visitor._referrer);a.push("</strong>");
+							}
+						}
+						a.push(", </span> arrived at <span class='_url'><strong>");
+							a.push(visitor._url);						
+						a.push("</strong></span></li>");
+					}
+					$("#visitors-list ul").prepend(a.join(""));
+					$("#visitors-list ul li:hidden").slideDown("slow");
+					$("#visitors-list ul li:gt(20)").remove();
+				}
+			},
+			
+			updateCounters: function (counters)
+			{
+				if(counters && counters.length >5)
+				{
+					$("#stat-vtd").html(counters[0]);
+					$("#stat-nvtd").html(counters[1]);
+					$("#stat-uvtd").html(counters[2]);
+					$("#stat-tph").html(counters[3]);
+					$("#stat-tvs").html(counters[4]);
+					$("#stat-uvs").html(counters[5]);
+				}
 			},
 		
 			//private
@@ -291,7 +440,14 @@ if (!dashboard)
 				
 				for(i = 0; i < list.length; i++)
 				{
-					a.push("<div class='stat-label'><span class='title'>");
+					if(i%2 ==0)
+					{
+						a.push("<div class='stat-label'><span class='title'>");
+					}
+					else
+					{
+						a.push("<div class='stat-label alt'><span class='title'>");
+					}
 					if(x)
 					{
 						a.push(x(list[i][0]));
@@ -319,35 +475,57 @@ if (!dashboard)
 			
 			updateCountriesList: function (countries)
 			{
-				var html = this.makeList(countries, this.lookupCountry);
+				if(countries && countries.length > 0)
+				{	
+					var html = this.makeList(countries, this.lookupCountry);
 				
-				$("#countries-list").html(html);
+					$("#countries-list").html(html);
+				}
 			},
 			
 			updatePagesList: function (pages)
 			{
-				var html = this.makeList(pages, this.shortenText);
+				if(pages && pages.length > 0)
+				{
+					var html = this.makeList(pages, this.shortenText);
 				
-				$("#pages-list").html(html);
+					$("#pages-list").html(html);
+				}
 			},
 			
 			updateReferrersList: function (referrers)
 			{
-				var html = this.makeList(referrers, this.shortenText);
+				if(referrers && referrers.length > 0)
+				{
+					var html = this.makeList(referrers, this.shortenText);
 				
-				$("#referrers-list").html(html);
+					$("#referrers-list").html(html);
+				}
 			},
 			
 			updateQueriesList: function (queries)
 			{
-				var html = this.makeList(queries, this.shortenText);
+				if(queries && queries.length >0)
+				{
+					var html = this.makeList(queries, this.shortenText);
 				
-				$("#queries-list").html(html);
+					$("#queries-list").html(html);
+				}
 			},
 			
 			updateClock: function (new_time)
 			{
 				$("#time").text(new_time);
+			},
+			
+			updateFromFeed: function (feed)
+			{
+				this.updateCountriesList(feed.countries);
+				this.updatePagesList(feed.pages);
+				this.updateReferrersList(feed.referrers);
+				this.updateQueriesList(feed.queries);
+				this.updateCounters(feed.counters);
+				this.updateRaw(feed.visitors);				
 			}
 
 		};

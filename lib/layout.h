@@ -13,7 +13,7 @@ namespace fenix
 			namespace view
 			{
 				template <class T>
-				class DHTMLLayout:public T
+				class DHTMLLayout:public T, private noncopyable
 				{
 				public:
 					DHTMLLayout()
@@ -27,7 +27,8 @@ namespace fenix
 						_buffer = T::_response;
 						T::_response.clear();
 					};
-
+					
+					virtual ~DHTMLLayout(){}
 				protected:
 					void applay_layout(){T::insert(_buffer);}
 				private:
@@ -40,11 +41,13 @@ namespace fenix
 
 #define FENIX_PAGE_LAYOUT(layout_name)						\
 template <class T>								\
-class layout_name: public view::DHTMLLayout<T>					\
+class layout_name: public view::DHTMLLayout<T>, private noncopyable\
 {										\
 	template <class ArgumentPack>						\
 	void _render(const ArgumentPack& args);					\
 public:										\
+	layout_name(){}					\
+	virtual ~layout_name(){}\
 	template <class ArgumentPack>						\
 	layout_name(const ArgumentPack& args)					\
 	:view::DHTMLLayout<T>(args)						\

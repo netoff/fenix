@@ -9,6 +9,8 @@ void* fenix_create_dir_conf(apr_pool_t* apc_pool, char* x)
 	
 	dir_conf->app_config = apr_table_make(apc_pool, 10);
 	
+	dir_conf->app_reload = 0;
+	
 	/*
 	dir_conf->log_filename = NULL;*/
 
@@ -20,6 +22,8 @@ void* fenix_merge_dir_conf(apr_pool_t* apc_pool, void* base_conf, void* add_conf
 	fenix_dir_conf* add = (fenix_dir_conf*)add_conf;
 	fenix_dir_conf* conf = (fenix_dir_conf*)apr_palloc(apc_pool, sizeof(fenix_dir_conf));
 
+	conf->app_reload = (base->app_reload || add->app_reload)? 1 : 0;
+	
 	conf->app_home_folder =
 		( add->app_home_folder == NULL ) ? base->app_home_folder : add->app_home_folder ;
 	conf->app_filename =

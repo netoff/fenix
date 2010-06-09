@@ -2,16 +2,26 @@
 param: user
 -->
 <!--@
+	include_css("datepicker.css");
+	//#ifdef DEBUG
 	include_js("jquery.js");
+	//include_js("excanvas.js", "IE");
 	include_js("jquery.flot.js");
 	include_js("jquery.flot.crosshair.js");
 	include_js("jquery.flot.stack.js");
+	include_js("jquery.table-pagination.js");
 	
-	include_css("datepicker.css");
 	include_js("datepicker.js");
 	
+	include_js("date.js");
+	
 	include_js("chart.js");
+	include_js("common.js");
 	include_js("visitors.js");
+	//#elif
+	//include_js("jquery.common.js");
+	//include_js("visitors.min.js");
+	//#endif
 	
 	_title = "Visitors";	
 -->
@@ -21,53 +31,60 @@ param: user
 	<div class="span-24 same-height">
 		<div class="span-10"><div class="window inline">
 			<span class="h2">
-			Visits
+			Visitors
 			</span>
-			<p>Other reports: <a href="#">Visitors</a> <a href="#">New Visitors</a> <a href="#">Returning Visitors</a>
-				<a href="#">Repeating Visitors</a> <a href="#">Operating Systems</a></p>
+			<p id="report-chooser"><em>Reports:</em> 
+				<a href="#" class="active" report_type="-1">Visits</a>,&nbsp;
+				<a href="#" report_type="2">New Visitors</a>,&nbsp;
+				<a href="#" report_type="3">Returning Visitors</a>,&nbsp;
+				<a href="#" report_type="4">Repeating Visitors</a></p>
 		</div></div>
 		<div class="span-14 last right"><div class="window inline">
-			<form id="date-range-selector-form">
-		
-			<div>
-			<span class="h3">Date range:&nbsp;</span>
-			<input type="text" value="01/01/2008 - 01/01/2010" name="range" id="date-range-selector-input"/>&nbsp;
-		     	<input type="submit" class="date-range-selector-submit" value="Refresh" id="date-range-selector-submit"/>
-			</div>
-			
-			<span class="date-range-predefined-selectors">
-				<a href="#">Select range</a> | <a href="#">Last 7 days</a> | <a href="#">Last 30 days</a>
-			</span>
-			
-			</form>
+			<div id='daterange-picker-placeholder'></div>
 		</div></div>
 	</div>
 	
-	<div class="span-24"><div class="window">
-		<h2>Visits</h2>
+	<div class="span-24"><div class="window placeholder">
+		<h2>Visitors</h2>
 		
-		<p>Visits per day <span id="chart-legend" class="chart-legend"></span></p>
-		<div id="visitors-chart" class="chart" style="height:240px;"></div>
+		<p> <span id="chart-legend" class="chart-legend"></span></p>
+		<div id="report-chart" class="chart" style="height:240px;"></div>
 	</div></div>
 	<div class="span-24 same-height">
 	
-		<div class="span-6"><div class="window">
-			<h2>Visitors overview</h2>
-			<p>
-			<ul>
-			        <li>Visitors per day 0</li>
-				<li>New visitors 0</li>
-				<li>Absolute unique vistiors 0</li>
-				<li>Visits per day 0</li>
-				<li>Visits 0</li>
-			</ul>
-			</p>
+		<div class="span-6"><div class="window placeholder-sm">
+			<h2>Overview</h2>
+			
+			<div class="stat-sep"></div>
+			<div class="stat-label">
+				<span id="stat-vs" class="counter">0</span>
+				<span class="title">visits</span>
+			</div>
+			<div class="stat-label alt">
+				<span id="stat-vspd" class="counter">0</span>
+				<span class="title">visits/day(avg)</span>
+			</div>
+			<!--
+			<div class="stat-label">
+				<span id="stat-auv" class="counter">0</span>
+				<span class="title">absolute unique visitors</span>
+			</div>-->
+			<div class="stat-label">
+				<span id="stat-nv" class="counter">0</span>
+				<span class="title">new visitors</span>
+			</div>
+			<div class="stat-label alt">
+				<span id="stat-nvpd" class="counter">0</span>
+				<span class="title">new visitors/day(avg)</span>
+			</div>
 		</div></div>
 		
-		<div class="span-18 last"><div class="window">
+		<div class="span-18 last"><div class="window placeholder" style="height: 220px;">
 		 	<h2>Visitors List</h2>
-			<p>
+			<!--<p>
 				By country | <a href="#">By operating system</a> | <a href="#">By browser</a> 
+				</p>-->
+				<div id="visitors-segments"></div>
 		</div></div>
 	</div>
 </div>

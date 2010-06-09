@@ -1,60 +1,49 @@
 #pragma once
 
+#include "application.h"
+
+#include <stdio.h>
+
 #include <sstream>
 
-#include <boost/thread/thread.hpp>
-#include <boost/thread/tss.hpp>
+//#include <boost/thread/thread.hpp>
+//#include <boost/thread/tss.hpp>
 
 using namespace std;
 using namespace boost;
+
 
 namespace fenix
 {
 	namespace web
 	{
 		namespace toolkit
-		{
+		{		
 			namespace log
-			{
-				//is this safe?
-				extern ostringstream _null_output;
-				
-				#ifdef DEBUG
-				extern thread_specific_ptr<ostringstream> _log_output;
-				#endif
-				
-				inline ostringstream& log()
+			{			
+				class log
 				{
-					#ifdef DEBUG
-					if(!_log_output.get())
+				public:
+					log(){}
+					
+					ostringstream& get()
 					{
-						_log_output.reset(new ostringstream(""));
+						return this->_out;
 					}
 					
-					if(_log_output.get())
+					~log()
 					{
-						return *_log_output;
+						//only log in debug mode
+						#ifdef DEBUG
+						app.log(this->_out.str());
+						#endif
 					}
-					#endif
 					
-					//this output goes nowhere. in case _log_output is not defined
-					//return this, because you can not return reference to stack object
-					//_null_ouput is not thread safe, but it does not matter
-					//it would do nothing anyway, just make code more "stable??"
-					return _null_output;
-				}
+				private:
+					ostringstream _out;
+				};
 				
-				inline string log_output()
-				{
-					#ifdef DEBUG
-					if(_log_output.get())
-					{
-						return (*_log_output).str();
-					}
-					#endif
-					
-					return "";
-				}
+				#define getLOG log().get()
 			}
 		}
 	}

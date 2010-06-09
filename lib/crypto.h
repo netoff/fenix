@@ -102,7 +102,7 @@ namespace fenix
 					
 					byte digest[CryptoPP::SHA1::DIGESTSIZE];
 					
-					sha.CalculateDigest(digest, msg.c_str(), strlen(msg.c_str()));
+					sha.CalculateDigest(digest, (const byte*)msg.c_str(), strlen(msg.c_str()));
 					
 					//encode message
 					encoder.Attach(new CryptoPP::StringSink(output));
@@ -122,8 +122,8 @@ namespace fenix
 					CryptoPP::HexEncoder encoder;
 					
 					
-					HMAC(secret_key.c_str(), strlen(secret_key.c_str()))
-						.CalculateDigest(hmac, msg.c_str(), strlen(msg.c_str()));
+					HMAC((const byte*)secret_key.c_str(), strlen(secret_key.c_str()))
+						.CalculateDigest(hmac, (const byte*)msg.c_str(), strlen(msg.c_str()));
 					
 					encoder.Attach(new CryptoPP::StringSink(output));
 					encoder.Put(hmac, sizeof(hmac));

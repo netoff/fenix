@@ -1,27 +1,30 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-	
-	<link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-	<link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print" />	
-	<!--[if lt IE 8]><link rel="stylesheet" href="/css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+	<!--@ 		
+		string asset_host = "http://asset." + args[_request]._host[1] + "." + args[_request]._host[0];
+	-->
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/screen.css" type="text/css" media="screen, projection" />
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/print.css" type="text/css" media="print" />	
+	<!--[if lt IE 8]><link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
 	
 	<!--Overide all other css'-->
-	<link rel="stylesheet" href="/css/app.css" >
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/app.css" >
 	
 	<!--@
 		foreach(string css_file, this->_css_includes)
 		{
-			this->insert("<link rel='stylesheet' href='/css/%s' type='text/css' media='screen' />", css_file);
+			this->insert("<link rel='stylesheet' href='%s/css/%s' type='text/css' media='screen' />", asset_host, css_file);
 		}
 		
 		foreach(string js_file, this->_js_includes)
 		{
-			this->insert("<script type='text/javascript' src='/js/%s'></script>", js_file);
+			this->insert("<script type='text/javascript' src='%s/js/%s'></script>", asset_host, js_file);
 		}
 		
 		shared_ptr<tables::User> user = args[_user];
 	-->	
+	<script type="text/javascript" src="<!--@= asset_host -->/js/account.js"></script>
 	<title>kliknik | <!--@=this->_title--></title>
 	<style>
 		span.menu-item a.<!--@= args[_active|"none"]-->
@@ -34,13 +37,60 @@
 	</style>
 	</head>
 	<body>
+		<div id="account-settings" style="display:none">
+			<div class="mask"></div>
+			<div class="alert" id="account-box">
+				<h2>Account Settings</h2>
+				<a class="close-link" href="#">Close&nbsp;[X]</a>
+				<div class="tabs">
+					<ul>
+						<li><a class="tab-link" tabnum="1" href="#">JavaScript tag</a></li>
+						<li><a class="tab-link" tabnum="2" href="#">Add Website</a></li>
+						<li><a class="tab-link" tabnum="3" href="#">Change Password</a></li>
+					</ul>
+				</div>
+				<div class="tab" tabnum="1">
+					<p>Place the code below to the end of your website template, just 
+						before closing <strong>&lt;&#47;body&gt;</strong> tag.</p>
+					<form>
+						<label>Site: </label><br />
+						<select id="js-tag-site-selector"></select><br />
+						<label>Code: </label><br />
+						<textarea id="js-tag-code" rows="6" spellcheck="false">
+						</textarea>						
+					</form>	
+				</div>
+				<div class="tab" tabnum="2" style="display:none">
+					<p><em>Adding new website is disabled right now.</em></p>
+					<form>
+						<label>Website URL:</label> <br />
+						<input type="text" disabled="disabled"/><br />
+						<input type="submit" disabled="disabled" value="Add" />
+					</form>
+				</div>
+				<div class="tab" tabnum="3" style="display:none">
+					<p><em>Changing password is disabled right now.</em></p>
+					<form>
+						<label>Old Password:</label><br />
+						<input type="password" disabled="disabled"/><br /><br />
+						<label>New Password:</label><br />
+						<input type="password" disabled="disabled"/><br />
+						<label>Repeat Password:</label> <br />
+						<input type="password" disabled="disabled"/><br />
+						<input type="submit" value="Change" disabled="disabled" />
+						<br /><br />
+					</form>
+				</div>
+			</div>
+		</div>
+		
 		<div id="header-w">
 			<div class="container">
 				<div class="span-24" id="head-line">
 					<div class="clock">
 						<span id="time"><!--@= args[_time] --></span> 
-						<span>| <span id="account-link"><a href="#"><!--@= user->email() --></a></span> 
-						| <span id="logout-link"><a href="/app/logout">logout</a></span></span>
+						<span>| <span id="account-link"><a class="account-link" href="#" title="Account Settings"><!--@= user->email() --></a></span> 
+						| <span id="logout-link"><a href="/analytics/logout" title="Logout">Logout</a></span></span>
 					</div>
 				</div>
 			</div>
@@ -49,29 +99,43 @@
 			<div class="container">
 				<div class="span-24" id="main-menu">
 					<div class="span-4" id="logo">
-						<h1><a href="/app/index"><img src="/img/logo.png" alt="kliknik Just-in-time web analytics" /></a></h1>
+						<h1><a href="/analytics/index"><img src="<!--@= asset_host -->/img/logo.png" alt="kliknik Just-in-time web analytics" title="kliknik Dashboard" /></a></h1>
 					</div>
 					<div class="span-14" id="menu">
-						<span class="menu-item"><a href="/app/index" class="dashboard-menu-item">Dashboard</a></span>
-						<span class="menu-item"><a href="/app/visitors" class="visits-menu-item">Visits</a></span>
-						<span class="menu-item"><a href="/app/pages" class="pages-menu-item">Pages</a></span>
-						<span class="menu-item"><a href="/app/referrers" class="referrers-menu-item">Referrers</a></span>
+						<span class="menu-item"><a href="/analytics/index" class="dashboard-menu-item">Dashboard</a></span>
+						<span class="menu-item"><a href="/analytics/visitors" class="visitors-menu-item">Visitors</a></span>
+						<span class="menu-item"><a href="/analytics/pages" class="pages-menu-item">Pages</a></span>
+						<span class="menu-item"><a href="/analytics/referrers" class="referrers-menu-item">Referrers</a></span>
 					</div>
 					<div class="span-6 last right">
 						<select value="Select site..." id="site-selector" class="span-6 last">
 						<!--@ 
 							int i = 0;
+							string sites = "[";
+							
 							foreach(shared_ptr<tables::Site> site, user->sites<tables::Site>())
 							{
 							 	if(i == 0)
 								{
-									this->insert("<script type='text/javascript'>_site_id = '%s';</script>", site->key());
+									sites += "{id: '" + site->id() + "', url: '" + site->url() + "'}";
 								}
-								this->insert("<option value='%s'>%s</option>", site->id_s(), site->url());
+								else
+								{
+									sites += ", {id: '" + site->id() + "', url: '" + site->url() + "'}";									
+								}	
+								
+								this->insert("<option value='%s'>%s</option>", site->id(), site->url());
 							};
 							
-						-->
-						</select>
+							sites += "]";
+							-->
+							</select>
+						<script type='text/javascript'>
+							/*<![CDATA[*/
+							<!--@	this->insert("_sites = %s;", sites); -->
+							if(_sites && _sites.length !== 0){_site_id = _sites[0].id;}
+							/*]]>*/
+						</script>
 					</div>
 				</div>
 			</div>	
@@ -80,7 +144,7 @@
 			<div class="container" id="page">
 				<div class="span-24">
 				<!--@
-					applay_layout();
+					this->applay_layout();
 				-->
 				</div>
 			</div>
@@ -88,7 +152,8 @@
 		<div id="footer-w">
 			<div class="container">
 				<div class="span-24" id="footer">
-					&copy;<!--@= (args[_request])._timestamp.date().year() --> kliknik | <a href="#">dev@kliknik.com</a>
+					&copy;<!--@= (args[_request])._timestamp.date().year() --> kliknik | Contact: <script type="text/javascript">eval(unescape('d%6fc%75%6de%6e%74%2e%77%72%69%74e%28%27%3Ca%20%68%72ef%3D%22%26%23109%3Ba%26%23105%3B%6c%26%23116%3B%26%23111%3B%3A%26%23100%3B%26%23101%3B%26%23118%3B%26%2364%3B%26%23107%3B%26%23108%3B%26%23105%3B%26%23107%3B%26%23110%3B%26%23105%3B%26%23107%3B%26%2346%3B%26%2399%3B%26%23111%3B%26%23109%3B%22%3Ede%76%40%6b%6c%69%6b%6e%69%6b%2ec%6f%6d%3C%2fa%3E%27%29%3B'));</script> | 
+					<a class="account-link" href="#" title="Account Settings">Account Settings</a> | <a href="/analytics/logout">Logout</a>
 				</div>
 			</div>
 		</div>

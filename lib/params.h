@@ -1,5 +1,8 @@
 #pragma once
 
+#include "common.h"
+#include "datetime.h"
+
 #include <string>
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
@@ -39,6 +42,21 @@ namespace fenix
 					}
 					
 					return ret;
+				}
+				
+				template<class T>
+				inline string to_string(const T& t)
+				{
+					string s = "";
+					try
+					{
+						s = lexical_cast<string>(t);
+					}
+					catch(bad_lexical_cast&)
+					{
+					}
+					
+					return s;
 				}
 
 				template <class T>
@@ -107,6 +125,84 @@ namespace fenix
 					}
 
 					return true;
+				}
+				/*
+				inline bool get_param(const string& a, long long& b)
+				{
+					b = 0;
+					string s = trim_copy(a);
+					
+					try
+					{
+						b = lexical_cast<long long>(s);
+					}
+					catch(bad_lexical_cast&)
+					{
+						return false;
+					}
+					return true;
+				}*/
+				
+				struct tm_type
+				{
+					enum type
+					{
+						SECOND,
+						MINUTE,
+						HOUR,
+						DAY
+					};
+				};
+				
+				inline bool get_timestamp(const string& a, long& b, tm_type::type tt = tm_type::SECOND)
+				{
+					string s = trim_copy(a);
+					
+					vector<string> parts;
+					
+					split(parts, s, is_any_of("/"));
+					
+					if(parts.size() == 3)
+					{
+						int year, month, day;
+						
+						if(	get_param(parts[2], year) &&
+							get_param(parts[0], month) &&
+							get_param(parts[1], day))
+						{
+							try
+							{								
+								ptime tm(date(year, month, day));
+								
+								if(tt == tm_type::SECOND)
+								{
+									b = datetime::timestamp(tm);
+								}
+								if(tt == tm_type::MINUTE)
+								{
+									b = datetime::timestamp_m(tm);
+								}
+								if(tt == tm_type::HOUR)
+								{
+									b = datetime::timestamp_h(tm);
+								}
+								if(tt == tm_type::DAY)
+								{
+									b = datetime::timestamp_d(tm);
+								}
+								
+								
+								return true;
+							}
+							catch(...) 
+							{
+							}
+						}
+						
+					}
+					
+					b = 0;
+					return false;
 				}
 
 				inline bool get_param(const string& a, float& b)

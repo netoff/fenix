@@ -5,6 +5,7 @@
 #include "datetime.h"
 #include "view.h"
 #include "params.h"
+#include "crypto.h"
 
 #define BOOST_PARAMETER_MAX_ARITY 15
 
@@ -24,7 +25,24 @@ namespace fenix
 		{
 			namespace action
 			{
-				class Request
+				bool _get_val(const string& raw, string& val);
+				
+				string _get_val(const string& val);
+				
+				struct cookie_param
+				{					
+					cookie_param(){}
+					
+					cookie_param(const string& v, const int e)
+					:val(v),path("/"),domain(""),expire(e) {	}
+					
+					cookie_param(const string& v, const string& p, const string& d, const int e)
+					:val(v),path(p),domain(d),expire(e) { }
+					
+					string val, path, domain;
+					int expire;
+				};
+				class Request: private noncopyable
 				{
 				public:
 					enum RequestType
@@ -74,14 +92,8 @@ namespace fenix
 						
 						return false;
 					}
-
-
-					//TODO: Should remove appContext??
-					//I don't like that
-					//void setAppContext(string context){_app_context = context;}
-					//string appContext()const{return _app_context;}
-
-					typedef pair<string, int> pparam;
+					
+					typedef cookie_param pparam;
 					
 					string getParam(const string& key) const
 					{
@@ -141,28 +153,50 @@ namespace fenix
 					{
 						map<string, pparam>::const_iterator iter = _pparams.find(key);
 						
+						string ret = "";
+						
 						if(iter != _pparams.end())
 						{
-							return iter->second.first;
+							if(_get_val(iter->second.val, ret))
+							{
+								return ret;
+							}
 						}
 						
-						return "";
+						return ret;
 					}
 					
-					void clearSession()
+					void clearSession(const string& domain)
 					{
-						typedef pair<string, pair<string, int> > cookie_pair;
+						typedef pair<string, cookie_param> cookie_pair;
 						
 						foreach(cookie_pair cookie, _pparams)
 						{
-							_pparams[cookie.first] = make_pair("", 0);
+							_pparams[cookie.first] = cookie_param("", "/", domain, 0);
 						}
 					}
 					
 					void setSession(const string& key, const string& val, int expire = 0)
-					{
-						_pparams[key] = make_pair(val, expire);
+					{						
+						_pparams[key] = cookie_param(_get_val(val), expire);
 					}
+					
+					void setSession(const string& key, const string& val, 
+						const string& domain, int expire = 0)
+					{
+						_pparams[key] = cookie_param(_get_val(val), "/", domain, expire);
+					}
+					
+					/*
+					void setSessionRaw(const string& key, const string& val)
+					{
+						string v;
+						
+						if(_get_val(val, v))
+						{						
+							this->_pparams[key] = cookie_param(v, -1);
+						}
+					}*/
 
 					string _server_name;
 					string _home_path;
@@ -196,6 +230,15 @@ namespace fenix
 					
 					Type _type;
 					
+					//host parts are inserted in revers order 1:com, 2:kliknik, 3:www etc.
+					deque<string> _host;
+					
+					/*
+					void add_note(shared_ptr<Note> n)
+					{
+						_notes.push_back(n);
+					}*/
+					
 					~Request()
 					{
 					}
@@ -205,6 +248,9 @@ namespace fenix
 					std::ostringstream _log;
 					
 					string _app_context;
+					
+					/*
+					vector<shared_ptr<Note> > _notes;*/
 				};
 				
 				class Base
@@ -234,7 +280,7 @@ namespace fenix
 						
 						if(!redirect.empty())						
 						{								
-							return render_redirect(redirect);			
+							return view::render_redirect(redirect);			
 						}							
 						  
 						return view::render_<view::ForbidenResponse>();				
@@ -264,7 +310,7 @@ namespace fenix
 
 //TODO: Refactor DHTMLResponseclass
 #define FENIX_WEB_PAGE(page_name, params)					\
-class VIEW_CLASS(page_name):public view::DHTMLResponse				\
+class VIEW_CLASS(page_name):public view::DHTMLResponse, private noncopyable\
 {										\
 	public:									\
 	template <class ArgumentPack>						\
@@ -280,11 +326,12 @@ class page_name:public page 							\
 template <class ArgumentPack> VIEW_CLASS(page_name)::VIEW_CLASS(page_name)(ArgumentPack const& args)
 
 
-#define FENIX_LAYOUTED_WEB_PAGE(page_name, layout)				\
-class VIEW_CLASS(page_name):public view::DHTMLResponse				\
-{										\
-	public: 								\
-	VIEW_CLASS(page_name)(){}						\
+#define FENIX_LAYOUTED_WEB_PAGE(page_name, layout)			\
+class VIEW_CLASS(page_name):public view::DHTMLResponse, private noncopyable\
+{																		\
+	public: 													\
+	VIEW_CLASS(page_name)(){}					\
+	virtual ~VIEW_CLASS(page_name)(){}\
 	template <class ArgumentPack>						\
 	VIEW_CLASS(page_name)(ArgumentPack const& args);			\
 };										\
@@ -293,17 +340,18 @@ class page_name:public layouted_page						\
 {										\
 		public:								\
 		template <class ArgumentPack>					\
-		page_name(const ArgumentPack& args):layouted_page(args){}	\		
+		page_name(const ArgumentPack& args):layouted_page(args){}	\
+		virtual ~page_name(){}\
 };										\
 template <class ArgumentPack> VIEW_CLASS(page_name)::VIEW_CLASS(page_name)(ArgumentPack const& args)
 
 
 #define FENIX_CONTROLLER(controller)						\
 template <class Authenticate = empty_class>					\
-class controller: public action::Action<Authenticate>				\
-{										\
+class controller: public action::Action<Authenticate>, private noncopyable\
+{													\
 public:										\
-	controller() {}								\
+	controller() {}					\
 private:									\
 	virtual shared_ptr<view::Response>					\
 	  	_handle(const action::Request& request);			\

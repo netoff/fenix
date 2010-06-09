@@ -1,0 +1,33 @@
+<!--@HEADER@
+use-layout: true
+layout: Debug
+param: request
+param: output
+param: database
+param: query
+-->
+
+<h1>Query Debug</h1>
+<h2>Query</h2>
+<form method="post">
+	Database<br/ >
+	<input type="text" name="db" style="width: 400px;" value="<!--@=args[_database|""]-->"/>
+	<br/>
+	Code<br />
+	<textarea name="query" style="width:400px;height:120px;"><!--@=args[_query|""]--></textarea>
+	
+	<br />
+	<input type="submit" value="Go" />
+</form>
+<h2>Result</h2>
+<!--@
+	string result = args[_output|""];
+-->
+<pre>
+<!--@
+if(!result.empty())
+{
+	this->insert(result);
+}
+-->
+</pre>

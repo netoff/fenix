@@ -1,8 +1,8 @@
 import commands
 
-Import('env')
+Import('prog_env')
 
-env = env.Clone()
+env = prog_env.Clone()
 
 fenix = env.StaticLibrary('fenix', Glob('*.cpp'))
 

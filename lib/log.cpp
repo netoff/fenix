@@ -1,4 +1,4 @@
-#include "log.h"
+/*#include "log.h"
 
 namespace fenix
 {
@@ -8,12 +8,14 @@ namespace fenix
 		{
 			namespace log
 			{
-				ostringstream _null_output;
+				mutex log_mutex;
+				FILE* server_log;
 				
-				#ifdef DEBUG
-				thread_specific_ptr<ostringstream> _log_output;
-				#endif				
+				void _init_log(FILE* log)
+				{
+					server_log = log;
+				}
 			}
 		}
 	}
-}
+}*/

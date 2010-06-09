@@ -2,10 +2,10 @@
 
 #include "boost/tokenizer.hpp"
 
-#include "boost/mpl/vector.hpp"
-#include "boost/mpl/push_back.hpp"
-#include "boost/mpl/for_each.hpp"
-#include "boost/mpl/front.hpp"
+//#include "boost/mpl/vector.hpp"
+//#include "boost/mpl/push_back.hpp"
+//#include "boost/mpl/for_each.hpp"
+//#include "boost/mpl/front.hpp"
 #include "boost/proto/proto.hpp"
 
 #include "common.h"
@@ -19,6 +19,7 @@ using namespace fenix::web::toolkit::view;
 using namespace boost;
 
 #define _(x) proto::lit(x)
+#define _root proto::lit(ROOT_PATH)
 
 namespace fenix
 {
@@ -34,7 +35,7 @@ namespace fenix
 				FENIX_CONTROLLER(not_found)
 				{
 					return render_<NotFoundResponse>();
-				}
+				}				
 
 				template <template<class> class T_action, class Authenticate = empty_class>
 				struct _action
@@ -213,14 +214,14 @@ namespace fenix
 
 				};
 				
+				
 				template <class Expr>
 				auto_ptr<Base> dispatch(Expr& expr, const Request& request)
 				{
 					dispatcher_context context(request);
-
+					
 					return proto::eval(expr, context)->get_action();
 				}
-				
 			}
 		}
 	}

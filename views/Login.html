@@ -8,39 +8,47 @@ param: login_error
 param: signup_error
 param: active
 param: alert
+param: finish
 -->
 
 <!--@
+	bool finish = args[_finish|false];
 
   include_js("jquery.js");
   include_js("jquery.validate.js");
   include_js("login.js");
   
-  _title = "Login";
+	if(!finish)
+	{
+  	_title = "Just-in-time web analytics";
+	}
+	else
+	{
+		_title = "Signup Finish";
+	}
 -->
 
 <!--@
-	string alert = args[_alert|""];
 	
-	if(!alert.empty())
+	
+	if(finish)
 	{
 	-->
-		<div class="mask" id="transparent-mask"></div>
+	<div id="signup-thanks">
+		<div class="mask"></div>
 		
-		<div class="alert" class="alert">
-			<form method="get" action="/app/login">
-				<!--@ this->insert(alert); -->
-				
-				<input type="submit" value="OK" />
-			</form>
+		<div class="alert">
+			<h2>Signup Finish</h2>
+			<div class="alert-text">
+				<p>Thank you for a sign up.<br /><br /> Right now, we are in a limited beta.
+					As soon as more slots become available, we will send you activation link, 
+					so you can verify your email address and start using our service.</p>
+				<form method="get" action="/analytics/login">				
+					<input type="submit" value="OK" />
+				</form>
+			</div>
 		</div>
-		<script type="text/javascript">
-			$(function (){
-					$("#transparent-mask").height($("body").height());
-					$("#transparent-mask").width($("body").width());
-			} );
-		</script>
-	
+	</div>
 <!--@
 	}
 -->
@@ -54,7 +62,7 @@ param: alert
 	      <!--<p>Enter your email address and password</p>-->
 	      <p></p>
 	      
-	      <form method="post" action="/app/session/new" id="login-form">
+	      <form method="post" action="/analytics/session/new" id="login-form">
 		<!--@
 			string email = args[_email|""];
 			string login_error = args[_login_error|""];
@@ -91,7 +99,7 @@ param: alert
 		  <h2>Sign Up</h2>
 		  
 		  <p>Please enter your data and click on a "Sign Up" to create new account, and start tracking your site.</p>
-		  <form method="post" action="/app/login/new" id="signup-form">		  	
+		  <form method="post" action="/analytics/login/new" id="signup-form">		  	
 			
 		  	<!--@
 				string signup_error = args[_signup_error|""];

@@ -38,6 +38,16 @@ namespace fenix
 					return t.date() - fenix_epoch.date();
 				}
 
+				inline long long timestamp_nano(const ptime& t)
+				{
+					return diff(t).total_nanoseconds();
+				}
+				
+				inline long long timestamp_micro(const ptime& t)
+				{
+					return diff(t).total_microseconds();
+				}
+				
 				inline long timestamp(const ptime& t)
 				{
 					return diff(t).total_seconds();

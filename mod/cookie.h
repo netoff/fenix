@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include "action.h"
 #include "datetime.h"
 #include "crypto.h"
 
@@ -27,27 +28,34 @@ inline string _cookie_timestamp(int hrs)
 }
 inline string _cookie_val(const string& val)
 {
-	string c = "";
+	/*string c = "";
+	
 	
 	if(!val.empty())
 	{
-		c = crypto::hmac(val, fenix_secret_key) + val;
+		c = val + crypto::hmac(val, fenix_secret_key);
 	}
 	
-	return c; 
+	return encode_param(c);*/
+	return val;
 }
 
+/*
 inline bool _cookie_val(const string& payload, string& val)
 {
 	string mac = "";
+	string msg = "";
 	
 	if(payload.length() > crypto::hmac_size())
 	{
 		int offset = crypto::hmac_size();
 		
-		mac = payload.substr(0, offset);
+		//mac = payload.substr(0, offset);		
+		//msg = payload.substr(offset, payload.length() - offset);
 		
-		string msg = payload.substr(offset, payload.length() - offset);
+		mac = payload.substr(payload.length() - offset, offset);
+		msg = payload.substr(0, payload.length() - offset);
+		
 		
 		if(crypto::hmac_verify(mac, msg, fenix_secret_key))
 		{
@@ -59,7 +67,7 @@ inline bool _cookie_val(const string& payload, string& val)
 	
 	
 	return false;
-}
+}*/
 
 inline string cookie(const string& name, const string& val)
 {	
@@ -104,7 +112,7 @@ inline string cookie(const string& name, const string& val, const string& path, 
 	}
 }
 
-inline void parse_cookies(const string& cookie, map<string, pair<string, int> >& session)
+inline void parse_cookies(const string& cookie, const action::Request& request)
 {
 	
 	typedef char_separator<char> ch_sep;
@@ -117,19 +125,24 @@ inline void parse_cookies(const string& cookie, map<string, pair<string, int> >&
 
 	foreach(string c, cookies)
 	{
+		trim(c);
+		
 		tokenizer kv(c, keyval_sep);
 		vector<string> kv_vec(kv.begin(), kv.end());
 
-		string key = (kv_vec.size() > 0)?kv_vec[0]:"";
-		string val = (kv_vec.size() > 1)?kv_vec[1]:"";
+		string key = (kv_vec.size() > 0)?decode_param(trim_copy(kv_vec[0])):"";
+		string val = (kv_vec.size() > 1)?decode_param(trim_copy(kv_vec[1])):"";
 		
-		string c_val = "";
+		string cookie_val = "";
 		
-		if(_cookie_val(val, c_val))
+		//request.setSessionRaw(key, val);
+		request._pparams[key] = action::cookie_param(val, -1);
+		/*
+		if(_cookie_val(val, cookie_val))
 		{
 			//incoming cookies are marked with -1
-			session[key] = make_pair(c_val, -1);
-		}
+			session[key] = action::cookie_param(cookie_val, -1);
+		}*/
 	}
 }
 

@@ -26,6 +26,12 @@ function sameHeight (sections)
 
 $(function ()
 {
+	$("#signup-thanks input[type='submit']").click(function(){
+		$("#signup-thanks").hide();	
+		
+		return false;
+	});
+	
 	$("#login-form").validate();
 	$("#signup-form").validate();
 

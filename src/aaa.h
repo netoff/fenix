@@ -7,15 +7,17 @@ using namespace fenix::web::toolkit;
 
 namespace session_authentication
 {
-	static const string login_page = "/app/login";
+	static const string login_page = "/" + string(ROOT_PATH) + "/login";
 	
+	template <int LOG>
 	class authenticate
 	{
 	public:
-		authenticate() {}
+		authenticate(){}
 		
 		authenticate(const action::Request& request)
-		:_redirect(login_page),_user(new tables::User(get_users_db(request))){}
+		:_redirect(login_page),_db(get_database(request, "fenix")),
+		_user(tables::User::get(_db)){}
 		
 		bool operator()(const action::Request& request, string& redirect)
 		{
@@ -25,6 +27,12 @@ namespace session_authentication
 			{
 				if(_user->find(user_id))
 				{
+					if(LOG)
+					{
+						this->_user->log_activity();
+						this->_user->save();
+					}
+					
 					return true;
 				}
 			}
@@ -37,8 +45,24 @@ namespace session_authentication
 		{
 			return _user;
 		}
+		
+		bool authorize_user(const string& site_id)
+		{
+			if(site_id.size() == SITE_ID_LENGTH)
+			{
+				tables::Site::obj site = tables::Site::get(this->_db);
+				
+				return site->exists(Query()
+						.add_cond("_id", site_id)
+						.add_cond("user_id", this->_user->id()));
+			}
+			
+			return false;
+		}
 	private:
 		string _redirect;
-		shared_ptr<tables::User> _user;
+		
+		Database::obj _db;
+		tables::User::obj _user;
 	};
 }
