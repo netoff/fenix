@@ -8,7 +8,7 @@
 
 using namespace fenix::misc::server;
 
-static const string stored_file = "ext.lua";
+static const string stored_file = "/opt/lua/ext/share/lua/5.1/ext.lua";
 
 string read_stored()
 {

@@ -43,13 +43,12 @@ print "Secret key: [" + SECRET_KEY + "]"
 
 #================================================
 #BOOTSTRAP HERE is there a better way to do this?
-#def bootstrap():
-#	if not os.path.exists("./bin/precompiler"):
-#		print "Bootstraping........"
-#		print command.getoutput("scons final=1 precompiler")
-#		print command.getoutput("cp .build/app/final/precompiler/precompiler bin/")
-#
-#bootstrap()
+def bootstrap():
+	if not os.path.exists("./bin/precompiler"):
+		print "Bootstrap first:"
+		print "scons bootstrap"
+
+bootstrap()
 #================================================
 
 
@@ -62,7 +61,7 @@ FINAL_FLAGS = ['-O3', '-w']
 
 BOOST_PATH = '#ext/boost_1_42_0/'
 CRYPTOPP_PATH = '#ext/crypto_pp/'
-MONGO_PATH = '#ext/mongo/include/mongo/'
+MONGO_PATH = '/opt/mongo/include/mongo/'
 
 BOOST_LIBS = ['system/src/*.cpp', 'filesystem/src/*.cpp', 
 	'date_time/src/gregorian/*.cpp', 'date_time/src/posix_time/*.cpp',
@@ -70,7 +69,7 @@ BOOST_LIBS = ['system/src/*.cpp', 'filesystem/src/*.cpp',
 
 INCLUDES_PATH = ['#lib', BOOST_PATH, CRYPTOPP_PATH, MONGO_PATH]
 
-PROG_FLAGS = ['-fvisibility=hidden', '-fpermissive']
+PROG_FLAGS = ['-fvisibility=hidden', '-fpermissive', '-fPIC']
 LIBS_FLAGS = ['-O3','-w'] 
 
 BUILD_DIR = '.build/'
@@ -116,10 +115,10 @@ for lib in BOOST_LIBS:
 	boost_libs.append(Glob(join(BOOST_BUILD_DIR, lib)))
 	
 boost_lib = lib_env.StaticLibrary(join(BOOST_BUILD_DIR, 'boost'), 
-	boost_libs, CCFLAGS = ['-DBOOST_DATE_TIME_POSIX_TIME_STD_CONFIG'])
+	boost_libs, CCFLAGS = ['-DBOOST_DATE_TIME_POSIX_TIME_STD_CONFIG', '-fPIC'])
 
 #crypto_pp lib
-crypto_lib = lib_env.StaticLibrary(join(CRYPTOPP_BUILD_DIR, 'crypto'), Glob(join(CRYPTOPP_BUILD_DIR, '*.cpp')) )
+crypto_lib = lib_env.StaticLibrary(join(CRYPTOPP_BUILD_DIR, 'crypto'), Glob(join(CRYPTOPP_BUILD_DIR, '*.cpp')), CCFLAGS = ['-fPIC'])
 
 Export('lib_env', 'prog_env', 'boost_lib', 'crypto_lib')
 
@@ -129,7 +128,10 @@ Export('fenix_lib')
 apache_module = SConscript('mod/SConstruct', variant_dir=join(APP_BUILD_DIR, 'mod/'), duplicate=0)
 	
 precompiler = SConscript('precompiler/SConstruct', variant_dir=join(APP_BUILD_DIR, 'precompiler/'), duplicate=0)
-	
+install_precompiler = prog_env.Install('bin/', precompiler)
+
+prog_env.Alias("bootstrap", [precompiler, install_precompiler])
+
 precompile = prog_env.Command('src/views.h', Glob('views/**/*.html'), 'bin/precompiler')
 
 prog_env.Requires(precompile, precompiler)
@@ -137,7 +139,7 @@ prog_env.AlwaysBuild(precompile)
 
 #tyrant_libs = ['tokyotyrant', 'tokyocabinet', 'z', 'bz2', 'resolv', 'nsl', 'dl', 'rt', 'pthread', 'm', 'c']
 
-prog_env.Append(LIBPATH = ['#ext/mongo_src'])
+#prog_env.Append(LIBPATH = ['#ext/mongo_src'])
 
 prog_env.Append(CCFLAGS = ['-DSECRET_KEY=\\"' + SECRET_KEY + '\\"'])
 application = prog_env.SharedLibrary(join(APP_BUILD_DIR, 'application'), Glob('src/*.cpp'), 
@@ -147,13 +149,14 @@ prog_env.Depends(application, precompile)
 
 logger = SConscript('logger/SConstruct', variant_dir=join(APP_BUILD_DIR, 'logger/'), duplicate=0)
 install_logger = prog_env.InstallAs('bin/logger', logger)
+install_lua_ext = prog_env.Install('/opt/lua/ext/share/lua/5.1', Glob('logger/*.lua'))
 
-prog_env.Alias('logger_server', [logger, install_logger])
+#if build only logger 'scons logger_server'
+prog_env.Alias('logger_server', [logger, install_logger, install_lua_ext])
 
 #Default(logger_server)
 #-------------------------------------------------------
 #INSTALL
-prog_env.Install('bin/', precompiler)
 prog_env.InstallAs('bin/mod_fenix.so', apache_module)
 prog_env.InstallAs('bin/app.so', application)
 

@@ -9,7 +9,7 @@ orange: #ff542e
 */
 
 *
-{aba
+{
 	margin: 0;
 	padding: 0;
 }
@@ -302,7 +302,7 @@ div.window ol
 {
 	font-size: 1.8em;
 }
-div.window > h2
+div.window  h2
 {
 	padding-left: 5px;
 	font-size: 1.8em;

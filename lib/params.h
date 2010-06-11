@@ -91,7 +91,8 @@ namespace fenix
 
 					return true;
 				}
-				
+			
+				#ifndef _LP64	
 				inline bool get_param(const string& a, int64_t& b)
 				{
 					string s = trim_copy(a);
@@ -109,7 +110,25 @@ namespace fenix
 					
 					return false;					
 				}
-				
+				#else
+				inline bool get_param(const string& a, long long& b)
+				{
+					string s = trim_copy(a);
+
+					try
+					{
+						b = lexical_cast<long long>(s);
+					}
+					catch(bad_lexical_cast&)
+					{
+						b  = 0;
+						return false;
+					}
+
+					return true;
+				}
+				#endif
+
 				inline bool get_param(const string& a, long& b)
 				{
 					string s = trim_copy(a);

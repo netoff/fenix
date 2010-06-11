@@ -15,3 +15,4 @@ build/
 bck/
 .bck/
 bin/logger
+ext/boost_1_42_0/

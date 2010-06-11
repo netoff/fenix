@@ -28,10 +28,10 @@ namespace fenix
 				}
 				~Log()
 				{
-					#ifdef DEBUG
+					//#ifdef DEBUG
 					mutex::scoped_lock(out_mutex);
 					cerr << this->_out.str() << endl;
-					#endif
+					//#endif
 				}
 			private:
 				

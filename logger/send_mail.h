@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lua.h"
+#include "log.h"
 
 namespace fenix
 {
@@ -8,13 +9,13 @@ namespace fenix
 	{
 		namespace server
 		{
-			static const sendmail_cmd = "/usr/bin/sendmail";
+			static const string sendmail_cmd = "/usr/sbin/sendmail";
 			
 			class system_mailer:private noncopyable
 			{
 			public:	
 				system_mailer(const string& sender, const string& address)
-				:_name(sender),_address(address)
+				:_name(sender),_address(address),_sendmail(0)
 				{					
 				}
 				~system_mailer()
@@ -41,7 +42,7 @@ namespace fenix
 						fprintf(this->_sendmail, "Subject: %s\r\n\r\n", subject.c_str());
 						
 						fprintf(this->_sendmail, "%s\r\n", body.c_str());
-						
+						Log().get() << "printing";
 						this->_close();
 					}
 					#endif
@@ -64,6 +65,7 @@ namespace fenix
 					if(this->_sendmail)
 					{
 						pclose(this->_sendmail);
+						this->_sendmail = 0;
 					}
 				}
 				

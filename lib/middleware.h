@@ -184,7 +184,11 @@ namespace fenix
 				//thorw away bad connections
 				void _assert()
 				{
-					if(this->_mid->is_bad())
+					if(!this->_mid)
+					{
+						this->_mid = mid_pool.get();
+					}
+					else if(this->_mid->is_bad())
 					{
 						log::getLOG << "Releaseing connection in assert!";
 						delete this->_mid;
