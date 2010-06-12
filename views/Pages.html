@@ -3,7 +3,7 @@ param: user
 -->
 <!--@
 	include_css("datepicker.css");
-	//#ifdef DEBUG
+	#ifdef DEBUG
 	include_js("jquery.js");
 	include_js("jquery.flot.js");
 	include_js("jquery.flot.crosshair.js");
@@ -17,10 +17,10 @@ param: user
 	include_js("chart.js");
 	include_js("common.js");
 	include_js("pages.js");
-	//#elif
-	//include_js("jquery.common.js");
-	//include_js("pages.min.js");
-	//#endif
+	#else
+	include_js("jquery.common.js");
+	include_js("pages.min.js");
+	#endif
 	
 	_title = "Pages";	
 -->

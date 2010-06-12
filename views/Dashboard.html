@@ -5,18 +5,17 @@ param: user
 -->
 
 <!--@
-	//#ifdef DEBUG
+	#ifdef DEBUG
 	include_js("jquery.js");
 	include_js("jquery.flot.js");
-	include_js("jquery.flot.crosshair.js");
 	include_js("jquery.flot.stack.js");
 	include_js("date.js");
 	
 	include_js("dashboard.js");
-	//#elif
-	//include_js("jquery.common.js");
-	//include_js("dashboard.min.js")
-	//#endif
+	#else
+	include_js("jquery.common.js");
+	include_js("dashboard.min.js");
+	#endif
 	
 	_title = "Dashboard";
 -->

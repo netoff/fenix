@@ -99,11 +99,10 @@ Chart.prototype.draw = function ()
 };
 Chart.prototype.showTooltip = function (x, y, contents) 
 {
-        $('<div id="tooltip">' + contents + '</div>').css( {
+        $('<div id="tooltip">' + contents + '</div>').css({
 			display: 'none',
 			top: y + 5,
-			left: x + 15,
-			
+			left: x + 15			
         }).appendTo("body").fadeIn(200);
 };
 

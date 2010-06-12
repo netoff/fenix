@@ -151,6 +151,26 @@ logger = SConscript('logger/SConstruct', variant_dir=join(APP_BUILD_DIR, 'logger
 install_logger = prog_env.InstallAs('bin/logger', logger)
 install_lua_ext = prog_env.Install('/opt/lua/ext/share/lua/5.1', Glob('logger/*.lua'))
 
+def compile_js(source, dest):
+	print "Compiling javascript..."
+	cmd = "java -jar ext/closure/compiler.jar --js={0} --js_output_file={1}".format(" --js=".join(source), dest)
+	print cmd
+	print commands.getoutput(cmd)
+
+jquery_src =  ["public/js/jquery.js", "public/js/jquery.flot.js", "public/js/jquery.flot.stack.js", 
+		"public/js/jquery.table-pagination.js", "public/js/datepicker.js", 
+		"public/js/date.js", "public/js/chart.js", "public/js/common.js"]
+if int(final)==1:
+	compile_js(jquery_src, "public/js/jquery.common.js")
+	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], "public/js/login.min.js")
+	compile_js(["public/js/dashboard.js"], "public/js/dashboard.min.js")
+	compile_js(["public/js/visitors.js"], "public/js/visitors.min.js")
+	compile_js(["public/js/pages.js"], "public/js/pages.min.js")
+	compile_js(["public/js/referrers.js"], "public/js/referrers.min.js")
+	compile_js(["public/js/src/loader.js"], "public/loader.js")
+	compile_js(["public/js/src/fenix.js"], "public/fenix.js")
+
+
 #if build only logger 'scons logger_server'
 prog_env.Alias('logger_server', [logger, install_logger, install_lua_ext])
 
@@ -159,5 +179,3 @@ prog_env.Alias('logger_server', [logger, install_logger, install_lua_ext])
 #INSTALL
 prog_env.InstallAs('bin/mod_fenix.so', apache_module)
 prog_env.InstallAs('bin/app.so', application)
-
-
