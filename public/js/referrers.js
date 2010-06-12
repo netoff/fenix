@@ -18,7 +18,7 @@ $(function(){
 				}
 				function updateSegments(segments)
 				{
-					if(segments)
+					if(segments && segments.length > 0)
 					{
 						var referrers = segments.referrers,
 								len = referrers.length, a, referrer;
@@ -34,7 +34,7 @@ $(function(){
 					}
 					else
 					{
-						referrers_list_by_ref.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+						referrers_list_by_ref.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
 					}
 					
 				}

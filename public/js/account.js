@@ -9,7 +9,7 @@ $(function()
 		}
 		function generateCode(id)
 		{
-			var ret = ""
+			var ret = "";
 			
 			ret += "<script src='http://cdn.kliknik.com/loader.js'></script>\n";
 			ret += "<script type='text/javascript'>\n";
@@ -20,7 +20,7 @@ $(function()
 		}
 		function loadSites()
 		{
-			var i, sitem, options = [], id;
+			var i, site, options = [], id;
 			
 			if(_sites)
 			{

@@ -19,7 +19,7 @@ $(function (){
 			
 			function updateSegments(segments)
 			{				
-				if(segments)
+				if(segments && segments.length > 0)
 				{
 					var countries = segments.countries,
 							len = countries.length;
@@ -40,7 +40,7 @@ $(function (){
 				}
 				else
 				{
-					visitors_list_by_country.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+					visitors_list_by_country.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
 				}
 			};
 			

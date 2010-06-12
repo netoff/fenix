@@ -16,7 +16,7 @@ $(function(){
 				}
 				function updateSegments(segments)
 				{
-					if(segments)
+					if(segments && segments.length > 0)
 					{
 						var pages = segments.pages,
 								len = pages.length, p, a;
@@ -33,7 +33,7 @@ $(function(){
 					}
 					else
 					{
-						pages_list_by_url.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+						pages_list_by_url.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
 					}
 				}				
 				

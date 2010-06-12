@@ -66,7 +66,7 @@ function Chart(nPoints)
 
 Chart.prototype.updatePoints = function (points)
 {
-	var i, a;
+	var i;
 	
 	for (i = 0; i < points.length; i++)
 	{
@@ -204,7 +204,7 @@ if (!dashboard)
 				$(".sub-menu").click(function (){
 					var id = $(this).attr("id"), i, ll;
 					
-					i = parseInt(id.split("page")[1]);
+					i = parseInt(id.split("page")[1], 10);
 					ll = -960 * (i - 1); 
 					
 					pages.animate({left: ll});
@@ -215,7 +215,7 @@ if (!dashboard)
 	
 			sameHeight: function (sections)
 			{
-				var max, i, j, section, max1;
+				var max, i, j, section;
 				
 				max = 0;
 		
@@ -352,7 +352,7 @@ if (!dashboard)
 							width: "4px", height: "4px",
 							margin: 0, padding: 0,
 							'background-color': "#f00", left: x , top: y, display: 'none'})
-								.appendTo(map).fadeIn(function(){$(this).delay(2000).fadeOut(2000, function(){$(this).remove()});});
+								.appendTo(map).fadeIn(function(){$(this).delay(2000).fadeOut(2000, function(){$(this).remove();});});
 					}
 				}
 				this.timestampMicro = ts;
@@ -367,7 +367,7 @@ if (!dashboard)
 						
 						a.push("<li style='display:none'>");					
 						a.push("<span class='_time'>");
-						a.push(formatTimeFromEpoche(visitor._uid));a.push("</span>:")
+						a.push(formatTimeFromEpoche(visitor._uid));a.push("</span>:");
 						if(visitor._event === 2){a.push("New Vistior");}
 						if(visitor._event === 3){a.push("Returning Vistior");}
 						if(visitor._event === 4){a.push("Repeating Vistior");}
@@ -440,7 +440,7 @@ if (!dashboard)
 				
 				for(i = 0; i < list.length; i++)
 				{
-					if(i%2 ==0)
+					if(i%2 === 0)
 					{
 						a.push("<div class='stat-label'><span class='title'>");
 					}
