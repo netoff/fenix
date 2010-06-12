@@ -86,7 +86,7 @@ $(function()
 				return false;
 			});
 		
-		$(".account-link").click(function()
+		$(".account-link").live("click", function()
 			{
 				
 				panel.show();

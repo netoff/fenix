@@ -38,6 +38,10 @@ $(function (){
 							return row;
 					});
 				}
+				else
+				{
+					visitors_list_by_country.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+				}
 			};
 			
 			page.updateFromFeed = function (feed)

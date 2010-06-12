@@ -31,6 +31,10 @@ $(function(){
 								return a;
 						});
 					}
+					else
+					{
+						pages_list_by_url.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+					}
 				}				
 				
 				page.updateFromFeed = function (feed)

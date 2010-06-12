@@ -32,6 +32,11 @@ $(function(){
 								return a;
 							});
 					}
+					else
+					{
+						referrers_list_by_ref.html("There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can track your data.");
+					}
+					
 				}
 				
 				page.updateFromFeed = function(feed)
