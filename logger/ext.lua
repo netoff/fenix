@@ -741,7 +741,7 @@ dashboard = {
   
 				if countries then 
         	for c in countries:results() do
-						if c._country then
+						if c._country and c._country ~= "" then
           		if t[c._country] then
 								t[c._country] = t[c._country] + c._count 
 							else
