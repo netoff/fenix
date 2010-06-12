@@ -97,12 +97,13 @@ if(!___FNX_fenix_tracker_)
 
 			return {
 				trackView: function (options)
-				{	
+				{
+					console.log("in track view");
 					var url = document.location.href, 
 							title = document.title,
 							referrer = getReferrer();
 					
-					fenixLog({'_u': url, '_t': title, '_r': referrer});
+					fenixLog({_e: "hit", _u: url, _t: title, _r: referrer});
 				},
 				trackClick: function (options)
 				{
@@ -115,24 +116,29 @@ if(!___FNX_fenix_tracker_)
 				},
 				proc: function ()
 				{
-					var i, ___FNX_fenix_queue_,
-							queue, q;
+					console.log("in proc");
+					var i, queue, q;
 							
 					if(___FNX_fenix_queue_)
 					{
+						console.log("queue defined");
 						queue = ___FNX_fenix_queue_;
-						for(i = 0; i < queue.lenght; i ++)
+						for(i = 0; i < queue.length; i ++)
 						{
+							console.log("queue has elems");
 							q = queue[i];
 							if(q.length > 0)
 							{
 								setID(q[0]);
+								console.log("setting id");
 								if(q.length > 1 && typeof q[1] === "function")
 								{
+									console.log("calling callback");
 									q[1](this);
 								}
 								else
 								{
+									console.log("calling callback(default)");
 									this.trackView();
 								}
 							}							
@@ -142,3 +148,4 @@ if(!___FNX_fenix_tracker_)
 			};
 		}());
 }
+___FNX_fenix_tracker_.proc();

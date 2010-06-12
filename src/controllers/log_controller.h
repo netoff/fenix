@@ -44,6 +44,8 @@ namespace LogController
 						
 						mid.done();
 					}
+
+					return render_<TrackingPixel>();
 				}
 				/*
 				if(event_type == "cl")
@@ -53,12 +55,8 @@ namespace LogController
 				if(event_type == "ev")
 				{
 					log_event();
-				}*/
-								
-				string response = "view log";
+				}*/			
 				
-				//return render_text(response, "text/plain");				
-				return render_<TrackingPixel>();
 			}
 		}
 		
