@@ -3,15 +3,17 @@ if(!___FNX_fenix_tracker_)
 {
 	___FNX_fenix_tracker_ = (function ()
 		{
-			var endpoint = "http://log.kliknik.com/lg/view",
-					id,
+			var endpoint = "http://log.kliknik.com/lg/js",
+					ts_cookie = "___fnx_ts",
+					orig_cookie = "___fnx_orig",
+					id = "",
 					escapeMe = window.encodeURIComponent || escape,
 					unescapeMe = window.decodeURIComponent || unescape;
 					
 			//private functions
 			function setID(_id)
 			{
-				this.id = _id;
+				id = _id;
 			}
 			function setCookie(key, val, daysToExpire, path, domain, secure) 
 			{
@@ -25,7 +27,7 @@ if(!___FNX_fenix_tracker_)
 					expiryDate.setTime(expiryDate.getTime() + daysToExpire * 8.64e7);
 				}
 
-				document.cookie = name + '=' + escapeMe(val) +
+				document.cookie = key + '=' + escapeMe(val) +
 					                  (daysToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
 					                  ';path=' + (path ? path : '/') +
 					                  (domain ? ';domain=' + domain : '') +
@@ -37,20 +39,18 @@ if(!___FNX_fenix_tracker_)
 				var c_pattern = new RegExp('(^|;)[ ]*' + key + '=([^;]*)'),
 						c = c_pattern.exec(document.cookie);
 
-				return c ? unescapeWrapper(c[2]) : 0;
+				return c ? unescapeMe(c[2]) : null;
 			}
 			function pingServer(url)
 			{
-				if(true)
-					{console.log("URL: "+url);}
-				else{
+				url = url + "&_=" + Math.random();
 				var img = new Image(1,1);
 				img.onload = function(){};
-				img.src = url;}
+				img.src = url;
 			}
 			function fenixLog(data)
 			{
-				var a = endpoint + "?_id=" + escapeMe(this.id),
+				var a = endpoint + "?_id=" + escapeMe(id),
 						k, v;
 				if(data)
 				{
@@ -98,12 +98,35 @@ if(!___FNX_fenix_tracker_)
 			return {
 				trackView: function (options)
 				{
-					console.log("in track view");
 					var url = document.location.href, 
 							title = document.title,
-							referrer = getReferrer();
+							referrer = getReferrer(),
+							tm = -1, orig = "", t, o, now = new Date();
+					t = parseInt(getCookie(ts_cookie), 10);
+					if(t)
+					{
+						tm = parseInt(now.getTime()/1000 - t, 10);
+						o = getCookie(orig_cookie);
+						if(o)
+						{
+							orig = o;
+						}
+					}
+					else
+					{
+						orig = referrer;
+						if(referrer !== "")
+						{
+							setCookie(orig_cookie, referrer, 365);
+						}
+						else
+						{
+							setCookie(orig_cookie, "none", 365);
+						}
+					}
+					setCookie(ts_cookie, parseInt(now.getTime()/1000, 10), 180);
 					
-					fenixLog({_e: "hit", _u: url, _t: title, _r: referrer});
+					fenixLog({_e: "hit", _u: url, _t: title, _r: referrer, _o: orig, _tm: tm});
 				},
 				trackClick: function (options)
 				{
@@ -116,29 +139,23 @@ if(!___FNX_fenix_tracker_)
 				},
 				proc: function ()
 				{
-					console.log("in proc");
 					var i, queue, q;
 							
 					if(___FNX_fenix_queue_)
 					{
-						console.log("queue defined");
 						queue = ___FNX_fenix_queue_;
 						for(i = 0; i < queue.length; i ++)
 						{
-							console.log("queue has elems");
 							q = queue[i];
 							if(q.length > 0)
 							{
 								setID(q[0]);
-								console.log("setting id");
 								if(q.length > 1 && typeof q[1] === "function")
 								{
-									console.log("calling callback");
 									q[1](this);
 								}
 								else
 								{
-									console.log("calling callback(default)");
 									this.trackView();
 								}
 							}							

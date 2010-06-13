@@ -14,5 +14,7 @@ build/
 .build/
 bck/
 .bck/
+bin/
 bin/logger
 key.sec
+*.min.js

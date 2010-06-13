@@ -69,15 +69,17 @@ h3
 
 .clock
 {
-	padding: 0 5px 7px 5px;
-	//width: 320px;
-	height: 10px;
+	padding: 0 15px 0px 15px;
+	height: 16px;
 	background-color: #FF9900;
 	position: absolute;
 	right: -20px;
 	top:0;
 	z-index: 1000;
+	font-size: 8px;
+	line-height: 12px;
 	font-weight: bold;
+
 	-moz-border-radius-bottomleft: 4px;
 	-webkit-border-bottom-left-radius: 4px;
 	-moz-border-radius-bottomright: 4px;
@@ -90,6 +92,25 @@ h3
 .clock a, .clock a:hover, .clock a:visited
 {
 	color: #fff;
+}
+#beta-img
+{
+	margin: 0;
+	padding: 0;
+	position:absolute; 
+	top: 6px; right: 0;
+}
+#left-col
+{
+}
+#right-col
+{
+	position: relative;
+}
+#beta-img img
+{
+	margin:0;
+	padding: 0;
 }
 #logo h1
 {
@@ -122,7 +143,7 @@ h3
 	-webkit-user-select: none;
 }
 
-#main-menu > ul
+#main-menu ul
 {
 	display: block;
 	height: 52px;
@@ -151,14 +172,14 @@ h3
 	border-color: #CFD6DE;
 	background-color: #7297BA;
 }
-#main-menu li.active > a
+#main-menu li.active  a
 {
 	font-size: 3.2em;
 	height: 42px;
 	color: #fff;
 	width: 164px;
 }
-#main-menu li > a
+#main-menu li  a
 {
 	padding: 4px 0 0 12px;
 	display: block;
@@ -225,6 +246,8 @@ a.sub-menu:hover
 }
 div.window
 {
+	overflow: hidden;
+
 	margin-top: 7px;
 	color: #333;
 	background-color: #fff;
@@ -233,6 +256,14 @@ div.window
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 }
+.clear{
+    clear: both;
+    /* make sure there is no height set to it */
+    line-height: 0;
+    height: 0;
+    font-size: 0em;
+}
+
 .loader-pl, .loader-pl-sm
 {
 	position: relative;
@@ -277,7 +308,7 @@ div.window.inline
 {
 	background-color:  #eee;
 	border: none;
-	padding: 10px;
+	padding: 5px 5px;
 	color: #000;
 	
 	-moz-border-radius: 2px;
@@ -290,7 +321,11 @@ div.window.inline a
 }
 div.window span.h2
 {
-	margin: 12px 8px 0 8px;
+	width: 100%;
+	border-bottom: 1px dotted #333;
+	font-family: serif;
+	font-size: 3.2em;
+	margin: -4px 8px 0 8px;
 }
 div.window p
 {
@@ -314,7 +349,7 @@ div.window  h2
 	-moz-user-select: none;
 	-webkit-user-select: none;
 }
-div.window > h3
+div.window  h3
 {
 	padding: 10px;
 }
@@ -341,16 +376,23 @@ div.stat-sep
 	margin: 6px 10px 0 10px;
 	
 }
-
-div.stat-label:hover
+span.counter
 {
 	background-color: #fff;
+}
+div.stat-label.alt span.counter
+{
+	background-color: #eee;
+}
+div.stat-label:hover
+{
 	cursor: pointer;
 		
 	background-color: #cfd6de;
 }
 div.stat-label:hover > span.counter
-{
+{	
+	background-color: #cfd6de;
 	color: #fff;
 }
 div.stat-label:hover > span.title
@@ -360,7 +402,7 @@ div.stat-label:hover > span.title
 
 span.counter
 {
-	font-size: 1.8em;
+	font-size: 1.4em;
 	font-weight: bold;
 	color: #333;
 	position: absolute;
@@ -376,7 +418,7 @@ span.title
 }
 
 #visitors-segments
-{
+{	
 	padding: 0 10px 0 10px;	
 }
 #pages-segments
@@ -402,6 +444,7 @@ table.admin tr.notify a
 }
 table.admin, table.segmented-list
 {
+	width: 100%;
 	border-collapse:collapse;	
 	padding: 0 10px 0 10px;
 	margin-bottom: 0;
@@ -439,6 +482,10 @@ table.admin tr.alt:hover, table.segmented-list tr:hover
 	padding: 0px 5px; 
 	height: 20px
 }
+#tablePagination select, #tablePagination input
+{
+	width: 70px;
+} 
 #tablePagination_paginater 
 { 
 	margin-left: auto; 
@@ -451,6 +498,7 @@ table.admin tr.alt:hover, table.segmented-list tr:hover
 #tablePagination_perPage 
 { 
 	float: left; 
+	display: none;
 }
 #tablePagination_paginater 
 { 
@@ -511,20 +559,22 @@ span.h2, span.h3
 {
 	font-size: 2.4em;
 }
-
-span.date-range-predefined-selectors
+#daterange-picker-placeholder
 {
-	display: block;
-	padding-top: 15px;
-	font-size: 1.8em;
+	padding: 10px; 
+}
+div.date-range-predefined-selectors
+{
+	clear: both;
+	padding-top: 5px;
+	font-size: 1.4em;
 }
 
 #date-range-selector-form .selector-input
 {
 	cursor: pointer;
-	
-	padding: 5px 5px 5px 35px;
-	font-size: 2.6em;
+	padding: 5px 0 5px 35px;
+	font-size: 2.4em;
 	width: 260px;
 	border: none;
 	background-color: #ff542e;
@@ -537,6 +587,7 @@ span.date-range-predefined-selectors
 }
 #date-range-selector-form .selector-submit
 {
+	float: right;
 	padding: 3px;
 	font-size: 1.8em;
 	margin: 0;
@@ -601,13 +652,15 @@ span.date-range-predefined-selectors
 }
 div.text
 {
-	margin-top: 10px;
+	padding-top: 10px;
+	/*overflow:hidden
+	height: 100%;*/
 }
 div.text p
 {
 	color: #fff;
 	padding: 20px;
-	font-size: 3.6em;
+	font-size: 2.4em;
 	background-color: #FF542E;
 	text-align: right;
 	-moz-border-radius-bottomleft: 30px;
@@ -658,6 +711,15 @@ fieldset
 	border: none;
 	padding: 10px 20px 10px 20px;
 }
+input.text
+{
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 20px;
+	
+	background-color: #eee;
+}
 input[type=text], input[type=password], select
 {
 	width: 100%;
@@ -666,6 +728,7 @@ input[type=text], input[type=password], select
 	
 	background-color: #eee;
 }
+
 #login-form fieldset
 {
 	width: 400px;
@@ -676,10 +739,10 @@ input[type=text], input[type=password], select
 }
 input[type=submit]
 {
-	font-size: 2.4em;
+	font-size: 2.1em;
 	float: right;
 	padding: 2px 17px ;
-	margin: 10px 0 0 0;
+	margin: 10px 0 10px 0;
 }
 
 p span.underline
@@ -690,11 +753,12 @@ p span.underline
 
 div.alert
 {
+	text-align: left;
 	border: 1px solid #333;
 	
 	z-index: 20000;
 		
-	position:fixed; 
+	position:absolute; 
 	width: 480px;
 	min-height: 280px;
 	margin-right: -240px;
@@ -755,14 +819,15 @@ div.mask
 	top: 0;
 	left: 0;
 	width: 100%;
+	min-height: 100%;
 	height: 100%;
 	background-color: #000;
 	
 	display: block;
 	overflow: hidden;
 	
-	opacity: 0.3;
-	filter:alpha(opacity=30);
+	opacity: 0.7;
+	filter:alpha(opacity=70);
 	-ms-filter:alpha(opacity=70);
 }
 .tabs ul

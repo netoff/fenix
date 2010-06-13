@@ -39,16 +39,8 @@ struct LogRequest: private noncopyable
 		city = "";
 		longitude = 0;
 		latitude = 0;
-		
-		//search_query = "";	
 	}	
 	
-	/*
-	bool get_search_engine(const Request& request, const string& referrer, 
-		string& engine, string& query)
-	{
-		
-	}*/
 	
 	void load(const Request& request)
 	{
@@ -56,9 +48,7 @@ struct LogRequest: private noncopyable
 		get_param(request["_t"], this->title);
 		
 		get_param(request["_r"], this->referrer);
-		//get_param(request["_o"], this->orig_referrer );
-		
-		//REMOVE:get_param(request["_q"], this->search_query);
+		get_param(request["_o"], this->orig_referrer );
 		
 		//load from mod_geoip
 		#ifdef DEBUG
@@ -67,7 +57,10 @@ struct LogRequest: private noncopyable
 		get_param(request["_lg"], this->longitude);
 		get_param(request["_lt"], this->latitude);
 		#else
-		
+		get_param(request.getParam("config", "GEOIP_COUNTRY_CODE"), this->country_code);
+		get_param(request.getParam("config", "GEOIP_CITY"), this->city);		
+		get_param(request.getParam("config", "GEOIP_LONGITUDE"), this->longitude);
+		get_param(request.getParam("config", "GEOIP_LATITUDE"), this->latitude);
 		#endif
 	}
 	
@@ -81,10 +74,9 @@ struct LogRequest: private noncopyable
 			<< ", title = " << escape(title, 128)//128
 			
 			<< ", referrer = " << escape(referrer, 1024)//1024
-			//<<", orig_referrer = " << escape(referrer, 1024)
+			<< ", orig_referrer = " << escape(referrer, 1024)
 			<< ", country = " << escape(country_code, 3)
 			<< ", city = " << escape(city, 64)
-			//REMOVE: << ", query = " << escape(search_query) 
 			<< ", longitude = " << longitude
 			<< ", latitude = " << latitude
 			<< "}";

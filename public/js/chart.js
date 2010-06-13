@@ -63,7 +63,8 @@ Chart.prototype.draw = function ()
 		{
 			label = "";
 		}
-		chart_data.push({ data: this.getDataPoints(i, n), 
+		chart_data.push({ color: this.getColor(i, n), 
+				data: this.getDataPoints(i, n), 
 				points: this.getPoints(i, n),
 				bars: this.getBars(i, n), 
 				lines: this.getLines(i, n),

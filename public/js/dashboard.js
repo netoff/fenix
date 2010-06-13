@@ -161,6 +161,9 @@ if (!dashboard)
 	
 			init: function ()
 			{
+				var pages = $("#pages"); ;				
+
+				
 				this.chart.setCanvas($('#trafic-live-chart'));
 				this.chart.resolution = "sec";
 				this.chart.settings = { 
@@ -196,10 +199,6 @@ if (!dashboard)
 				};
 				
 				this.chartHour.draw();
-				
-				this.adjustLayout();
-
-				pages = $("#pages");
 						
 				$(".sub-menu").click(function (){
 					var id = $(this).attr("id"), i, ll;
@@ -211,6 +210,8 @@ if (!dashboard)
 					
 					return false;
 				});
+
+				this.adjustLayout();
 			},
 	
 			sameHeight: function (sections)

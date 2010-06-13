@@ -15,11 +15,11 @@ require 'benchmark'
 #INDIA	 IN
 #HUNGARY	 HU
 
-MAX_REQUESTS = 4
+MAX_REQUESTS = 16
 THREAD_SLEEP = 0.3
 
-SITE_ID = "4bd99dfd0c741f0bf009b710"
-TRACK_URI = "http://log.kliknik.my/lg/view?_e=hit"
+SITE_ID = "4c126afbe78c47c616a3558e"
+TRACK_URI = "http://log.kliknik.com/lg/js?_e=hit"
 
 COUNTRIES = [
 	["US", "New York", -73.9667, 40.7833], 

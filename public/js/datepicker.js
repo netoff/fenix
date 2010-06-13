@@ -664,7 +664,7 @@
 						top = pos.top + this.offsetHeight + calEl.offsetHeight;
 					}
 					if (left + calEl.offsetWidth > viewPort.l + viewPort.w) {
-						left = pos.left - calEl.offsetWidth;
+						left = viewPort.l + viewPort.w - calEl.offsetWidth - 20;
 					}
 					if (left < viewPort.l) {
 						left = pos.left + this.offsetWidth

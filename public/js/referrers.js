@@ -18,25 +18,27 @@ $(function(){
 				}
 				function updateSegments(segments)
 				{
-					if(segments && segments.length > 0)
+					if(segments)
 					{
 						var referrers = segments.referrers,
 								len = referrers.length, a, referrer;
 						
-						page.updateSegmentedList(referrers_list_by_ref, ["#", "Referrer", "Visits", "New Visits", "%New"], len,
-							function(i){
-								a = [];
-								referrer = referrers[i];
-								a.push(i + 1); a.push(referrer.name); a.push(referrer.visits);
-									a.push(referrer.new_visits);a.push(referrer.percent);
-								return a;
+						if(referrers && len > 0)
+						{	
+							page.updateSegmentedList(referrers_list_by_ref, ["#", "Referrer", "Visits", "New Visits", "%New"], len,
+								function(i){
+									a = [];
+									referrer = referrers[i];
+									a.push(i + 1); a.push("<strong>"+referrer.name+"</strong>"); a.push(referrer.visits);
+										a.push(referrer.new_visits);a.push(referrer.percent);
+									return a;
 							});
-					}
-					else
-					{
-						referrers_list_by_ref.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
-					}
-					
+						}
+						else
+						{
+							referrers_list_by_ref.html("<p>No data available.</p>");
+						}
+					}				
 				}
 				
 				page.updateFromFeed = function(feed)

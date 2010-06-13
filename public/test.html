@@ -1,23 +1,43 @@
 <html>
 <head>
+	<meta http-equiv="P3P" content='CP="NOI ADM DEV PSAi COM NAV OUR OTRo STP IND DEM"'>
 	<title>kliknik test page</title>
-		
+	<script src='http://cdn.kliknik.com/loader.js'></script>
+	
 </head>
 <body>
 <h1>klikniiiiiiiiiiik</h1>
 <h2>test page</h2>
-<p>test test test test test test test test test test test 
+<script type="text/javascript">
+	function trackClick()
+	{
+		_fnx_get_tracker('4c126afbe78c47c616a3558e', function(tracker){
+			tracker.trackEvent();
+		});
+
+	}
+	function trackEvent()
+	{
+		_fnx_get_tracker('4c126afbe78c47c616a3558e', function(tracker){
+			tracker.trackClick();
+			tracker.trackView();
+			tracker.trackGoal();
+		});
+
+	}
+</script>
+<p>test test test test test test <a href="#" onclick="trackClick();return false;" >test test</a> test test test 
 test test test test test test test test test test test
 test test test test test test test test test test test
 test test test test test test test test test test test
 test test test test test test test test test test test
 test test test test test test test test test test test</p>
 <h2>test link</h2>
-<p>test test test <a href="test.html">test test</a> test test test test test test 
+<p>test test test <a href="test.html" onclick="trackEvent();" >test test</a> test test test test test test 
 test test test test test test test test test test test
 test test test test test test test test test test test
 test test test test test test test test test test test
-test test test test <a href="http://www.google.com">test test</a> test test test test test
+test test test test <a href="http://www.kliknik.com" onclick="trackClick();">test test</a> test test test test test
 test test test test test test test test test test test</p>
 
 <script src='http://cdn.kliknik.com/loader.js'></script>

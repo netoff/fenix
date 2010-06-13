@@ -51,7 +51,12 @@ var countries = { "--": "N/A", "AP": "Asia/Pacific Region","EU": "Europe","AD":"
   "IM":"Isle of Man","JE":"Jersey","BL": "Saint Barthelemy","MF":"Saint Martin"};
 function lookupCountry(code)
 {
-	return countries[code];
+	var ret = countries[code];
+	if(ret)
+	{
+		return ret;
+	}
+	return code;
 }
 var page;
 function sameHeight()
@@ -76,14 +81,16 @@ function sameHeight()
 	}
 }
 var picker_html = "<form id=\"date-range-selector-form\">" +
-									"<div><span class=\"h3\">Date range&nbsp;</span>" +
-									"<input type=\"text\" name=\"range\" class=\"selector-input\" autocomplete=\"off\" />&nbsp;"+
-									"<input type=\"submit\" class=\"selector-submit\" value=\"Refresh\" id=\"date-range-selector-submit\"/>"+
-									"</div><span class=\"date-range-predefined-selectors\">"+
+									"<div>" +
+									"<input type=\"submit\" class=\"selector-submit\" value=\"Refresh\"" + 
+									" id=\"date-range-selector-submit\"/>"+
+									"<input type=\"text\" name=\"range\" class=\"selector-input\""+
+									" autocomplete=\"off\" title=\"Date range\" alt=\"Date range\"/>&nbsp;&nbsp;&nbsp;"+
+									"</div><div class=\"date-range-predefined-selectors\">"+
 									"<a class=\"a-custom-range\" href=\"#\">Select range</a> |"+ 
 									"<a class=\"a-last-7-days\" href=\"#\">Last 7 days</a> |" +
 									"<a class=\"a-last-30-days\" href=\"#\">Last 30 days</a>"+
-									"</span></form>";
+									"</div></form>";
 function daterangePicker()
 {
 	$("#daterange-picker-placeholder").html(picker_html);
@@ -339,6 +346,19 @@ if(!page)
 					
 					return true;
 				};
+				page.chart.getColor = function (it, n)
+				{
+					var colors = ["#FF9900", "#6f3", "#eee", "#7297BA"];
+
+					if(n === 1)
+					{
+						return colors[3];
+					}
+					else
+					{
+						return colors[it];
+					}
+				};
 				
 				page.chart.tooltipFormat = function (item, series)
 				{
@@ -471,12 +491,16 @@ if(!page)
 					{
 						elem.html(makeSegmentedList());
 						elem.find("table").tablePagination({
-								optionsForRows: [3, 5],
+								optionsForRows: [10],
+								rowsPerPage: 10,
 								firstArrow : (new Image()).src="/img/first.gif",
 								prevArrow : (new Image()).src="/img/prev.gif",
 								lastArrow : (new Image()).src="/img/last.gif",
 								nextArrow : (new Image()).src="/img/next.gif"
 						});
+						var h = elem.find("table").height();
+						elem.parent(".window").height(h + 60);
+						sameHeight();
 					}
 				}
 				

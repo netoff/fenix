@@ -85,6 +85,7 @@ inspect = ARGUMENTS.get('inspect', 0)
 inspect_strict = ARGUMENTS.get('inspect-s', 0)
 debug = ARGUMENTS.get('debug', 0)
 final = ARGUMENTS.get('final', 0)
+jscript = ARGUMENTS.get('jscript', 0)
 
 #Find build directory and compilation options
 if int(inspect) == 1:
@@ -160,7 +161,7 @@ def compile_js(source, dest):
 jquery_src =  ["public/js/jquery.js", "public/js/jquery.flot.js", "public/js/jquery.flot.stack.js", 
 		"public/js/jquery.table-pagination.js", "public/js/datepicker.js", 
 		"public/js/date.js", "public/js/chart.js", "public/js/common.js"]
-if int(final)==1:
+if int(jscript)==1:
 	compile_js(jquery_src, "public/js/jquery.common.js")
 	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], "public/js/login.min.js")
 	compile_js(["public/js/dashboard.js"], "public/js/dashboard.min.js")

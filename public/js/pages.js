@@ -16,25 +16,30 @@ $(function(){
 				}
 				function updateSegments(segments)
 				{
-					if(segments && segments.length > 0)
+					if(segments)
 					{
 						var pages = segments.pages,
 								len = pages.length, p, a;
+						
+						if(pages && len > 0)
+						{
 								
-						page.updateSegmentedList(pages_list_by_url, ["#", "Url", "Hits"], len, 
-							function(i){
-								p = pages[i];
+							page.updateSegmentedList(pages_list_by_url, ["#", "Url", "Hits"], len, 
+								function(i){
+									p = pages[i];
 								
-								a = [];
-								a.push(i + 1);a.push(p.name);a.push(p.hits);
+									a = [];
+									a.push(i + 1);a.push("<strong>"+p.name+"</strong>");a.push(p.hits);
 									
-								return a;
-						});
+									return a;
+							});
+						}
+						else
+						{
+							pages_list_by_url.html("<p>No data available.</p>");
+						}
 					}
-					else
-					{
-						pages_list_by_url.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
-					}
+					
 				}				
 				
 				page.updateFromFeed = function (feed)

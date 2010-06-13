@@ -10,14 +10,30 @@
 	
 		<!--Overide all other css'-->
 		<link rel="stylesheet" href="<!--@= asset_host -->/css/app.css" >
-	
+		<!--[if lte IE 6]>
+			<style type="text/css">
+				body { overflow: hidden; }
+				div#page-w { height: 100%; overflow: auto;}
+				img { behavior: url(/css/iepngfix.htc) }
+				div.mask{ position:absolute; }
+				#beta-img {display: none; }
+				#right-col { position: static; }
+				#logo img { margin-top: -5px; }
+			</style>
+		<![endif]-->
+		<!--[if IE 6]>
+			<style type="text/css">
+				body { height: 100%; }
+			</style>
+		<![endif]-->	
+
 		<!--@
 			foreach(string js_file, this->_js_includes)
 			{
 				this->insert("<script type='text/javascript' src='%s/js/%s'></script>", asset_host, js_file);
 			}
 			-->
-		
+
 			<title>kliknik | <!--@=this->_title--></title>
 	</head>
 	<body>	
@@ -36,6 +52,34 @@
 				</div>
 			</div>	
 		</div>
+		<!--[if lt IE 7]>  
+			<div style='border: 1px solid #F7941D; background: #FEEFDA; text-align: center; clear: both; height: 75px; position: relative;'>   <div style='position: absolute; right: 3px; top: 3px; font-family: courier new; font-weight: bold;'><a href='#' onclick='javascript:this.parentNode.parentNode.style.display="none"; return false;'><img src='/img/ie6nomore-cornerx.jpg' style='border: none;' alt='Close this notice'/></a></div>  <div style='width: 640px; margin: 0 auto; text-align: left; padding: 0; overflow: hidden; color: black;'>      <div style='width: 75px; float: left;'><img src='/img/ie6nomore-warning.jpg' alt='Warning!'/></div>      <div style='width: 275px; float: left; font-family: Arial, sans-serif;'>        <div style='font-size: 14px; font-weight: bold; margin-top: 12px;'>You are using an outdated browser</div>        <div style='font-size: 12px; margin-top: 6px; line-height: 12px;'>For a better experience using this site, please upgrade to a modern web browser.</div>      </div>      <div style='width: 75px; float: left;'><a href='http://www.firefox.com' target='_blank'><img src='/img/ie6nomore-firefox.jpg' style='border: none;' alt='Get Firefox 3.5'/></a></div>      <div style='width: 75px; float: left;'><a href='http://www.browserforthebetter.com/download.html' target='_blank'><img src='/img/ie6nomore-ie8.jpg' style='border: none;' alt='Get Internet Explorer 8'/></a></div>      <div style='width: 73px; float: left;'><a href='http://www.apple.com/safari/download/' target='_blank'><img src='/img/ie6nomore-safari.jpg' style='border: none;' alt='Get Safari 4'/></a></div>      <div style='float: left;'><a href='http://www.google.com/chrome' target='_blank'><img src='/img/ie6nomore-chrome.jpg' style='border: none;' alt='Get Google Chrome'/></a></div>    </div>  </div>
+<![endif]-->
+<!--@
+        
+        
+        if(args[_finish|false])
+        {
+        -->
+        <div id="signup-thanks">
+                <div class="mask"></div>
+
+                <div class="alert">
+                        <h2>Signup Finish</h2>
+                        <div class="alert-text">
+                                <p>Thank you for a sign up.<br /><br /> Right now, we are in a limited beta.
+                                        As soon as more slots become available, we will send you activation link,
+                                        so you can verify your email address and start using our service.</p>
+                                <form method="get" action="/analytics/login">
+                                        <input type="submit" value="OK" />
+                                </form>
+                        </div>
+                </div>
+        </div>
+<!--@
+        }
+-->
+
 		<div id="page-w">
 			<div class="container" id="page">
 				<div class="span-24">
@@ -48,8 +92,10 @@
 		<div id="footer-w">
 			<div class="container">
 				<div class="span-24" id="footer">
-					&copy;<!--@= args[_request]._timestamp.date().year() --> kliknik | Contact:
-					<script type="text/javascript">eval(unescape('d%6fc%75%6de%6e%74%2e%77%72%69%74e%28%27%3Ca%20%68%72ef%3D%22%26%23109%3Ba%26%23105%3B%6c%26%23116%3B%26%23111%3B%3A%26%23100%3B%26%23101%3B%26%23118%3B%26%2364%3B%26%23107%3B%26%23108%3B%26%23105%3B%26%23107%3B%26%23110%3B%26%23105%3B%26%23107%3B%26%2346%3B%26%2399%3B%26%23111%3B%26%23109%3B%22%3Ede%76%40%6b%6c%69%6b%6e%69%6b%2ec%6f%6d%3C%2fa%3E%27%29%3B'));</script>
+					&copy;<!--@= args[_request]._timestamp.date().year() --> kliknik 
+					<script type="text/javascript">
+						unescapeMe = window.decodeURIComponent || unescape;
+						eval(unescapeMe('d%6fc%75%6de%6e%74%2e%77%72%69%74e%28%27%3Ca%20%68%72ef%3D%22%26%23109%3Ba%26%23105%3B%6c%26%23116%3B%26%23111%3B%3A%26%23100%3B%26%23101%3B%26%23118%3B%26%2364%3B%26%23107%3B%26%23108%3B%26%23105%3B%26%23107%3B%26%23110%3B%26%23105%3B%26%23107%3B%26%2346%3B%26%2399%3B%26%23111%3B%26%23109%3B%22%3Ede%76%40%6b%6c%69%6b%6e%69%6b%2ec%6f%6d%3C%2fa%3E%27%29%3B'));</script>
 				</div>
 			</div>
 		</div>

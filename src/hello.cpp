@@ -21,7 +21,7 @@ FENIX_APPLICATION(HelloWorld)
 			
 			_root/"index"		<< _action<DashboardController::index, auth<1>::Type>() ||			
 			
-			_("lg")/"view"			<< _action<LogController::lg>() ||
+			_("lg")/"js"			<< _action<LogController::lg>() ||
 			
 			//Login and sigunp
 			_root/"login"		<< _action<LoginController::index>() ||

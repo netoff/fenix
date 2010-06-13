@@ -1,27 +1,17 @@
-function sameHeight (sections)
+function sameHeight ()
 {
-	var max, i, section;
-	
-	max = 0;
+	var left1 = $("#left-col div.window"), left2 = $("#left-col div.text p"), right = $("#right-col div.window"), a;
 
-	for (i = 0; i < sections.length; i++)
+	a = left1.height() + left2.height() + 50;
+
+	if(a > right.height())
 	{
-		//max = 0;
-		
-		section = sections[i];
-		
-		if ($(section).outerHeight() > max)
-		{
-			max = $(section).outerHeight();
-		}		
+		right.height(a);
 	}
-	
-	for (i = 0; i < sections.length; i++)
+	else
 	{
-		$(sections[i]).height(max);
+		left2.height(left2.height() + right.height() - a);
 	}
-	
-	return max;
 }
 
 $(function ()
@@ -35,5 +25,5 @@ $(function ()
 	$("#login-form").validate();
 	$("#signup-form").validate();
 
-	sameHeight($("div.same-height"));	
+	sameHeight();
 });

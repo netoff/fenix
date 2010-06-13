@@ -28,6 +28,7 @@ local MAIL_SENDER = 'kliknik.com'
 local MAIL_FROM = 'noreplay@kliknik.com'
 
 local DIRECT_REF = "(direct)"
+local UNKNOWN = "(unknown)"
 
 ---------------------------------------------------------
 --EVENTS
@@ -987,17 +988,25 @@ function _visitors.get_segments(q)
 		if countries then
 			local t = {}
 			for r in countries:results() do
-				if t[r._country] then
-					if r._event == EVENT_NEW_VISITOR then
-						t[r._country]['new_visits'] = t[r._country]['new_visits'] + r._count
-					end
-					t[r._country]['visits'] = t[r._country]['visits'] + r._count
-				else
-					if r._event == EVENT_NEW_VISITOR then
-						t[r._country] = {new_visits = r._count, visits = r._count}
+				if r._country then
+					local country
+					if r._country == "" then 
+						country = UNKNOWN 
 					else
-						t[r._country] = {new_visits = 0, visits = r._count}
-					end					
+						country = r._country
+					end
+					if t[country] then
+						if r._event == EVENT_NEW_VISITOR then
+							t[country]['new_visits'] = t[country]['new_visits'] + r._count
+						end
+						t[country]['visits'] = t[country]['visits'] + r._count
+					else
+						if r._event == EVENT_NEW_VISITOR then
+							t[country] = {new_visits = r._count, visits = r._count}
+						else
+							t[country] = {new_visits = 0, visits = r._count}
+						end					
+					end
 				end
 			end
 			local j = 1
@@ -1185,11 +1194,10 @@ function _referrers.get_segments(q, array)
 			if t[ref] then
 				if r._event == EVENT_NEW_VISITOR then
 					t[ref]['new_visits'] = t[ref]['new_visits'] + r._count
-				else
-					t[ref]['visits'] = t[ref]['visits'] + r._count
 				end
+				t[ref]['visits'] = t[ref]['visits'] + r._count
 			else
-				if t._event == EVENT_NEW_VISITOR then
+				if r._event == EVENT_NEW_VISITOR then
 					t[ref] = {new_visits = r._count, visits = r._count}
 				else
 					t[ref] = {new_visits = 0, visits = r._count}	

@@ -19,29 +19,32 @@ $(function (){
 			
 			function updateSegments(segments)
 			{				
-				if(segments && segments.length > 0)
+				if(segments)
 				{
 					var countries = segments.countries,
 							len = countries.length;
-					
-					page.updateSegmentedList(visitors_list_by_country, ["#", "Country", "Visits", "New Visitor", "%New"], len,
-						function(i){
-							var row = [];
+				
+					if(countries && len > 0)
+					{	
+						page.updateSegmentedList(visitors_list_by_country, ["#", "Country", "Visits", "New Visitor", "%New"], len,
+							function(i){
+								var row = [];
 							
-							if(i < len)
-							{
-								var country = countries[i];
-								row.push(i+1);row.push(lookupCountry(country.name));row.push(country.visits);
-								row.push(country.new_visits);row.push(country.percent);
-							}
+								if(i < len)
+								{	
+									var country = countries[i];
+									row.push(i+1);row.push("<strong>" + lookupCountry(country.name) + "</strong>");row.push(country.visits);
+									row.push(country.new_visits);row.push(country.percent);
+								}
 							
-							return row;
-					});
-				}
-				else
-				{
-					visitors_list_by_country.html("<p>There is no any data yet. Please <a href=\"#\" class=\"account-link\">install</a> javascript code so you can start collecting your data.</p>");
-				}
+								return row;
+						});
+					}
+					else
+					{
+						visitors_list_by_country.html("<p>No data available.</p>");
+					}					
+				}				
 			};
 			
 			page.updateFromFeed = function (feed)
