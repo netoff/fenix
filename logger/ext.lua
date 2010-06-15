@@ -159,6 +159,8 @@ local function _purge_day(ts)
 	end
 end
 ------------------------------------------------------------------------------
+local ADMIN_ADDRESS = "dushan01@kliknik.com"
+
 local REGISTRATION_MAIL_TEXT = [[
 Hello,
 
@@ -228,6 +230,7 @@ end
 function send_registration_mail(receiver)
 	enqueue_mail({to = receiver, subject = "Welcome to kliknik.com",
 		body = REGISTRATION_MAIL_TEXT})	
+	enqueue_mail({to= ADMIN_ADDRESS, subject = "New registration", body = "New user registered: "..receiver})
 end
 
 function send_activation_mail(receiver, site_id)

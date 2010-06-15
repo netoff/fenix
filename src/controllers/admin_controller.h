@@ -67,6 +67,28 @@ namespace PagesController
 			}			
 		
 			return render_<ForbidenResponse>();
-		}				
+		}
+	
+		FENIX_CONTROLLER(impersonate)
+		{
+			tables::User::obj admin = this->_authenticate.get_user();
+			string user_id;
+
+			if(admin->role() == "super")
+			{
+				if(request.isWrite() &&
+					get_param(request["uid"], user_id))
+				{
+					string domain = request._host[1] + "." + request._host[0];
+
+					request.setSession("user_id", user_id, string(".") + domain);
+
+					return render_redirect(string("http://") + domain + "/analytics/index");
+					
+				}
+				return render_<BadRequestResponse>();
+			}
+			return render_<ForbidenResponse>();
+		}
 	}
 }

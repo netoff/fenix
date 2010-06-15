@@ -44,7 +44,8 @@ FENIX_APPLICATION(HelloWorld)
 			
 			//Admin panel
 			_("admin")/"panel" << _action<PagesController::Admin::index, auth<0>::Type>() ||
-			_("admin")/"activate" << _action<PagesController::Admin::activate, auth<0>::Type>()
+			_("admin")/"activate" << _action<PagesController::Admin::activate, auth<0>::Type>() ||
+			_("admin")/"impersonate" << _action<PagesController::Admin::impersonate, auth<0>::Type>()
 			//_admin_root...
 			/*
 			_("lg")/"hit"			<< _action<LogController::hit>(),

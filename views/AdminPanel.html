@@ -59,6 +59,12 @@ _title = "Admin Panel";
 							<< "<input type=\"hidden\" name=\"uid\" value=\"" << user->id() << "\" />"
 							<< "<input type=\"submit\" value=\"Activate\" /></form>";
 					}
+					else
+					{
+						tr << "<form method=\"post\" action=\"/admin/impersonate\">"
+							<< "<input type=\"hidden\" name=\"uid\" value=\"" << user->id() << "\" />"
+							<< "<input type=\"submit\" value=\"Login As\" /></form>";
+					}
 					tr << "</td></tr>";
 						
 					this->insert(tr.str());
