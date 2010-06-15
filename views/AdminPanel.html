@@ -1,0 +1,78 @@
+<!--@HEADER@
+use-layout: true
+layout: Admin
+param: users
+-->
+
+<!--@
+_title = "Admin Panel";
+-->
+
+<div class="span-24">
+	<div class="span-24">
+		<div class="window">
+			<h2>Users List</h2>
+			
+			<table class="admin">
+			<thead>
+				<tr><th>ID</th><th>email</th><th>registration date</th><th>last login</th>
+					<th>sites</th><th>state</th><th>role</th><th>action</th></tr>
+			</thead>
+			<tbody>
+			<!--@
+				foreach(tables::User::obj user, args[_users])
+				{
+					ostringstream tr;
+					
+					tables::Site::collection sites = user->sites<tables::Site>();
+					
+					int sites_n = sites.size();
+					
+					if(!user->is_activated())
+					{
+						tr << "<tr class='notify'><td>";
+					}
+					else
+					{
+						tr << "<tr><td>";
+					}
+					tr << user->id() << "</td><td><strong>" << user->email()
+						<< "</strong></td><td>" << user->registration_date() << "</td><td>"
+						<< user->last_login() << "/<br />" << user->last_activity() 
+						<< "</td><td><a href=\"#\">"; 
+					
+					if(!sites.empty())
+					{
+						tables::Site::obj site = sites[0];
+						tr << "sites(" << sites_n << ")</a><br /><a href=\"" << site->url()
+							<< "\" target=\"_blank\">" << site->url() << "</a>";  
+					}
+					else
+					{
+						tr << "sites(" << sites_n << ")</a>";
+					}
+					tr << "</td><td>" << user->state() << "</td><td>" << user->role()
+						<< "</td><td>";
+					if(!user->is_activated())
+					{
+						tr << "<form method=\"post\" action=\"/admin/activate\">"
+							<< "<input type=\"hidden\" name=\"uid\" value=\"" << user->id() << "\" />"
+							<< "<input type=\"submit\" value=\"Activate\" /></form>";
+					}
+					else
+					{
+						tr << "<form method=\"post\" action=\"/admin/impersonate\">"
+							<< "<input type=\"hidden\" name=\"uid\" value=\"" << user->id() << "\" />"
+							<< "<input type=\"submit\" value=\"Login As\" /></form>";
+					}
+					tr << "</td></tr>";
+						
+					this->insert(tr.str());
+				}
+			-->
+			</tbody>
+			</table>
+			
+		</div>
+	</div>
+</div>

@@ -1,0 +1,70 @@
+<!--@HEADER@
+param: user
+-->
+<!--@
+	include_css("datepicker.css");
+	#ifdef DEBUG
+	include_js("jquery.js");
+	include_js("jquery.flot.js");
+	include_js("jquery.flot.crosshair.js");
+	include_js("jquery.flot.stack.js");
+	include_js("jquery.table-pagination.js");
+	
+	include_js("datepicker.js");
+	
+	include_js("date.js");
+	
+	include_js("chart.js");
+	include_js("common.js");
+	include_js("pages.js");
+	#else
+	include_js("jquery.common.js");
+	include_js("pages.min.js");
+	#endif
+	
+	_title = "Pages";	
+-->
+
+<div class="span-24">
+	
+	<div class="span-24 same-height">
+		<div class="span-10"><div class="window inline">
+			<span class="h2">
+			Pages
+			</span>
+			<p id="report-chooser">Reports:&nbsp;<em> 
+				<a href="#" class="active" report_type="-1">Page Hits</a></em></p>
+		</div></div>
+		<div class="span-14 last right"><div class="window inline">
+			<div id='daterange-picker-placeholder'></div>
+		</div></div>
+	</div>
+	
+	<div class="span-24"><div class="window">
+		<h2>Pages</h2>
+		
+		<p> <span id="chart-legend" class="chart-legend"></span></p>
+		<div id="report-chart" class="chart" style="height:240px;"></div>
+	</div></div>
+	<div class="span-24 same-height">
+		<div class="span-7"><div class="window">
+			<h2>Overview</h2>
+			
+			<div class="stat-sep"></div>
+			<div class="stat-label">
+				<span id="stat-h" class="counter">0</span>
+				<span class="title">page hits</span>
+			</div>
+			<div class="stat-label alt">
+				<span id="stat-hpd" class="counter">0</span>
+				<span class="title">page hits/day(avg)</span>
+			</div>
+		</div></div>
+		
+		<div class="span-17 last"><div class="window" >
+		 	<h2>Pages List</h2>
+				<div id="pages-segments"></div>
+				<div class="clear"></div>
+		</div></div>
+	</div>
+</div>

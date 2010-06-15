@@ -1,0 +1,50 @@
+Statistics
+===============
+
+____________________________________________
+Basic
+____________________________________________
+
+ht			- Hits total
+st			- Sessions total
+uvt			- Unique visiotrs total
+
+hps 			- Hits per second
+nvps 			- New visitors per second
+rvps			- Returning visitors per second
+hpm			- Hits per minute
+nvpm			- New visitors per minute
+rvpm			- Returning visitors per minute
+sph			- Sessions per hour
+hpd			- Hits per day
+nvpd			- New visitor per day
+rvpd			- Returning visitor per day
+rpvpd			- Repeating visitor per day
+scpd(country)		- Session's country per day
+sbpd(browser)		- Session's browser per day
+sospd(os)		- Sessions's os per day
+rnpd(referrer)		- Referrer, new user, per day
+rrpd(referrer)		- Referrer, returning user, per day
+knpd(keyword)		- Keyword, new user, per day
+krpd(keyword)		- Keyword, returning user, per day
+sepd(engine)		- Search engine query per day
+lpd(link)		- Link per day
+opd(link)		- Outgoing link per day
+upd(url)		- Page url(hit) per day
+tpd(title)		- Page title(hit) per day
+uspd(url)		- Page url, new session, per day
+tnpd(title)		- Page title, new user, per day
+fpd(file)		- File download per day
+
+____________________________________________
+Permalinks
+____________________________________________
+
+plpd(link)		- Permalink per day
+plcpd(link, country)	- Permalink's country per day
+plrpd(link, referrer)	- Permalink referrer, per day
+
+____________________________________________
+Events
+____________________________________________
+

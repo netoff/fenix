@@ -1,0 +1,122 @@
+<!--@HEADER@
+use-layout: true
+layout: Login
+param: request
+param: email
+param: url
+param: login_error
+param: signup_error
+param: active
+param: alert
+param: finish
+-->
+
+<!--@
+	bool finish = args[_finish|false];
+	#ifdef DEBUG
+ 	include_js("jquery.js");
+ 	include_js("jquery.validate.js");
+ 	include_js("login.js");
+	#else
+	include_js("login.min.js");
+	#endif
+  
+	if(!finish)
+	{
+  	_title = "Just-in-time web analytics";
+	}
+	else
+	{
+		_title = "Signup Finish";
+	}
+-->
+
+<div class="span-24">
+
+	<div class="span-16" id="left-col">
+		<div class="span-16">
+	   		<div class="window">
+	     			<h2>Login</h2>
+	      			<!--<p>Enter your email address and password</p>-->
+	      			<p></p>
+	      
+	      			<form method="post" action="/analytics/session/new" id="login-form">
+				<!--@
+					string email = args[_email|""];
+					string login_error = args[_login_error|""];
+			
+					if(!login_error.empty())
+					{
+						this->insert("<span class='form-error'>%s</span>", login_error);
+					}
+				-->
+				<fieldset>
+			
+				<label for="email">Email:</label><br />
+					<input type="text" name="email" class="text required email" value="<!--@= email -->" /><br />
+				
+					<br />
+				<label for="password">Password:</label><br />
+					<input type="password" name="password" class="text required" minlength="6" /><br />
+				<br />
+				<input type="submit" value="Login" />
+				</fieldset>
+	      			</form>
+	    		</div>
+		</div>
+		<div class="span-16" >
+	    		<div class="text">
+				<p>kliknik is <span class="underline">just-in-time</span> web analytics service. You do not have to wait hours or even days to
+				get your site's data. Now you can analyze your traffic minute by minute, second by second... Right as it happens!</p>
+	    		</div>
+		</div>
+	</div>
+	
+	<div class="span-8 last" id="right-col">
+		<img src="/img/beta.png" id="beta-img"  />
+		<div class="window" >		
+		  <h2>Sign Up</h2>
+		  
+		  <p>Please enter your data and click on a "Sign Up" to create new account, and start tracking your site.</p>
+		  <form method="post" action="/analytics/login/new" id="signup-form">		  	
+			
+		  	<!--@
+				string signup_error = args[_signup_error|""];
+				string url = args[_url|""];
+				
+				if(url.empty()) { url = "http://"; }
+				
+				if(!signup_error.empty())
+				{ 							-->
+					<span class="form-error"><!--@= signup_error --></span><br />				
+			<!--@	} 							-->	  
+		  	
+			<fieldset>
+			
+			  <label for="email">Email:</label><br />
+			  	<input type="text" name="email" class="text required email" /><br />
+				
+			  <br />
+			  <label for="password">Password:</label><br />
+			  	<input type="password" id="password-field" name="password" class="text required" minlength="6" autocomplete="off" /><br />
+				
+			  <br />
+			  <label for="repeat_password">Repeat password:</label><br />
+			  	<input type="password" name="repeat_password" equalTo="#password-field" autocomplete="off" class="text" /><br /><br /><br />
+			  <label for="url">Website URL:</label><br />
+			  	<input type="text" name="url" value="<!--@= url -->" class="text required url" /><br />
+			  
+			  <!--
+			  <label>Timezone:<br />
+			  <select name="timezone">
+			    <option>GMT+0</option>
+			    <option>GMT+1</option>
+			  </select></label><br />-->
+			  <br />
+			  
+			  <input type="submit" value="Sign Up" />
+			</fieldset>
+		  </form>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,7 @@
+Import('prog_env boost_lib')
+
+env = prog_env.Clone()
+
+precompiler = env.Program('precompiler', Glob('*.cpp'), LIBS = [boost_lib])
+		
+Return('precompiler')
