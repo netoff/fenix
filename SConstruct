@@ -61,7 +61,7 @@ FINAL_FLAGS = ['-O3', '-w']
 
 BOOST_PATH = '#ext/boost_1_42_0/'
 CRYPTOPP_PATH = '#ext/crypto_pp/'
-MONGO_PATH = '/opt/mongo/include/mongo/'
+MONGO_PATH = '/opt/mongo/include/'
 
 BOOST_LIBS = ['system/src/*.cpp', 'filesystem/src/*.cpp', 
 	'date_time/src/gregorian/*.cpp', 'date_time/src/posix_time/*.cpp',
