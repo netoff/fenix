@@ -18,7 +18,7 @@ require 'benchmark'
 MAX_REQUESTS = 4
 THREAD_SLEEP = 0.8
 
-SITE_ID = "4c126afbe78c47c616a3558e"
+SITE_ID = "4c18e3b26c8bdc2ac6c8bf67"
 TRACK_URI = "http://log.kliknik.com/lg/js?_e=hit"
 
 COUNTRIES = [
