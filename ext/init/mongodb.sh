@@ -61,7 +61,7 @@ DAEMON=$MONGOPATH/bin/$NAME
 #Please do not forget to give correct path
 DBPATH=/data/master
 #If security matters, please change arg to --auth
-DAEMON_ARGS="--dbpath $DBPATH --directoryperdb --quiet --nohttpinterface --noauth"
+DAEMON_ARGS="--dbpath $DBPATH --directoryperdb --quiet --nohttpinterface --noauth --syncdelay 180"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
