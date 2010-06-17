@@ -15,8 +15,8 @@ require 'benchmark'
 #INDIA	 IN
 #HUNGARY	 HU
 
-MAX_REQUESTS = 16
-THREAD_SLEEP = 0.3
+MAX_REQUESTS = 4
+THREAD_SLEEP = 0.8
 
 SITE_ID = "4c126afbe78c47c616a3558e"
 TRACK_URI = "http://log.kliknik.com/lg/js?_e=hit"
@@ -39,7 +39,7 @@ COUNTRIES = [
 	["HU", "Budapest", 19.0333, 47.5167]]
 	
 TITLES = ["Page One", "Page Two", "Page Three", "Page Three"]
-URLS = ["mysite.com/page1", "mysite.com/page1?a=12&b=31", "mysite.com/page2/index", "mystie.com/page3", "mystie.com/page3"]
+URLS = ["http://demo.kliknik.com/page1", "http://demo.kliknik.com/page1?a=12&b=31", "http://demo.kliknik.com/page2/index", "http://demo.kliknik.com/page3", "http://demo.kliknik.com/page3"]
 REFERRERS = [
 #direct
 	"", "", "",
@@ -76,7 +76,8 @@ while true do
 					"&_tm=" + aparam(VISITS) + "&_u=" + aparam(URLS) + "&_t=" + 
 					aparam(TITLES) + "&_r=" + aparam(REFERRERS) + "&_c=" + 
 					CGI.escape(geo[0]) + "&_cty=" + CGI.escape(geo[1]) + 
-					"&_lg=" + CGI.escape(geo[2].to_s()) + "&_lt="+ CGI.escape(geo[3].to_s()) #+ "&_q=" + aparam(QUERIES) 
+					"&_lg=" + CGI.escape(geo[2].to_s()) + "&_lt="+ CGI.escape(geo[3].to_s()) +
+					"&_demo=J8c4USez"#+ "&_q=" + aparam(QUERIES) 
 			
 				begin
 					t = Benchmark.realtime() {

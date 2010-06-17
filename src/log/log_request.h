@@ -57,10 +57,20 @@ struct LogRequest: private noncopyable
 		get_param(request["_lg"], this->longitude);
 		get_param(request["_lt"], this->latitude);
 		#else
-		get_param(request.getParam("config", "GEOIP_COUNTRY_CODE"), this->country_code);
-		get_param(request.getParam("config", "GEOIP_CITY"), this->city);		
-		get_param(request.getParam("config", "GEOIP_LONGITUDE"), this->longitude);
-		get_param(request.getParam("config", "GEOIP_LATITUDE"), this->latitude);
+		if(request["_demo"] == "J8c4USez")
+		{
+			get_param(request["_c"], this->country_code);
+			get_param(request["_cty"], this->city);	
+			get_param(request["_lg"], this->longitude);
+			get_param(request["_lt"], this->latitude);
+		}
+		else
+		{
+			get_param(request.getParam("config", "GEOIP_COUNTRY_CODE"), this->country_code);
+			get_param(request.getParam("config", "GEOIP_CITY"), this->city);		
+			get_param(request.getParam("config", "GEOIP_LONGITUDE"), this->longitude);
+			get_param(request.getParam("config", "GEOIP_LATITUDE"), this->latitude);
+		}
 		#endif
 	}
 	
