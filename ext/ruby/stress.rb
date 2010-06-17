@@ -16,7 +16,7 @@ require 'benchmark'
 #HUNGARY	 HU
 
 MAX_REQUESTS = 4
-THREAD_SLEEP = 0.4
+THREAD_SLEEP = 0.7
 
 SITE_ID = "4c18e3b26c8bdc2ac6c8bf67"
 TRACK_URI = "http://log.kliknik.com/lg/js?_e=hit"
