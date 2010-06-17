@@ -34,8 +34,17 @@ namespace fenix
 					 lua_close(_L);
 					}
 				}
-				
+			
 				bool proc(const string& code, string& result, bool ret = true)
+				{
+					bool ok = _proc(code, result, ret);
+					//cleanup stack
+					lua_settop(_L, 0);
+					
+					return ok;
+				}
+	
+				bool _proc(const string& code, string& result, bool ret = true)
 				{
 					result = "";
 					
