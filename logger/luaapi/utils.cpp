@@ -99,7 +99,7 @@ static void lua_append_bson(lua_State *L, const char *key, int stackpos, BSONObj
 	            lua_append_bson(L, k, -1, b);
 	            lua_pop(L, 1);
 	        }
-	        builder.append(key, b.done());
+	        builder.append(key, b.obj());
         }
         else
         {
@@ -163,5 +163,5 @@ void lua_to_bson(lua_State *L, int stackpos, BSONObj &obj) {
         lua_pop(L, 1);
     }
 
-    obj = builder.done();
+    obj = builder.obj();
 }
