@@ -14,8 +14,8 @@ param: user
 	
 	include_js("dashboard.js");
 	#else
-	include_js("jquery.common.v" + JS_VERSION + ".js");
-	include_js("dashboard.v" + JS_VERSION + ".min.js");
+	include_js("jquery.common.v" + string(JS_VERSION) + ".js");
+	include_js("dashboard.v" + string(JS_VERSION) + ".min.js");
 	#endif
 	
 	_title = "Dashboard";

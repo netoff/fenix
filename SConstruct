@@ -186,13 +186,13 @@ jquery_src =  ["public/js/jquery.js", "public/js/jquery.flot.js", "public/js/jqu
 if int(jscript)==1 and int(final)==1:
 	print "JavaScript version: " + JS_VERSION
 	#js ui files are versioned
-	compile_js(jquery_src, "public/js/jquery.common.v" + ver + ".js")
+	compile_js(jquery_src, "public/js/jquery.common.v" + JS_VERSION + ".js")
 	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], 
-		"public/js/login.v" + ver + ".min.js")
-	compile_js(["public/js/dashboard.js"], "public/js/dashboard.v" + ver + ".min.js")
-	compile_js(["public/js/visitors.js"], "public/js/visitors.v" + ver + ".min.js")
-	compile_js(["public/js/pages.js"], "public/js/pages.v" + ver + ".min.js")
-	compile_js(["public/js/referrers.js"], "public/js/referrers.v" + ver + ".min.js")	
+		"public/js/login.v" + JS_VERSION + ".min.js")
+	compile_js(["public/js/dashboard.js"], "public/js/dashboard.v" + JS_VERSION + ".min.js")
+	compile_js(["public/js/visitors.js"], "public/js/visitors.v" + JS_VERSION + ".min.js")
+	compile_js(["public/js/pages.js"], "public/js/pages.v" + JS_VERSION + ".min.js")
+	compile_js(["public/js/referrers.js"], "public/js/referrers.v" + JS_VERSION + ".min.js")	
 	#===========================================================================
 	#fenix.js files
 	compile_js(["public/js/src/loader.js"], "public/loader.js")
