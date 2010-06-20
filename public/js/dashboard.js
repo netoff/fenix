@@ -52,6 +52,19 @@ var countries = { "--": "N/A", "AP": "Asia/Pacific Region","EU": "Europe","AD":"
   "ZW":"Zimbabwe","A1":"Anonymous Proxy","A2":"Satellite Provider","O1":"Other","AX":"Aland Islands","GG":"Guernsey",
   "IM":"Isle of Man","JE":"Jersey","BL": "Saint Barthelemy","MF":"Saint Martin"};
 
+function formatInteger(i)
+{
+	return String(i).replace(/(\d)(?=(\d{3})+([.]|$))/g,"$1,");
+}
+function formatFloat(f)
+{
+	return String(f).replace(/(\d)(?=(\d{3})+([.]|$))/g,"$1,");
+}
+function formatPercent(p)
+{
+	return formatFloat(p) + "%";
+}
+
 function Chart(nPoints)
 {
 	this.chartData = [];
@@ -291,9 +304,9 @@ if (!dashboard)
 					
 					var a = points[points.length - 1];
 					
-					$("#stat-hps").html(a[0]);
-					$("#stat-nvps").html(a[1]);
-					$("#stat-rvps").html(a[2]);
+					$("#stat-hps").text(formatInteger(a[0]));
+					$("#stat-nvps").text(formatInteger(a[1]));
+					$("#stat-rvps").text(formatInteger(a[2]));
 				}
 			},
 			
@@ -307,9 +320,9 @@ if (!dashboard)
 				
 					var a = points[points.length - 1];
 				
-					$("#stat-hpm").html(a[0]);
-					$("#stat-nvpm").html(a[1]);
-					$("#stat-rvpm").html(a[2]);
+					$("#stat-hpm").text(formatInteger(a[0]));
+					$("#stat-nvpm").text(formatInteger(a[1]));
+					$("#stat-rvpm").text(formatInteger(a[2]));
 				}
 			},
 			
@@ -321,9 +334,9 @@ if (!dashboard)
 				
 				if(points && points.length > 0)
 				{
-					$("#stat-hph").html(points[points.length - 1][0]);
-					$("#stat-nvph").html(points[points.length - 1][1]);
-					$("#stat-rvph").html(points[points.length - 1][2]);
+					$("#stat-hph").text(formatInteger(points[points.length - 1][0]));
+					$("#stat-nvph").text(formatInteger(points[points.length - 1][1]));
+					$("#stat-rvph").text(formatInteger(points[points.length - 1][2]));
 				}
 			},
 			
@@ -406,12 +419,12 @@ if (!dashboard)
 			{
 				if(counters && counters.length >5)
 				{
-					$("#stat-vtd").html(counters[0]);
-					$("#stat-nvtd").html(counters[1]);
-					$("#stat-uvtd").html(counters[2]);
-					$("#stat-tph").html(counters[3]);
-					$("#stat-tvs").html(counters[4]);
-					$("#stat-uvs").html(counters[5]);
+					$("#stat-vtd").text(formatInteger(counters[0]));
+					$("#stat-nvtd").text(formatInteger(counters[1]));
+					$("#stat-uvtd").text(formatInteger(counters[2]));
+					$("#stat-tph").text(formatInteger(counters[3]));
+					$("#stat-tvs").text(formatInteger(counters[4]));
+					$("#stat-uvs").text(formatInteger(counters[5]));
 				}
 			},
 		
@@ -435,36 +448,40 @@ if (!dashboard)
 			
 			makeList: function (list, x, y)
 			{
-				var i, a = [], html;
+				var i, a = [], html, key, val;
 				
 				a.push("<div class='stat-sep'></div>");
 				
 				for(i = 0; i < list.length; i++)
 				{
+					key = list[i][0];
+					val = list[i][1];
+					
 					if(i%2 === 0)
 					{
-						a.push("<div class='stat-label'><span class='title'>");
+						a.push("<div class='stat-label'>");
 					}
 					else
 					{
-						a.push("<div class='stat-label alt'><span class='title'>");
+						a.push("<div class='stat-label alt'>");
 					}
+					a.push("<span class='title' keyl=\"");a.push(key);a.push("\">");
 					if(x)
 					{
-						a.push(x(list[i][0]));
+						a.push(x(key));
 					}
 					else
 					{
-						a.push(list[i][0]);
+						a.push(key);
 					}
 					a.push("</span><span class='counter'>");
 					if(y)
 					{
-						a.push(y(list[i][1]));
+						a.push(y(val));
 					}
 					else
 					{
-						a.push(list[i][1]);
+						a.push(val);
 					}
 					a.push("</span></div>");
 				}
@@ -478,7 +495,7 @@ if (!dashboard)
 			{
 				if(countries && countries.length > 0)
 				{	
-					var html = this.makeList(countries, this.lookupCountry);
+					var html = this.makeList(countries, this.lookupCountry, formatInteger);
 				
 					$("#countries-list").html(html);
 				}
@@ -488,7 +505,7 @@ if (!dashboard)
 			{
 				if(pages && pages.length > 0)
 				{
-					var html = this.makeList(pages, this.shortenText);
+					var html = this.makeList(pages, this.shortenText, formatInteger);
 				
 					$("#pages-list").html(html);
 				}
@@ -498,7 +515,7 @@ if (!dashboard)
 			{
 				if(referrers && referrers.length > 0)
 				{
-					var html = this.makeList(referrers, this.shortenText);
+					var html = this.makeList(referrers, this.shortenText, formatInteger);
 				
 					$("#referrers-list").html(html);
 				}
@@ -508,7 +525,7 @@ if (!dashboard)
 			{
 				if(queries && queries.length >0)
 				{
-					var html = this.makeList(queries, this.shortenText);
+					var html = this.makeList(queries, this.shortenText, formatInteger);
 				
 					$("#queries-list").html(html);
 				}

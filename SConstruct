@@ -4,6 +4,10 @@ import sys
 import random
 
 KEY_FILE = "./key.sec"
+JS_VER_FILE = "./jscript.ver"
+S3BUCKET = "kliknik:"
+
+S3SYNC = "/opt/s3sync/s3sync.rb -rp public/ " + S3BUCKET
 
 def secret_key():
 	ret = ''
@@ -41,16 +45,32 @@ SECRET_KEY = get_key_from_file()
 
 print "Secret key: [" + SECRET_KEY + "]"
 
+print COMMAND_LINE_TARGETS
 #================================================
 #BOOTSTRAP HERE is there a better way to do this?
 def bootstrap():
-	if not os.path.exists("./bin/precompiler"):
+	if not os.path.exists("./bin/precompiler") and not "bootstrap" in COMMAND_LINE_TARGETS:
 		print "Bootstrap first:"
 		print "scons bootstrap"
+		sys.exit()
 
 bootstrap()
 #================================================
 
+def get_js_version():
+	if not os.path.exists(JS_VER_FILE):
+		print "There is no JavaScript version file!"
+		sys.exit()
+		
+	f = open(JS_VER_FILE, "r")
+	ver = f.readline()
+	f.close()
+	
+	if ver == "" or not int(ver):
+		print "\nERROR: No javascript version definded!\n"
+		sys.exit()
+	return ver
+JS_VERSION = get_js_version()
 
 #-----------------------------------------------
 #CONFIG
@@ -89,16 +109,16 @@ jscript = ARGUMENTS.get('jscript', 0)
 
 #Find build directory and compilation options
 if int(inspect) == 1:
-        APP_BUILD_DIR = join(BUILD_DIR, "app/inspect/")
+	APP_BUILD_DIR = join(BUILD_DIR, "app/inspect/")
 	prog_env.Append(CCFLAGS = INSPECT_FLAGS)
 elif int(inspect_strict) == 1:
-        APP_BUILD_DIR = join(BUILD_DIR, "app/inspect-strict/")
+	APP_BUILD_DIR = join(BUILD_DIR, "app/inspect-strict/")
 	prog_env.Append(CCFLAGS = INSPECTS_FLAGS)
 elif int(debug) == 1:
-        APP_BUILD_DIR = join(BUILD_DIR, "app/debug/")
+	APP_BUILD_DIR = join(BUILD_DIR, "app/debug/")
 	prog_env.Append(CCFLAGS = DEBUG_FLAGS)
 elif int(final) == 1:
-        APP_BUILD_DIR = join(BUILD_DIR, "app/final/")
+	APP_BUILD_DIR = join(BUILD_DIR, "app/final/")
 	prog_env.Append(CCFLAGS = FINAL_FLAGS)
 else: 
 	APP_BUILD_DIR = join(BUILD_DIR, "app/default/")
@@ -142,7 +162,7 @@ prog_env.AlwaysBuild(precompile)
 
 #prog_env.Append(LIBPATH = ['#ext/mongo_src'])
 
-prog_env.Append(CCFLAGS = ['-DSECRET_KEY=\\"' + SECRET_KEY + '\\"'])
+prog_env.Append(CCFLAGS = ['-DSECRET_KEY=\\"' + SECRET_KEY + '\\"', '-DJS_VERSION=\\"' + JS_VERSION + '\\"'])
 application = prog_env.SharedLibrary(join(APP_BUILD_DIR, 'application'), Glob('src/*.cpp'), 
 				LIBS = [fenix_lib, 'libmongoclient.a', boost_lib, crypto_lib])
 				
@@ -150,7 +170,7 @@ prog_env.Depends(application, precompile)
 
 logger = SConscript('logger/SConstruct', variant_dir=join(APP_BUILD_DIR, 'logger/'), duplicate=0)
 install_logger = prog_env.InstallAs('bin/logger', logger)
-install_lua_ext = prog_env.Install('/opt/lua/ext/share/lua/5.1', Glob('logger/*.lua'))
+install_lua_ext = prog_env.Install('/opt/lua/ext/share/lua/5.1', Glob('logger/ext/*.lua'))
 
 def compile_js(source, dest):
 	print "Compiling javascript..."
@@ -161,15 +181,25 @@ def compile_js(source, dest):
 jquery_src =  ["public/js/jquery.js", "public/js/jquery.flot.js", "public/js/jquery.flot.stack.js", 
 		"public/js/jquery.table-pagination.js", "public/js/datepicker.js", 
 		"public/js/date.js", "public/js/chart.js", "public/js/common.js"]
-if int(jscript)==1:
-	compile_js(jquery_src, "public/js/jquery.common.js")
-	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], "public/js/login.min.js")
-	compile_js(["public/js/dashboard.js"], "public/js/dashboard.min.js")
-	compile_js(["public/js/visitors.js"], "public/js/visitors.min.js")
-	compile_js(["public/js/pages.js"], "public/js/pages.min.js")
-	compile_js(["public/js/referrers.js"], "public/js/referrers.min.js")
+	
+	
+if int(jscript)==1 and int(final)==1:
+	print "JavaScript version: " + JS_VERSION
+	#js ui files are versioned
+	compile_js(jquery_src, "public/js/jquery.common.v" + ver + ".js")
+	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], 
+		"public/js/login.v" + ver + ".min.js")
+	compile_js(["public/js/dashboard.js"], "public/js/dashboard.v" + ver + ".min.js")
+	compile_js(["public/js/visitors.js"], "public/js/visitors.v" + ver + ".min.js")
+	compile_js(["public/js/pages.js"], "public/js/pages.v" + ver + ".min.js")
+	compile_js(["public/js/referrers.js"], "public/js/referrers.v" + ver + ".min.js")	
+	#===========================================================================
+	#fenix.js files
 	compile_js(["public/js/src/loader.js"], "public/loader.js")
 	compile_js(["public/js/src/fenix.js"], "public/fenix.js")
+	print "Synchronizing files to Amazon S3:"
+	print S3SYNC
+	print commands.getoutput(S3SYNC)
 
 
 #if build only logger 'scons logger_server'

@@ -18,7 +18,7 @@ param: finish
  	include_js("jquery.validate.js");
  	include_js("login.js");
 	#else
-	include_js("login.min.js");
+	include_js("login.v" + JS_VERSION + ".min.js");
 	#endif
   
 	if(!finish)

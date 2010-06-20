@@ -4,9 +4,8 @@
 json = require('json')
 require('mongo')
 require('search_engines')
+require('mailer')
 ----------------------------------------------------------
---db = mongo.Connection.New()
---db:connect('localhost')
 
 ----------------------------------------------------------
 --DEFINE CONSTANTS
@@ -22,10 +21,6 @@ local HOUR_DATABASE = 'fenix.events.hour'
 local HOUR_DATABASE_SEG = 'fenix.events.hour.segmented'
 local DAY_DATABASE = 'fenix.events.day'
 local DAY_DATABASE_SEG = 'fenix.events.day.segmented'
-
-local MAIL_QUEUE_TABLE = 'mail.queue'
-local MAIL_SENDER = 'kliknik.com'
-local MAIL_FROM = 'noreplay@kliknik.com'
 
 local DIRECT_REF = "(direct)"
 local UNKNOWN = "(unknown)"
@@ -48,7 +43,6 @@ local function event_name(e)
 	return h[e]
 end
 --------------------------------------------------------
-
 
 --MAX_SECS_KEEP = 64
 local MAX_RAW_KEEP = 8--seconds
@@ -159,42 +153,6 @@ local function _purge_day(ts)
 	end
 end
 ------------------------------------------------------------------------------
-local ADMIN_ADDRESS = "dushan01@kliknik.com"
-
-local REGISTRATION_MAIL_TEXT = [[
-Hello,
-
-Thank you for a sign up with kliknik. 
-
-Right now we are in a limited beta. As soon as more slots become available
-we will send you activation link, so you can verify you mail address and start 
-using our service.
-
-In a meantime if you have any questions, please feel free to email us at dev@kliknik.com.
-
-http://www.kliknik.com
-]]
-
-local ACTIVATION_MAIL_TEXT = [[
-Hello,
-
-Your account at kliknik is activated. You can start using our analytics,
-by installing JavaScript code. Please paste the code to end of you website template,
-just before closing '</body>' tag. Code has to be included in every page you want to track.
-
-//Code:
-
-<script src='http://cdn.kliknik.com'></script>
-<script type='text/javascript'>
-_fnx_get_tracker('%s');
-</script>
-
-//End Code
-
-Thank you,
-http://www.kliknik.com
-]]
-
 local function _send_mails()
 	local mails = scoped_db(function(db)
 		local ret = {}
@@ -298,19 +256,44 @@ end
 --LOG FUNCTIONS
 ------------------------------------------------------------------------
 log = {}
-local function _log_page_view(ts, obj, db)
+local function _log_page_view(ts, obj, db, landing)
 	inc_total(db, {_key = obj.id, _event = EVENT_HIT})
+	
+	--<url> ::= <scheme>://<authority>/<path>;<params>?<query>#<fragment>
+	local url = parse(obj.url)
+	
+	local domain = ""
+	local path = ""
+	
+	if url.scheme and url.scheme ~= "" 
+		and url.authority and url.authority ~= "" then
+		domain = url.scheme.."://"..url.authority
+	end
+	
+	if url.path and url.path ~= "" then
+		path = url.path
+		if url.query and url.query ~= "" then
+			path = path.."?"..url.query
+			
+			if url.fragment and url.fragment ~= "" then
+				path = path.."#"..url.fragment
+			end
+		end
+	end
 	
 	inc_sec(db, {_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_s})
 	inc_min(db, {_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_m })
 			
 	inc_hour(db, {_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_h})
 	inc_hour_seg(db, 
-		{_key = obj.id, _event= EVENT_HIT, _ts = ts.ts_h, _url = obj.url, _title = obj.title})
+		{_key = obj.id, _event= EVENT_HIT, _ts = ts.ts_h, 
+		_url = path, _title = obj.title})
 
 	inc_day(db, {_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_d})
 	inc_day_seg(db, 
-		{_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_d, _url = obj.url, _title = obj.title})
+		{_key = obj.id, _event = EVENT_HIT, _ts = ts.ts_d,
+		--_dom - domain of page accessed; eg. it could be on subdomain
+		_dom = domain, _url = path, _title = obj.title, _land = landing})
 end
 
 local function _log_visitor(ts, obj, event_m, event_h)  
@@ -324,7 +307,7 @@ local function _log_visitor(ts, obj, event_m, event_h)
 	end
 	
 	scoped_db(function(db)
-		_log_page_view(ts, obj, db)
+		_log_page_view(ts, obj, db, true)
 		
 		inc_total(db, {_key = obj.id, _event = ev2})
 		
@@ -353,7 +336,7 @@ end
 
 function log.log_page_view(ts, obj)
   scoped_db(function(db)
-  	_log_page_view(ts, obj, db)	
+  	_log_page_view(ts, obj, db, false)	
 	end)
 end
 

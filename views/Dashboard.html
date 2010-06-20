@@ -10,11 +10,12 @@ param: user
 	include_js("jquery.flot.js");
 	include_js("jquery.flot.stack.js");
 	include_js("date.js");
+	include_js("tooltip.js");
 	
 	include_js("dashboard.js");
 	#else
-	include_js("jquery.common.js");
-	include_js("dashboard.min.js");
+	include_js("jquery.common.v" + JS_VERSION + ".js");
+	include_js("dashboard.v" + JS_VERSION + ".min.js");
 	#endif
 	
 	_title = "Dashboard";

@@ -58,6 +58,18 @@ function lookupCountry(code)
 	}
 	return code;
 }
+function formatInteger(i)
+{
+	return String(i).replace(/(\d)(?=(\d{3})+([.]|$))/g,"$1,");
+}
+function formatFloat(f)
+{
+	return String(f).replace(/(\d)(?=(\d{3})+([.]|$))/g,"$1,");
+}
+function formatPercent(p)
+{
+	return formatFloat(p) + "%";
+}
 var page;
 function sameHeight()
 {
@@ -87,9 +99,9 @@ var picker_html = "<form id=\"date-range-selector-form\">" +
 									"<input type=\"text\" name=\"range\" class=\"selector-input\""+
 									" autocomplete=\"off\" title=\"Date range\" alt=\"Date range\"/>&nbsp;&nbsp;&nbsp;"+
 									"</div><div class=\"date-range-predefined-selectors\">"+
-									"<a class=\"a-custom-range\" href=\"#\">Select range</a> |"+ 
-									"<a class=\"a-last-7-days\" href=\"#\">Last 7 days</a> |" +
-									"<a class=\"a-last-30-days\" href=\"#\">Last 30 days</a>"+
+									"<a class=\"a-last-30-days\" href=\"#\">Last 30 days</a> |"+ 
+									"<a class=\"a-last-7-days\" href=\"#\">Last 7 days</a> |" +									
+									"<a class=\"a-custom-range\" href=\"#\">Select custom range</a>"+
 									"</div></form>";
 function daterangePicker()
 {
@@ -239,8 +251,10 @@ if(!page)
 			
 			function _init()
 			{
-				daterange_picker = daterangePicker();
-				report_chooser = $("#report-chooser");
+				var report_chooser = $("#report-chooser"),
+						report_title = $("#report-name");
+						
+				daterange_picker = daterangePicker();				
 				
 				$("#date-range-selector-form .selector-submit").click(function (){
 						page.update();				
@@ -269,7 +283,8 @@ if(!page)
 			
 				$("a", report_chooser).click(function (){
 						$("a.active", that.report_chooser).removeClass("active");
-						$(this).addClass("active");				
+						$(this).addClass("active");
+						report_title.text($(this).text());
 						page.update();
 				
 						return false;
@@ -361,16 +376,13 @@ if(!page)
 				};
 				
 				page.chart.tooltipFormat = function (item, series)
-				{
-					function formatInteger(i)
-					{
-						return String(i).replace(/(\d)(?=(\d{3})+([.]|$))/g,"$1,");
-					}
-					
+				{				
 					var label = series[item.seriesIndex];
 					var i = item.series.data[item.dataIndex][1];
+					var date = new Date(item.series.data[item.dataIndex][0]);
 					
-					return "<em>" + label + "</em>:&nbsp;<strong>" + formatInteger(i) + "</strong>";
+					return "<em>" + date.toString("MMM d, yyyy") + "</em><br />" + 
+						"<strong>" + formatInteger(i) + "</strong>&nbsp;" + label;
 				};
 				
 				page.chart.setSettings({
@@ -467,7 +479,15 @@ if(!page)
 						ret.push("<table class='segmented-list'><thead><tr>");
 						for(i = 0; i < header.length; i++)
 						{
-							ret.push("<th>"); ret.push(header[i]);ret.push("</th>");
+							if(i > 1)
+							{
+								ret.push("<th style=\"text-align:right;\">");
+							}
+							else
+							{
+								ret.push("<th>");
+							}
+							ret.push(header[i]);ret.push("</th>");
 						}
 						ret.push("</tr></thead><tbody>");
 						
@@ -478,7 +498,15 @@ if(!page)
 							if(i%2 != 0){ret.push("<tr class='alt'>");}else{ret.push("<tr>");};
 							for(j = 0; j < a.length; j ++)
 							{
-								ret.push("<td>");ret.push(a[j]);ret.push("</td>");
+								if(j > 1)
+								{
+									ret.push("<td style=\"text-align:right;\">");
+								}
+								else
+								{
+									ret.push("<td>");
+								}
+								ret.push(a[j]);ret.push("</td>");
 							}
 							ret.push("</tr>");
 						}
