@@ -19,8 +19,8 @@ param: user
 	include_js("common.js");
 	include_js("pages.js");
 	#else
-	include_js("jquery.common.v" + JS_VERSION + ".js");
-	include_js("pages.v" + JS_VERSION + ".min.js");
+	include_js("jquery.common.v" + string(JS_VERSION) + ".js");
+	include_js("pages.v" + string(JS_VERSION) + ".min.js");
 	#endif
 	
 	_title = "Pages";	
