@@ -10,10 +10,10 @@ $(function(){
 				{
 					if(overview && overview.length > 3)
 					{
-						visits.text(overview[0]);
-						visits_per_day.text(overview[1]);
-						new_visits.text(overview[2]);
-						new_visits_per_day.text(overview[3]);
+						visits.text(formatInteger(overview[0]));
+						visits_per_day.text(formatFloat(overview[1]));
+						new_visits.text(formatInteger(overview[2]));
+						new_visits_per_day.text(formatFloat(overview[3]));
 					}
 				}
 				function updateSegments(segments)
@@ -25,12 +25,14 @@ $(function(){
 						
 						if(referrers && len > 0)
 						{	
-							page.updateSegmentedList(referrers_list_by_ref, ["#", "Referrer", "Visits", "New Visits", "%New"], len,
+							page.updateSegmentedList(referrers_list_by_ref, ["#", "Referrer", "Visits", "New Visits", "% New"], len,
 								function(i){
 									a = [];
 									referrer = referrers[i];
-									a.push(i + 1); a.push("<strong>"+referrer.name+"</strong>"); a.push(referrer.visits);
-										a.push(referrer.new_visits);a.push(referrer.percent);
+									a.push(i + 1); a.push("<strong>"+referrer.name+"</strong>"); 
+									a.push(formatInteger(referrer.visits));
+									a.push(formatFloat(referrer.new_visits));
+									a.push(formatPercent(referrer.percent));
 									return a;
 							});
 						}

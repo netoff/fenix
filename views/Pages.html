@@ -10,16 +10,17 @@ param: user
 	include_js("jquery.flot.stack.js");
 	include_js("jquery.table-pagination.js");
 	
-	include_js("datepicker.js");
-	
+	include_js("datepicker.js");	
 	include_js("date.js");
+	
+	include_js("tooltip.js");
 	
 	include_js("chart.js");
 	include_js("common.js");
 	include_js("pages.js");
 	#else
-	include_js("jquery.common.js");
-	include_js("pages.min.js");
+	include_js("jquery.common.v" + JS_VERSION + ".js");
+	include_js("pages.v" + JS_VERSION + ".min.js");
 	#endif
 	
 	_title = "Pages";	
@@ -30,10 +31,10 @@ param: user
 	<div class="span-24 same-height">
 		<div class="span-10"><div class="window inline">
 			<span class="h2">
-			Pages
+			Pages: <span id="report-name">Page Views</span>
 			</span>
 			<p id="report-chooser">Reports:&nbsp;<em> 
-				<a href="#" class="active" report_type="-1">Page Hits</a></em></p>
+				<a href="#" class="active" report_type="-1">Page Views</a></em></p>
 		</div></div>
 		<div class="span-14 last right"><div class="window inline">
 			<div id='daterange-picker-placeholder'></div>
@@ -53,11 +54,11 @@ param: user
 			<div class="stat-sep"></div>
 			<div class="stat-label">
 				<span id="stat-h" class="counter">0</span>
-				<span class="title">page hits</span>
+				<span class="title">page views</span>
 			</div>
 			<div class="stat-label alt">
 				<span id="stat-hpd" class="counter">0</span>
-				<span class="title">page hits/day(avg)</span>
+				<span class="title">page views/day</span>
 			</div>
 		</div></div>
 		

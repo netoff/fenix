@@ -11,16 +11,17 @@ param: user
 	include_js("jquery.flot.stack.js");
 	include_js("jquery.table-pagination.js");
 	
-	include_js("datepicker.js");
+	include_js("tooltip.js");
 	
+	include_js("datepicker.js");	
 	include_js("date.js");
 	
 	include_js("chart.js");
 	include_js("common.js");
 	include_js("visitors.js");
 	#else
-	include_js("jquery.common.js");
-	include_js("visitors.min.js");
+	include_js("jquery.common.v" + JS_VERSION + ".js");
+	include_js("visitors.v" + JS_VERSION + ".min.js");
 	#endif
 	
 	_title = "Visitors";	
@@ -31,7 +32,7 @@ param: user
 	<div class="span-24 same-height">
 		<div class="span-10"><div class="window inline">
 			<span class="h2">
-			Visitors
+			Visitors: <span id="report-name">Visits</span>
 			</span>
 			<p id="report-chooser">Reports:&nbsp;<em> 
 				<a href="#" class="active" report_type="-1">Visits</a>,&nbsp;
@@ -62,7 +63,7 @@ param: user
 			</div>
 			<div class="stat-label alt">
 				<span id="stat-vspd" class="counter">0</span>
-				<span class="title">visits/day(avg)</span>
+				<span class="title">visits/day</span>
 			</div>
 			<!--
 			<div class="stat-label">
@@ -75,7 +76,7 @@ param: user
 			</div>
 			<div class="stat-label alt">
 				<span id="stat-nvpd" class="counter">0</span>
-				<span class="title">new visitors/day(avg)</span>
+				<span class="title">new visitors/day</span>
 			</div>
 		</div></div>
 		
