@@ -10,8 +10,8 @@ $(function(){
 				{
 					if(overview && overview.length > 1)
 					{
-						hits.html(overview[0]);
-						hits_per_day.html(overview[1]);
+						hits.html(formatInteger(overview[0]));
+						hits_per_day.html(formatFloat(overview[1]));
 					}
 				}
 				function updateSegments(segments)
@@ -29,7 +29,8 @@ $(function(){
 									p = pages[i];
 								
 									a = [];
-									a.push(i + 1);a.push("<strong>"+p.name+"</strong>");a.push(p.hits);
+									a.push(i + 1);a.push("<strong>"+p.name+"</strong>");
+									a.push(formatInteger(p.hits));
 									
 									return a;
 							});

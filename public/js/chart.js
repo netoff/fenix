@@ -98,9 +98,9 @@ Chart.prototype.draw = function ()
 		}		
 	});
 };
-Chart.prototype.showTooltip = function (x, y, contents) 
+Chart.prototype.showTooltip = function (x, y, content) 
 {
-        $('<div id="tooltip">' + contents + '</div>').css({
+        $('<div id="tooltip">' + content + '</div>').css({
 			display: 'none',
 			top: y + 5,
 			left: x + 15			

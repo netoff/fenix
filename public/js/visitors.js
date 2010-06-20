@@ -10,10 +10,10 @@ $(function (){
 			{
 				if(overview && overview.length > 3)
 				{
-					visits.html(overview[0]);
-					visits_per_day.html(overview[1]);
-					new_visitors.html(overview[2]);
-					new_visitors_per_day.html(overview[3]);					
+					visits.html(formatInteger(overview[0]));
+					visits_per_day.html(formatFloat(overview[1]));
+					new_visitors.html(formatInteger(overview[2]));
+					new_visitors_per_day.html(formatFloat(overview[3]));					
 				}
 			};
 			
@@ -26,15 +26,17 @@ $(function (){
 				
 					if(countries && len > 0)
 					{	
-						page.updateSegmentedList(visitors_list_by_country, ["#", "Country", "Visits", "New Visitor", "%New"], len,
+						page.updateSegmentedList(visitors_list_by_country, ["#", "Country", "Visits", "New Visitor", "% New"], len,
 							function(i){
 								var row = [];
 							
 								if(i < len)
 								{	
 									var country = countries[i];
-									row.push(i+1);row.push("<strong>" + lookupCountry(country.name) + "</strong>");row.push(country.visits);
-									row.push(country.new_visits);row.push(country.percent);
+									row.push(i+1);row.push("<strong>" + lookupCountry(country.name) + "</strong>");
+									row.push(formatInteger(country.visits));
+									row.push(formatInteger(country.new_visits));
+									row.push(formatPercent(country.percent));
 								}
 							
 								return row;

@@ -18,8 +18,18 @@ require 'benchmark'
 MAX_REQUESTS = 4
 THREAD_SLEEP = 0.7
 
+TRACK_SERVER = "log.kliknik.com"
 SITE_ID = "4c18e3b26c8bdc2ac6c8bf67"
-TRACK_URI = "http://log.kliknik.com/lg/js?_e=hit"
+
+if ARGV[0]
+	TRACK_SERVER = ARGV[0]
+end
+
+if ARGV[1]
+	SITE_ID = ARGV[1]
+end
+
+TRACK_URI = "http://" + TRACK_SERVER + "/lg/js?_e=hit"
 
 COUNTRIES = [
 	["US", "New York", -73.9667, 40.7833], 
@@ -39,7 +49,7 @@ COUNTRIES = [
 	["HU", "Budapest", 19.0333, 47.5167]]
 	
 TITLES = ["Page One", "Page Two", "Page Three", "Page Three"]
-URLS = ["http://demo.kliknik.com/page1", "http://demo.kliknik.com/page1?a=12&b=31", "http://demo.kliknik.com/page2/index", "http://demo.kliknik.com/page3", "http://demo.kliknik.com/page3"]
+URLS = ["http://kliknik.com/", "http://kliknik.com/", "http://demo.kliknik.com/page1", "http://demo.kliknik.com/page1?a=12&b=31", "http://demo.kliknik.com/page2/index", "http://demo.kliknik.com/page3", "http://demo.kliknik.com/page3"]
 REFERRERS = [
 #direct
 	"", "", "",
