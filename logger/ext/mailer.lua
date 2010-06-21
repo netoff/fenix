@@ -27,7 +27,7 @@ just before closing '</body>' tag. Code has to be included in every page you wan
 
 //Code:
 
-<script src='http://cdn.kliknik.com'></script>
+<script src='http://cdn.kliknik.com/loader.js'></script>
 <script type='text/javascript'>
 _fnx_get_tracker('%s');
 </script>
