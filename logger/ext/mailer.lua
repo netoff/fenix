@@ -1,10 +1,10 @@
-local MAIL_QUEUE_TABLE = 'mail.queue'
-local MAIL_SENDER = 'kliknik.com'
-local MAIL_FROM = 'noreplay@kliknik.com'
+MAIL_QUEUE_TABLE = 'mail.queue'
+MAIL_SENDER = 'kliknik.com'
+MAIL_FROM = 'noreplay@kliknik.com'
 
-local ADMIN_ADDRESS = "dushan01@kliknik.com"
+ADMIN_ADDRESS = "dushan01@kliknik.com"
 
-local REGISTRATION_MAIL_TEXT = [[
+REGISTRATION_MAIL_TEXT = [[
 Hello,
 
 Thank you for a sign up with kliknik. 
@@ -18,7 +18,7 @@ In a meantime if you have any questions, please feel free to email us at dev@kli
 http://www.kliknik.com
 ]]
 
-local ACTIVATION_MAIL_TEXT = [[
+ACTIVATION_MAIL_TEXT = [[
 Hello,
 
 Your account at kliknik is activated. You can start using our analytics,
