@@ -1,0 +1,11 @@
+Import('prog_env boost_lib')
+
+env = prog_env.Clone()
+
+lua_mongo_api = env.StaticLibrary('lua_mongo', Glob('luaapi/*.cpp'))
+
+
+logger = env.Program('logger', Glob('*.cpp'), LIBS = ['pthread', lua_mongo_api, 'libmongoclient.a', boost_lib, 'luajit', 'dl'])
+
+
+Return('logger')

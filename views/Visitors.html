@@ -1,0 +1,93 @@
+<!--@HEADER@
+param: user
+-->
+<!--@
+	include_css("datepicker.css");
+	#ifdef DEBUG
+	include_js("jquery.js");
+	//include_js("excanvas.js", "IE");
+	include_js("jquery.flot.js");
+	include_js("jquery.flot.crosshair.js");
+	include_js("jquery.flot.stack.js");
+	include_js("jquery.table-pagination.js");
+	
+	include_js("tooltip.js");
+	
+	include_js("datepicker.js");	
+	include_js("date.js");
+	
+	include_js("chart.js");
+	include_js("common.js");
+	include_js("visitors.js");
+	#else
+	include_js("jquery.common.v" + string(JS_VERSION) + ".js");
+	include_js("visitors.v" + string(JS_VERSION) + ".min.js");
+	#endif
+	
+	_title = "Visitors";	
+-->
+
+<div class="span-24">
+	
+	<div class="span-24 same-height">
+		<div class="span-10"><div class="window inline">
+			<span class="h2">
+			Visitors: <span id="report-name">Visits</span>
+			</span>
+			<p id="report-chooser">Reports:&nbsp;<em> 
+				<a href="#" class="active" report_type="-1">Visits</a>,&nbsp;
+				<a href="#" report_type="2">New Visitors</a>,&nbsp;
+				<a href="#" report_type="3">Returning Visitors</a>,&nbsp;
+				<a href="#" report_type="4">Repeating Visitors</a></em></p>
+		</div></div>
+		<div class="span-14 last right"><div class="window inline">
+			<div id='daterange-picker-placeholder'></div>
+		</div></div>
+	</div>
+	
+	<div class="span-24"><div class="window placeholder">
+		<h2>Visitors</h2>
+		
+		<p> <span id="chart-legend" class="chart-legend"></span></p>
+		<div id="report-chart" class="chart" style="height:240px;"></div>
+	</div></div>
+	<div class="span-24 same-height">
+	
+		<div class="span-7"><div class="window placeholder-sm">
+			<h2>Overview</h2>
+			
+			<div class="stat-sep"></div>
+			<div class="stat-label">
+				<span id="stat-vs" class="counter">0</span>
+				<span class="title">visits</span>
+			</div>
+			<div class="stat-label alt">
+				<span id="stat-vspd" class="counter">0</span>
+				<span class="title">visits/day</span>
+			</div>
+			<!--
+			<div class="stat-label">
+				<span id="stat-auv" class="counter">0</span>
+				<span class="title">absolute unique visitors</span>
+			</div>-->
+			<div class="stat-label">
+				<span id="stat-nv" class="counter">0</span>
+				<span class="title">new visitors</span>
+			</div>
+			<div class="stat-label alt">
+				<span id="stat-nvpd" class="counter">0</span>
+				<span class="title">new visitors/day</span>
+			</div>
+		</div></div>
+		
+		<div class="span-17 last"><div class="window placeholder">
+		 	<h2>Visitors List</h2>
+			<!--<p>
+				By country | <a href="#">By operating system</a> | <a href="#">By browser</a> 
+				</p>-->
+				<div id="visitors-segments"></div>
+		</div></div>
+	</div>
+</div>
+
+

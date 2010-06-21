@@ -1,0 +1,18 @@
+import commands
+
+Import('prog_env fenix_lib boost_lib crypto_lib')
+
+env = prog_env.Clone()
+
+env.ParseConfig('apxs2 -q CFLAGS')
+env.ParseConfig('apxs2 -q LDFLAGS')
+
+#Get apache headers
+apache_headers = commands.getoutput('apxs2 -q INCLUDEDIR') 
+env.Append(CPPPATH = apache_headers)
+
+mod_fenix = env.SharedLibrary('mod_fenix', Glob('*.cpp'), 
+		#LIBS=[fenix_lib, boost_lib, crypto_lib, 'apr-1', 'aprutil-1'])
+		LIBS=[boost_lib, crypto_lib, 'apr-1', 'aprutil-1'])
+				
+Return('mod_fenix')
