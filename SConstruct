@@ -5,9 +5,13 @@ import random
 
 KEY_FILE = "./key.sec"
 JS_VER_FILE = "./jscript.ver"
+
+#keep objects for and hour at edge location
+S3MAX_AGE = 60 * 60
 S3BUCKET = "kliknik:"
 
-S3SYNC = "/opt/s3sync/s3sync.rb -rp public/ " + S3BUCKET
+S3SYNC = "/opt/s3sync/s3sync.rb -rp --cache-control=\"max-age=" + 
+	S3MAX_AGE + "\" public/ " + S3BUCKET
 
 def secret_key():
 	ret = ''
