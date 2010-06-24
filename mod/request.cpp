@@ -227,10 +227,6 @@ static string get_ip_addr(request_rec* apc_request)
 {
 	string ret = "";
 	
-	#ifdef DEBUG
-		ret = string("109.93.156.37");
-	#else
-	
 	if (apr_table_get(apc_request->subprocess_env, "HTTP_CLIENT_IP")) 
 	{
 		ret = string(apr_pstrdup(apc_request->pool, 
@@ -248,14 +244,13 @@ static string get_ip_addr(request_rec* apc_request)
 	}
 	else if (apr_table_get(apc_request->subprocess_env, "HTTP_REMOTE_ADDR")) 
 	{
-		string = string(apr_pstrdup(apc_request->pool, 
-			apr_table_get(r->subprocess_env, "HTTP_REMOTE_ADDR")));
+		ret = string(apr_pstrdup(apc_request->pool, 
+			apr_table_get(apc_request->subprocess_env, "HTTP_REMOTE_ADDR")));
 	}
 	else 
 	{
 		ret = string(apc_request->connection->remote_ip);
 	}
-	#endif
 	
 	return ret;
 }
