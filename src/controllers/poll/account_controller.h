@@ -26,6 +26,30 @@ namespace PagesController
 				
 				return render_<BadRequestResponse>();
 			}
+			
+			FENIX_CONTROLLER(change_password)
+			{
+				if(request.isWrite())
+				{				
+					string old_password, new_password, repeat_password;
+					
+					if(get_param(request["old"], old_password) &&
+						get_param(request["password"], new_password) &&
+						get_param(request["repeat_password"], repeat_password))
+					{
+						ostringstream response;
+						
+						return render_text(response, "text/javascript");
+					}
+				}
+				
+				return render_<BadRequestResponse>();
+			}
+			
+			FENIX_CONTROLLER(add_website)
+			{
+			}			
+			
 		}
 	}
 }

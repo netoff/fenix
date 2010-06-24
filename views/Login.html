@@ -14,9 +14,9 @@ param: finish
 <!--@
 	bool finish = args[_finish|false];
 	#ifdef DEBUG
- 	include_js("jquery.js");
- 	include_js("jquery.validate.js");
- 	include_js("login.js");
+ 	include_js("debug/jquery.js");
+ 	include_js("debug/jquery.validate.js");
+ 	include_js("debug/login.js");
 	#else
 	include_js("login.v" + string(JS_VERSION) + ".min.js");
 	#endif

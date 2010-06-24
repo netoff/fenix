@@ -6,15 +6,15 @@ param: user
 
 <!--@
 	#ifdef DEBUG
-	include_js("jquery.js");
-	include_js("jquery.flot.js");
-	include_js("jquery.flot.stack.js");
-	include_js("date.js");
-	include_js("tooltip.js");
+	include_js("debug/jquery.js");
+	include_js("debug/jquery.flot.js");
+	include_js("debug/jquery.flot.stack.js");
+	include_js("debug/date.js");
+	include_js("debug/account.js");
 	
-	include_js("dashboard.js");
+	include_js("debug/dashboard.js");
 	#else
-	include_js("jquery.common.v" + string(JS_VERSION) + ".js");
+	include_js("jquery.common.v" + string(JS_VERSION) + ".min.js");
 	include_js("dashboard.v" + string(JS_VERSION) + ".min.js");
 	#endif
 	
@@ -57,7 +57,7 @@ param: user
 				<div class="stat-sep"></div>
 				<div class="stat-label">
 					<span id="stat-hps" class="counter">0</span>
-					<span class="title">page hits/sec</span>
+					<span class="title">page views/sec</span>
 				</div>
 				<div class="stat-label alt">
 					<span id="stat-nvps" class="counter">0</span>
@@ -71,7 +71,7 @@ param: user
 				<div class="stat-sep"></div>
 				<div class="stat-label">
 					<span class="counter" id="stat-hpm">0</span>
-					<span class="title">page hits/min</span>
+					<span class="title">page views/min</span>
 				</div>
 				<div class="stat-label alt">
 					<span id="stat-nvpm" class="counter">0</span>
@@ -85,7 +85,7 @@ param: user
 				<div class="stat-sep"></div>
 				<div class="stat-label">
 					<span class="counter" id="stat-hph">0</span>
-					<span class="title">page hits/hour</span>
+					<span class="title">page views/hour</span>
 				</div>
 				<div class="stat-label alt">
 					<span id="stat-nvph" class="counter">0</span>

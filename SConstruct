@@ -3,6 +3,11 @@ import commands
 import sys
 import random
 
+#paths
+JS_FOLDER = "asset/js/"
+JS_OUTPUT_FOLDER = "public/js/"
+CSS_FOLDER = "asset/css/"
+
 KEY_FILE = "./key.sec"
 JS_VER_FILE = "./jscript.ver"
 
@@ -10,8 +15,8 @@ JS_VER_FILE = "./jscript.ver"
 S3MAX_AGE = 60 * 60
 S3BUCKET = "kliknik:"
 
-S3SYNC = "/opt/s3sync/s3sync.rb -rp --cache-control=\"max-age=" + 
-	S3MAX_AGE + "\" public/ " + S3BUCKET
+S3SYNC = "/opt/s3sync/s3sync.rb -rp --cache-control=\"max-age="\
+	+ str(S3MAX_AGE) + "\" public/ " + S3BUCKET
 
 def secret_key():
 	ret = ''
@@ -110,6 +115,7 @@ inspect_strict = ARGUMENTS.get('inspect-s', 0)
 debug = ARGUMENTS.get('debug', 0)
 final = ARGUMENTS.get('final', 0)
 jscript = ARGUMENTS.get('jscript', 0)
+s3sync = ARGUMENTS.get('s3sync', 0)
 
 #Find build directory and compilation options
 if int(inspect) == 1:
@@ -168,7 +174,7 @@ prog_env.AlwaysBuild(precompile)
 
 prog_env.Append(CCFLAGS = ['-DSECRET_KEY=\\"' + SECRET_KEY + '\\"', '-DJS_VERSION=\\"' + JS_VERSION + '\\"'])
 application = prog_env.SharedLibrary(join(APP_BUILD_DIR, 'application'), Glob('src/*.cpp'), 
-				LIBS = [fenix_lib, 'libmongoclient.a', boost_lib, crypto_lib])
+				LIBS = [fenix_lib, 'libmongoclient.a', boost_lib, crypto_lib, 'GeoIP'])
 				
 prog_env.Depends(application, precompile)
 
@@ -176,34 +182,52 @@ logger = SConscript('logger/SConstruct', variant_dir=join(APP_BUILD_DIR, 'logger
 install_logger = prog_env.InstallAs('bin/logger', logger)
 install_lua_ext = prog_env.Install('/opt/lua/ext/share/lua/5.1', Glob('logger/ext/*.lua'))
 
-def compile_js(source, dest):
+def compile_js(source, filename):
 	print "Compiling javascript..."
-	cmd = "java -jar ext/closure/compiler.jar --js={0} --js_output_file={1}".format(" --js=".join(source), dest)
+	cmd = "java -jar ext/closure/compiler.jar --js={0} --js_output_file={1}".\
+		format(JS_FOLDER + " --js={0}".format(JS_FOLDER).join(source), filename)
 	print cmd
 	print commands.getoutput(cmd)
+	
+def compile_js_ver(source, filename, ver):
+	destination = JS_OUTPUT_FOLDER + filename + ".v" + ver + ".min.js"
+	compile_js(source, destination)
 
-jquery_src =  ["public/js/jquery.js", "public/js/jquery.flot.js", "public/js/jquery.flot.stack.js", 
-		"public/js/jquery.table-pagination.js", "public/js/datepicker.js", 
-		"public/js/date.js", "public/js/chart.js", "public/js/common.js"]
-	
-	
+jquery_src =  ["common/jquery.js", "common/jquery.flot.js", 
+		"common/jquery.flot.stack.js", "common/jquery.table-pagination.js", 
+		"common/datepicker.js", "common/date.js", "chart.js", "common.js", "account.js"]
+
+#compres javascripts	
 if int(jscript)==1 and int(final)==1:
 	print "JavaScript version: " + JS_VERSION
 	#js ui files are versioned
-	compile_js(jquery_src, "public/js/jquery.common.v" + JS_VERSION + ".js")
-	compile_js(["public/js/jquery.js", "public/js/jquery.validate.js", "public/js/login.js"], 
-		"public/js/login.v" + JS_VERSION + ".min.js")
-	compile_js(["public/js/dashboard.js"], "public/js/dashboard.v" + JS_VERSION + ".min.js")
-	compile_js(["public/js/visitors.js"], "public/js/visitors.v" + JS_VERSION + ".min.js")
-	compile_js(["public/js/pages.js"], "public/js/pages.v" + JS_VERSION + ".min.js")
-	compile_js(["public/js/referrers.js"], "public/js/referrers.v" + JS_VERSION + ".min.js")	
+	compile_js_ver(jquery_src, "jquery.common", JS_VERSION)
+	compile_js_ver(["common/jquery.js", "common/jquery.validate.js", "pages/login.js"], "login", JS_VERSION)
+	compile_js_ver(["pages/dashboard.js"], "dashboard", JS_VERSION)
+	compile_js_ver(["pages/visitors.js"], "visitors", JS_VERSION)
+	compile_js_ver(["pages/pages.js"], "pages", JS_VERSION)
+	compile_js_ver(["pages/referrers.js"], "referrers", JS_VERSION)	
 	#===========================================================================
 	#fenix.js files
-	compile_js(["public/js/src/loader.js"], "public/loader.js")
-	compile_js(["public/js/src/fenix.js"], "public/fenix.js")
+	compile_js(["fenix/loader.js"], "public/loader.js")
+	compile_js(["fenix/fenix.js"], "public/fenix.js")
 	print "Synchronizing files to Amazon S3:"
 	print S3SYNC
-	print commands.getoutput(S3SYNC)
+	if int(s3sync)==1:
+		print commands.getoutput(S3SYNC)
+		
+if int(debug) == 1:
+	print "Copying javascripts..."
+	cmd1 = "cp asset/js/pages/* public/js/debug/"
+	print cmd1
+	commands.getoutput(cmd1)
+	cmd2 = "cp asset/js/common/* public/js/debug/"
+	print cmd2
+	commands.getoutput(cmd2)
+	cmd3 = "cp asset/js/* public/js/debug/"
+	print cmd3
+	commands.getoutput(cmd3)
+			
 
 
 #if build only logger 'scons logger_server'

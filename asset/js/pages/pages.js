@@ -24,7 +24,7 @@ $(function(){
 						if(pages && len > 0)
 						{
 								
-							page.updateSegmentedList(pages_list_by_url, ["#", "Url", "Hits"], len, 
+							page.updateSegmentedList(pages_list_by_url, ["#", "Url", "Views"], len, 
 								function(i){
 									p = pages[i];
 								
@@ -51,7 +51,7 @@ $(function(){
 								overview = feed.overview,
 								type = feed.type,
 								segments = feed.by,
-								series = ["page hits"];
+								series = ["page views"];
 							
 							if(type === "-1")
 						{
