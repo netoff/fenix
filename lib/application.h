@@ -47,7 +47,7 @@ namespace fenix
 				template <class Obj>
 				void geo_lookup(Obj& o, const string& ip)
 				{
-					this->_geo_location(o, ip);
+					this->_geo_location.lookup(o, ip);
 				}
 			private:
 				FILE* _error_log;		
