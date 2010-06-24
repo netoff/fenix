@@ -223,6 +223,43 @@ apr_status_t send_apc_file(string filename, string mime_type, request_rec* apc_r
 	}
 }
 
+static string get_ip_addr(request_rec* apc_request)
+{
+	string ret = "";
+	
+	#ifdef DEBUG
+		ret = string("109.93.156.37");
+	#else
+	
+	if (apr_table_get(apc_request->subprocess_env, "HTTP_CLIENT_IP")) 
+	{
+		ret = string(apr_pstrdup(apc_request->pool, 
+			apr_table_get(apc_request->subprocess_env, "HTTP_CLIENT_IP")));
+	}
+	else if (apr_table_get(apc_request->subprocess_env, "HTTP_X_FORWARDED_FOR")) 
+	{
+		ret = string(apr_pstrdup(apc_request->pool,
+			apr_table_get(apc_request->subprocess_env, "HTTP_X_FORWARDED_FOR")));
+	}
+	else if (apr_table_get(apc_request->headers_in, "X-Forwarded-For")) 
+	{
+		ret = string(apr_pstrdup(apc_request->pool,
+				apr_table_get(apc_request->headers_in, "X-Forwarded-For")));
+	}
+	else if (apr_table_get(apc_request->subprocess_env, "HTTP_REMOTE_ADDR")) 
+	{
+		string = string(apr_pstrdup(apc_request->pool, 
+			apr_table_get(r->subprocess_env, "HTTP_REMOTE_ADDR")));
+	}
+	else 
+	{
+		ret = string(apc_request->connection->remote_ip);
+	}
+	#endif
+	
+	return ret;
+}
+
 void prepare_request(Request& request, request_rec* apc_request)
 {
 	switch(apc_request->method_number)
@@ -318,4 +355,7 @@ void prepare_request(Request& request, request_rec* apc_request)
 		string cookie(c);
 		parse_cookies(cookie, request);
 	}
+	
+	//IP address
+	request._ip = get_ip_addr(apc_request);
 }

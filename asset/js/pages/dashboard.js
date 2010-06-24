@@ -149,7 +149,7 @@ Chart.prototype.draw = function ()
 	$.plot(this.canvas, [
 		{ data: this.getDataPoints(1), bars: { show: true, barWidth: 0.9, align: "center" }, label: "new visitors/" + this.resolution, stack: true },
 		{ data: this.getDataPoints(2), bars: { show: true, barWidth: 0.9, align: "center" }, label: "returning visitors/" + this.resolution, stack: true},
-		{ data: this.getDataPoints(0), lines: { show: true, steps: true }, points: { show: true, radius: 1}, label: "page hits/" + this.resolution }], this.settings);
+		{ data: this.getDataPoints(0), lines: { show: true, steps: true }, points: { show: true, radius: 1}, label: "page views/" + this.resolution }], this.settings);
 
 	
 };
@@ -223,6 +223,21 @@ if (!dashboard)
 					
 					return false;
 				});
+				
+				$("div.referrer-link").live("click", function()
+					{
+						var a = $(this).attr('val0');
+						
+						if(a && typeof(a) === "string")
+						{
+							if(a.substr(0,7) === "http://" || a.substr(0, 8) === "https://")
+							{
+								window.open($(this).attr('val0'));
+							}
+							
+							return false;
+						}
+					});
 
 				this.adjustLayout();
 			},
@@ -395,7 +410,8 @@ if (!dashboard)
 						if(visitor._engine && visitor._engine != "")
 						{
 							a.push(", </span> referred by <span class='_referrer'><strong>");
-							a.push(visitor._engine);a.push("</strong>");
+							a.push(visitor._engine);a.push("</strong> searching for ");
+							a.push(visitor._squery);
 						}
 						else
 						{
@@ -436,9 +452,9 @@ if (!dashboard)
 			
 			shortenText: function (text)
 			{
-				if(text.length > 29)
+				if(text.length > 36)
 				{
-					return text.substring(0, 26) + "...";
+					return text.substring(0, 36) + "...";
 				}
 				else
 				{
@@ -446,7 +462,7 @@ if (!dashboard)
 				}
 			},
 			
-			makeList: function (list, x, y)
+			makeList: function (list, x, y, list_class)
 			{
 				var i, a = [], html, key, val;
 				
@@ -459,11 +475,13 @@ if (!dashboard)
 					
 					if(i%2 === 0)
 					{
-						a.push("<div class='stat-label'>");
+						a.push("<div  val0='" + key + "' class='stat-label" 
+							+ (list_class? " " + list_class : "") + "'>");
 					}
 					else
 					{
-						a.push("<div class='stat-label alt'>");
+						a.push("<div  val0='" + key + "' class='stat-label alt" 
+							+ (list_class?" " + list_class : "") + "'>");
 					}
 					a.push("<span class='title' keyl=\"");a.push(key);a.push("\">");
 					if(x)
@@ -515,7 +533,7 @@ if (!dashboard)
 			{
 				if(referrers && referrers.length > 0)
 				{
-					var html = this.makeList(referrers, this.shortenText, formatInteger);
+					var html = this.makeList(referrers, this.shortenText, formatInteger, "referrer-link");
 				
 					$("#referrers-list").html(html);
 				}

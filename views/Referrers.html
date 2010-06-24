@@ -4,22 +4,22 @@ param: user
 <!--@
 	include_css("datepicker.css");
 	#ifdef DEBUG
-	include_js("jquery.js");
-	include_js("jquery.flot.js");
-	include_js("jquery.flot.crosshair.js");
-	include_js("jquery.flot.stack.js");
-	include_js("jquery.table-pagination.js");
+	include_js("debug/jquery.js");
+	include_js("debug/jquery.flot.js");
+	include_js("debug/jquery.flot.crosshair.js");
+	include_js("debug/jquery.flot.stack.js");
+	include_js("debug/jquery.table-pagination.js");
 	
-	include_js("datepicker.js");	
-	include_js("date.js");
+	include_js("debug/datepicker.js");	
+	include_js("debug/date.js");
 	
-	include_js("tooltip.js");
+	include_js("debug/chart.js");
+	include_js("debug/common.js");
+	include_js("debug/account.js");
 	
-	include_js("chart.js");
-	include_js("common.js");
-	include_js("referrers.js");
+	include_js("debug/referrers.js");
 	#else
-	include_js("jquery.common.v" + string(JS_VERSION) + ".js");
+	include_js("jquery.common.v" + string(JS_VERSION) + ".min.js");
 	include_js("referrers.v" + string(JS_VERSION) + ".min.js");
 	#endif
 	

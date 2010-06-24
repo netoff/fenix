@@ -12,6 +12,7 @@ using namespace fenix::web::toolkit;
 using namespace pages;
 
 static const microsecond = 1000*1000;
+
 namespace StatsController
 {
 	static string get_stats_per_second(const ScopedMiddleware& mid, const string& key, 
@@ -92,7 +93,7 @@ namespace StatsController
 				if(t == 0) t = (timestamp > 60 ? timestamp - 60 : 1);
 				if(t_m == 0) t_m = (timestamp_m > 60 ? timestamp_m - 60 : 1);
 				if(t_h == 0) t_h = (timestamp_h > 24 ? timestamp_h - 24: 1);
-				if(t_micro == 0) t_micro = timestamp_micro - microsecond;
+				if(t_micro == 0) t_micro = timestamp_micro - 30 * microsecond;
 				
 				//Do not send us false timestamps
 				if(t <= timestamp && (timestamp - t) <= 60 &&

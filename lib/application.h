@@ -1,12 +1,16 @@
 #pragma once
 
 #include "common.h"
+#include "geo.h"
 //#include "action.h"
 //#include "model.h"
 //#include "view.h"
 //#include "log.h"
 
 #include <stdio.h>
+
+static const string log_file = "/var/log/app.log";
+static const string geo_ip_file ="/opt/geo/GeoIPCity.dat";
 
 namespace fenix
 {
@@ -18,7 +22,8 @@ namespace fenix
 			{
 			public:
 				Application()
-				:_error_log(fopen("/opt/log/app.log", "a"))
+				:_error_log(fopen(log_file.c_str(), "a")),
+				_geo_location(geo_ip_file)
 				{
 				}
 				
@@ -38,8 +43,15 @@ namespace fenix
 						fflush(this->_error_log);
 					}
 				}
+				
+				template <class Obj>
+				void geo_lookup(Obj& o, const string& ip)
+				{
+					this->_geo_location(o, ip);
+				}
 			private:
-				FILE* _error_log;				
+				FILE* _error_log;		
+				geo::Location _geo_location;
 			};
 			
 			extern Application app;

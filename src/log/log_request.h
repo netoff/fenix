@@ -18,7 +18,11 @@ struct LogRequest: private noncopyable
 	string agent;
 	
 	string country_code;
+	string continent;
+	string region;
 	string city;
+	string postal_code;
+	
 	double longitude;
 	double latitude;
 	
@@ -36,7 +40,11 @@ struct LogRequest: private noncopyable
 		agent = "";
 		
 		country_code = "";
+		continent = "";
+		region = "";
 		city = "";
+		postal_code = "";
+		
 		longitude = 0;
 		latitude = 0;
 	}	
@@ -66,10 +74,13 @@ struct LogRequest: private noncopyable
 		}
 		else
 		{
+			/*
 			get_param(request.getParam("config", "GEOIP_COUNTRY_CODE"), this->country_code);
 			get_param(request.getParam("config", "GEOIP_CITY"), this->city);		
 			get_param(request.getParam("config", "GEOIP_LONGITUDE"), this->longitude);
-			get_param(request.getParam("config", "GEOIP_LATITUDE"), this->latitude);
+			get_param(request.getParam("config", "GEOIP_LATITUDE"), this->latitude);*/
+			
+			app.geo_lookup(*this, request._ip);
 		}
 		#endif
 	}

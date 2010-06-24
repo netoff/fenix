@@ -232,6 +232,7 @@ namespace fenix
 					
 					//host parts are inserted in revers order 1:com, 2:kliknik, 3:www etc.
 					deque<string> _host;
+					string _ip;
 					
 					/*
 					void add_note(shared_ptr<Note> n)
