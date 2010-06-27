@@ -29,18 +29,46 @@ namespace PagesController
 			
 			FENIX_CONTROLLER(change_password)
 			{
-				if(request.isWrite())
-				{				
-					string old_password, new_password, repeat_password;
+				string old_password, new_password, repeat_password;
+				
+				if(request.isWrite() && 
+					get_param(request["old"], old_password) &&
+					get_param(request["password"], new_password) &&
+					get_param(request["repeat_password"], repeat_password) )
+				{
+					tables::User::obj user = this->_authenticate.get_user();
 					
-					if(get_param(request["old"], old_password) &&
-						get_param(request["password"], new_password) &&
-						get_param(request["repeat_password"], repeat_password))
+					ostringstream response;
+					
+					if(user->role() == "admin" || user->role() == "super")
 					{
-						ostringstream response;
+						user->plain_password(old_password);
 						
-						return render_text(response, "text/javascript");
+						if(user->authenticate())
+						{
+							if(new_password == repeat_password)
+							{
+								user->set_password(new_password);
+								user->save();
+								
+								response << "account.onPasswordChange({ok: true, msg: \"changed\"});";
+							}
+							else
+							{
+								response << "account.onPasswordChange({ok: true, msg: \"do_not_match\"});";
+							}
+						}
+						else
+						{
+							response << "account.onPasswordChange({ok: false, msg: \"wrong_password\"});";
+						}
 					}
+					else
+					{
+						response << "account.onPasswordChange({ok: false, msg: \"not_admin\" });";  
+					}
+					
+					return render_text(response, "text/javascript");
 				}
 				
 				return render_<BadRequestResponse>();
@@ -48,7 +76,42 @@ namespace PagesController
 			
 			FENIX_CONTROLLER(add_website)
 			{
-			}			
+				string url;
+				
+				if(request.isWrite() &&
+					get_param(request["url"], url, validators::url()))
+				{
+					ostringstream response;
+					
+					Database::obj db = get_database(request, "fenix");
+					
+					User::obj user = this->_authenticate.get_user();
+					
+					if(user->role() == "admin" || user->role() == "super")
+					{
+						Site::obj site = Site::get(db);
+						
+						site->url(url).user(user);
+						
+						if(site->save())
+						{
+							response << "account.onAddWebsite({ok: true, msg: \"ok\"});";
+						}							
+						else
+						{
+							response << "account.onAddWebsite({ok: false, msg: \"error\"});";
+						}
+					}
+					else
+					{
+						response << "account.onAddWebsite({ok: false, msg: \"not_admin\"});";
+					}
+					
+					return render_text(response, "text/javascript");
+				}	
+				
+				return render_<BadRequestResponse>();
+			}		
 			
 		}
 	}

@@ -29,8 +29,8 @@ $(function(){
 									p = pages[i];
 								
 									a = [];
-									a.push(i + 1);a.push("<strong>"+p.name+"</strong>");
-									a.push(formatInteger(p.hits));
+									a.push(i + 1);a.push(p.name);
+									a.push("<strong>" + formatInteger(p.hits) + "</strong>");
 									
 									return a;
 							});

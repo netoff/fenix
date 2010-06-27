@@ -9,6 +9,7 @@ param: user
 	include_js("debug/jquery.js");
 	include_js("debug/jquery.flot.js");
 	include_js("debug/jquery.flot.stack.js");
+	include_js("debug/jquery.validate.js");
 	include_js("debug/date.js");
 	include_js("debug/account.js");
 	
@@ -21,12 +22,16 @@ param: user
 	_title = "Dashboard";
 -->
 <div class="span-20 prepend-4">
-	<a href="#" id="page1" class="sub-menu">Live Traffic</a>
+	<div id="sub-menu">
+	<span class='left-pointer'>◀</span>
+	<a href="#" id="page1" class="sub-menu active">Live Traffic</a>
 	<a href="#" id="page2" class="sub-menu">Live Map</a>
 	<a href="#" id="page3" class="sub-menu">Live Content</a>
 	<!--
 	<a href="#" class="sub-menu">Live Events</a>
 	<a href="#" class="sub-menu">Live Funnells</a>-->
+	<span class='right-pointer'>▶</span>
+	</div>
 </div>
 
 <div class="span-24" id="page-win">
@@ -162,8 +167,7 @@ param: user
 	<div class="span-24 same-height">
 	<div class="span-8"><div class="window">
 		<h2>Top Pages</h2>
-		<p>10 most popular Pages by
-		number of hits within last 24 hours.</p>
+		<p>10 most popular Pages by number of views within last 24 hours.</p>
 		
 		<div id="pages-list">
 		  <div class="stat-sep"></div>
@@ -176,8 +180,7 @@ param: user
 	<div class="span-8"><div class="window">
 		<h2>Top Referrers</h2>
 		
-		<p>10 best Referrers by
-		number of visits within last 24 hours.</p>
+		<p>10 best Referrers by number of visits within last 24 hours.</p>
 		
 		<div id="referrers-list">
 		  <div class="stat-sep"></div>
@@ -188,10 +191,9 @@ param: user
 		</div>
 	</div></div>
 	<div class="span-8 last"><div class="window">
-		<h2>Top Search Queries</h2>
+		<h2>Top Keywords</h2>
 		
-		<p>10 most popular Search Queries
-		within last 24 hours.</p>
+		<p>10 most searched Keywords within last 24 hours.</p>
 		
 		<div id="queries-list">
 		  <div class="stat-sep"></div>

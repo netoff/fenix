@@ -29,4 +29,16 @@ namespace Mailers
 		
 		mid.done();
 	}
+	
+	inline void send_reset_mail(const string& email, const string& token)
+	{
+		ScopedMiddleware mid;
+		
+		ostringstream query;
+		query << "send_reset_mail([[" << email << "]], [[" << token << "]])";
+		
+		mid.insert(query.str());
+		
+		mid.done();
+	}
 }
