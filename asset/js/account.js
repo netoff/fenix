@@ -42,6 +42,8 @@ if(!account)
 			}
 			
 			this.notify(msg);			
+			
+			$("#change-password-form input").removeAttr("disabled");
 		},
 		
 		onAddWebsite: function(result)
@@ -74,6 +76,7 @@ if(!account)
 			}
 			
 			this.notify(msg);
+			$("#add-website-form input").removeAttr("disabled");
 		}
 	};
 }
