@@ -1,0 +1,21 @@
+syntax: glob
+
+.*
+*.so
+*.os
+*.o
+*.a
+*.py
+*.pyc
+*.log
+*~
+src/views.h
+build/
+.build/
+bck/
+.bck/
+bin/
+bin/logger
+key.sec
+*.min.js
+public/js/debug

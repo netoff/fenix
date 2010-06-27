@@ -1,0 +1,10 @@
+import commands
+
+Import('prog_env')
+
+env = prog_env.Clone()
+
+fenix = env.StaticLibrary('fenix', Glob('*.cpp'))
+
+#Use library to link with app
+Return('fenix')
