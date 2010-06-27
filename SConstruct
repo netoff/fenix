@@ -205,7 +205,7 @@ def compile_js(source, filename, noopt=None):
 	cmd = "java -jar ext/closure/compiler.jar --js={0} --js_output_file={1}".\
 		format(JS_FOLDER + " --js={0}".format(JS_FOLDER).join(source), filename)
 	if noopt is True:
-		cmd = cmd + "--compilation_level WHITESPACE_ONLY"
+		cmd = cmd + " --compilation_level WHITESPACE_ONLY"
 	print cmd
 	print commands.getoutput(cmd)
 	
@@ -216,15 +216,16 @@ def compile_js_ver(source, filename, ver):
 jquery_src =  ["common/jquery.js", "common/jquery.flot.js", 
 		"common/jquery.flot.stack.js",  "common/jquery.validate.js", 
 		"common/jquery.table-pagination.js", "common/datepicker.js", 
-		"common/date.js", "chart.js", "common.js", "account.js"]
+		"common/date.js"]
 
 #compres javascripts	
 if int(jscript)==1 and int(final)==1:
 	print "JavaScript version: " + JS_VERSION
 	#js ui files are versioned
 	compile_js_ver(jquery_src, "jquery.common", JS_VERSION)
+	compile_js_ver(["chart.js", "common.js", "account.js"], "common", JS_VERSION)
 	compile_js_ver(["pages/login.js"], "login", JS_VERSION)
-	compile_js_ver(["pages/reset.js"], "login", JS_VERSION)
+	compile_js_ver(["pages/reset.js"], "reset", JS_VERSION)
 	compile_js_ver(["pages/dashboard.js"], "dashboard", JS_VERSION)
 	compile_js_ver(["pages/visitors.js"], "visitors", JS_VERSION)
 	compile_js_ver(["pages/pages.js"], "pages", JS_VERSION)
