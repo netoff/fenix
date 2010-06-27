@@ -4,12 +4,9 @@
 	<!--@ 		
 		string asset_host = "http://asset." + args[_request]._host[1] + "." + args[_request]._host[0];
 	-->
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/print.css" type="text/css" media="print" />	
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/screen.css" type="text/css" media="screen, projection" />	
 	<!--[if lt IE 8]><link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
-	
-	<!--Overide all other css'-->
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/app.css" >
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/main.v<!--@= CSS_VERSION-->.css" >
 	
 	<!--@
 		foreach(string css_file, this->_css_includes)

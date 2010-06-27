@@ -534,5 +534,10 @@ if(!page)
 				
 			};
 	}());
+	
+	//adaptor
+	Reload = function()
+	{
+		page.update();
+	};
 }
-

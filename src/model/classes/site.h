@@ -14,7 +14,9 @@ namespace tables
 	class Site: public Table<Site>
 	{
 	public:
-		TABLE(Site)		
+		TABLE(Site)
+		{
+		}
 		
 		STRING_FIELD(url)
 		STRING_FIELD(timezone)

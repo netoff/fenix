@@ -1,3 +1,5 @@
+@import 'datepicker.css';
+
 /*colors schema
 white: #ccc
 black: #333
@@ -7,6 +9,22 @@ blue2: #adc1d6
 blue3: #7297ba
 orange: #ff542e
 */
+.rounded-corners (@radius: 5px) 
+{
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  border-radius: @radius;
+}
+.rounded-corners-bottom (@radius: 5px) 
+{
+  -moz-border-radius-bottomleft: @radius;
+	-moz-border-radius-bottomright: @radius;
+	-webkit-border-bottom-left-radius: @radius;
+	-webkit-border-bottom-right-radius: @radius;
+  border-bottom-right-radius: @radius;
+	border-bottom-left-radius: @radius;
+}
+
 
 *
 {
@@ -28,7 +46,11 @@ body
 
 a, a:hover, a:visited
 {
-	color: #66f;	
+	color: #66f;
+}
+span.inline-link a
+{
+	font-size: 1.2em;
 }
 a.active
 {
@@ -220,11 +242,43 @@ span.menu-item a:hover, span.menu-item a.active
 	
 	/*position: relative;*/
 }
+.left 
+{
+	float: left;
+}
+.left-pointer
+{
+	margin: 0;
+	padding: 0;
+	float: left;
+	color: #fff;
+	display: block;
+	margin-top: -4px;
+	font-size: 1.4em;
+	padding: 0 5px;
+}
+.right-pointer
+{
+	float: left;
+	margin: 0;
+	color: #fff;
+	display: block;
+	margin-top: -4px;
+	font-size: 1.4em;
+	padding: 0 5px;
+}
+#sub-menu
+{
+	background-color: #FF542E;
+	overflow: hidden;
+	float: left;
+	.rounded-corners-bottom(4px);
+}
 a.sub-menu
 {
 	display: block;
 	float: left;
-	background-color: #FF542E;
+	
 	color: #fff;
 	font-size: 1.4em;
 	padding: 0 10px 0 10px;
@@ -236,12 +290,9 @@ a.sub-menu
 	-moz-user-select: none;
 	-webkit-user-select: none;
 }
-a.sub-menu:first
+a.sub-menu:hover, a.sub-menu.active
 {
-}
-a.sub-menu:hover
-{
-	color: #000;
+	color: #fff;
 	text-decoration: none;
 }
 div.window
@@ -459,7 +510,7 @@ table.admin thead th, table.segmented-list thead th
 	border: 1px solid #ccc;
 	font-size: 1.4em;
 	color: #fff;
-	background-color: #adc1d6/*#cfd6de*/;
+	background-color: #adc1d6;
 }
 table.admin td, table.segmented-list td
 {
@@ -696,7 +747,9 @@ label.error
 	position: absolute;
 	font-size: 1.2em;
 	padding: 1px 2px;
-	margin: 0 0 0 2px;
+	margin: 0;	
+	left: 12px;
+	.rounded-corners(4px);
 }
 input.error
 {
@@ -716,7 +769,19 @@ input.error
 	border: 1px solid #FBC2C4;
 	color: #8A1F11;
 }
-
+div.notify
+{
+	position: fixed;
+	z-index: 20000;
+	font-size: 1.8em;
+	color: #fff;
+	background-color: #f00;
+	margin: 0;
+	padding: 5px 10px;
+	left: 50%;
+	
+	.rounded-corners(6px);
+}
 fieldset
 {
 	border: none;
@@ -740,11 +805,13 @@ input[type=text], input[type=password], select
 	background-color: #eee;
 }
 
-#login-form fieldset
+#login-form fieldset, #forgot-password-form fieldset, 
+#reset-form fieldset
 {
 	width: 400px;
 }
-#login-form input[type=submit]
+#login-form input[type=submit], #forgot-password-form input[type=submit],
+#reset-form input[type=submit]
 {
 	float: none;
 }

@@ -193,7 +193,12 @@ end
 
 function send_activation_mail(receiver, site_id)
 	enqueue_mail({to = receiver, subject = "Start using kliknik.com",
-		body = string.format(ACTIVATION_MAIL_TEXT, site_id)})
+		body = string.format(ACTIVATION_MAIL_TEXT, site_id) })
+end
+
+function send_reset_mail(receiver, token)
+	enqueue_mail({to = receiver, subject = "kliknik.com | Reset Password", 
+		body = string.format(RESET_MAIL_TEXT, token)})
 end
 -----------------------------------------------------------------------
 --CRON TABS

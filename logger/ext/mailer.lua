@@ -37,3 +37,14 @@ _fnx_get_tracker('%s');
 Thank you,
 http://www.kliknik.com
 ]]
+
+RESET_MAIL_TEXT = [[
+Hello,
+
+You reset your password at kliknik.com. Please click on a following link to set
+your new password:
+
+http://www.kliknik.com/analytics/login/reset?t=%s
+
+http://www.kliknik.com
+]]
