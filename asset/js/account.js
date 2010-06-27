@@ -1,12 +1,138 @@
+var account;
+if(!account)
+{
+	account = {
+		notify: function(message)
+		{
+			$("<div>", {"class": "notify", css: {position: "fixed", top:0, left: "50%", display: "none"}})
+				.text(message).appendTo("body").show(0, function(){var width = $(this).width(); $(this).css({"margin-left": -width/2});})
+				.delay(4000).fadeOut(2000, function(){$(this).remove();});
+		},
+		
+		onPasswordChange: function(result)
+		{
+			var msg = "";
+			
+			if(result)
+			{
+				if(result.ok)
+				{
+					msg = "Password changed successfully";
+				}
+				else
+				{
+					msg = "Error trying to change password";
+					if(result.msg === "do_not_match")
+					{
+						msg += ": Passwords do not match";
+					}
+					if(result.msg === "wrong_password")
+					{
+						msg += ": Wrong password!";
+					}
+					if(result.msg === "not_admin")
+					{
+						msg += ": You do not have right to do this!";
+					}
+				}
+			}
+			else
+			{
+				msg = "Error trying to change password. Please try again."
+			}
+			
+			this.notify(msg);			
+		},
+		
+		onAddWebsite: function(result)
+		{
+			var msg = "";
+			
+			if(result)
+			{
+				if(result.ok)
+				{
+					msg = "Website added successfully"
+				}
+				else
+				{
+					msg = "Error trying to add website"
+					
+					if(result.msg === "not_admin")
+					{
+						msg += ": You are not allowed to add website!";
+					}
+					if(result.msg === "error")
+					{
+						msg += ": Check your URL!";
+					}
+				}
+			}
+			else
+			{
+				msg = "Some error happened. Please try again.";
+			}
+			
+			this.notify(msg);
+		}
+	};
+}
+
+function errorLabel(error, elem)
+{
+	elem.wrap($("<span style='position:relative;' />"));
+	error.insertBefore(elem);
+	error.css({top: - error.height() - 6});
+}
+
 $(function()
 	{
 		var panel = $("#account-settings"),
-				tabs = $(".tabs a"), selector = $("#js-tag-site-selector"),
-				code = $("#js-tag-code");
+				tabs = $(".tabs a"), 
+				selector = $("#js-tag-site-selector"),
+				site_selector = $("#site-selector"),
+				code = $("#js-tag-code"),
+				cookie_name = "ssid";
+		
+		function setSiteSelected(id)
+		{
+			function setCookie(key, val, daysToExpire, path, domain, secure) 
+			{
+				var expiryDate;
 				
+				if (daysToExpire) 
+				{
+					expiryDate = new Date();
+					expiryDate.setTime(expiryDate.getTime() + daysToExpire * 8.64e7);
+				}
+	
+				document.cookie = key + '=' + encodeURIComponent(val) +
+														(daysToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
+														';path=' + (path ? path : '/') +
+														(domain ? ';domain=' + domain : '') +
+														(secure ? ';secure' : '');
+			}
+			
+			setCookie(cookie_name, id, 365);
+		}
+		
+		function getSiteSelected()
+		{
+			function getCookie(key) 
+			{
+				var c_pattern = new RegExp('(^|;)[ ]*' + key + '=([^;]*)'),
+						c = c_pattern.exec(document.cookie);
+				return c ? decodeURIComponent(c[2]) : null;
+			}
+			
+			return getCookie(cookie_name);			
+		}
+		
 		function clearForms()
 		{
+			change_password_validator.resetForm();			
 		}
+		
 		function generateCode(id)
 		{
 			var ret = "";
@@ -18,9 +144,12 @@ $(function()
 			
 			return ret;
 		}
+		
 		function loadSites()
 		{
-			var i, site, options = [], id;
+			var i, site, options = [], html, 
+				id = null, 
+				selected = getSiteSelected();
 			
 			if(_sites)
 			{
@@ -28,27 +157,41 @@ $(function()
 				{
 					site = _sites[i];
 					
-					if(i === 0) 
+					if(site.id === selected) 
 					{
+						id = selected;
 						options.push("<option selected='selected' value='");
 					}
 					else
 					{
 						options.push("<option value='");
 					}
+					
 					options.push(site.id);options.push("'>");
 						options.push(site.url);options.push("</option>");
 				}
 				
-				selector.html(options.join(""));
+				id = id || _sites[0].id;
 				
-				id = $("option:selected", selector).val();
-				if(id)
-				{
-					code.val(generateCode(id));
-				}
+				_site_id = id;
+				
+				html = options.join("");
+				
+				site_selector.html(html);
+				selector.html(html);
+				
+				code.val(generateCode(id));
 			}
 		}
+		
+		site_selector.change(function(){
+				var id = $("option:selected", site_selector).val();
+				_site_id = id;
+				setSiteSelected(id);
+				
+				Reload();
+		});
+		
 		function _updateTime()
 		{
 			function loop()
@@ -60,9 +203,6 @@ $(function()
 					type: "GET",
 					url: "/analytics/poll/account/time",
 					dataType: "script",
-					data: {
-						id: _site_id
-					},
 					complete: loop,
 					cache: false
 			});			
@@ -77,6 +217,7 @@ $(function()
 					code.val(generateCode(id));
 				}
 			});
+		
 		tabs.click(function()
 			{
 				var tabnum = $(this).attr("tabnum");
@@ -108,6 +249,53 @@ $(function()
 			});
 		
 		updateTime = _updateTime;
-		_updateTime();
 		loadSites();
+		_updateTime();		
+		
+		change_password_validator = $("#change-password-form").validate({errorPlacement: errorLabel, 
+				submitHandler: function(form) 
+				{
+					function disable_form()
+					{
+						$("#change-password-form input").attr("disabled", "disabled");
+					};
+					
+					var d = $("#change-password-form").serialize();
+					
+					disable_form();
+					
+					$.ajax({
+							url: "/analytics/account/change_password",
+							cache: false,
+							data: d,
+							dataType: "script",
+							type: "POST"
+					});	
+					
+					return false;
+				}
+			});
+		add_website_validator = $("#add-website-form").validate({errorPlacement: errorLabel, 
+				submitHandler: function(form)
+				{
+					function disable_form()
+					{
+						$("#add-website-form input").attr("disabled", "disabled");
+					}
+						
+					var d = $("#add-website-form").serialize();
+					
+					disable_form();
+					
+					$.ajax({
+							url: "/analytics/account/add_website",
+							cache: false,
+							data: d,
+							dataType: "script",
+							type: "POST"
+					});
+					
+					return false;
+				}
+		});
 	});

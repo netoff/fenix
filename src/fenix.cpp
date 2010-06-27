@@ -17,15 +17,16 @@ FENIX_APPLICATION(HelloWorld)
 	auto_ptr<action::Base> action = dispatch(
 		#ifdef DEBUG
 			_root/"_debug"/"db" 		<< _action<DebugController::db>() ||
-		#endif
-			
+		#endif			
 			_root/"index"		<< _action<DashboardController::index, auth<1>::Type>() ||			
 			
 			_("lg")/"js"			<< _action<LogController::lg>() ||
 			
 			//Login and sigunp
 			_root/"login"		<< _action<LoginController::index>() ||
-			_root/"login"/"new"		<< _action<LoginController::account::create>() ||			
+			_root/"login"/"new"		<< _action<LoginController::account::create>() ||
+			_root/"login"/"forgot_password" << _action<LoginController::account::forgot>()||
+			_root/"login"/"reset"		<< _action<LoginController::account::reset>() ||			
 			_root/"session"/"new"	<< _action<LoginController::session::create>() ||
 			_root/"logout"		<< _action<LoginController::session::clear, auth<1>::Type>() ||
 			//=======================================================================			
@@ -41,6 +42,9 @@ FENIX_APPLICATION(HelloWorld)
 			_root/"poll"/"pages" << _action<PagesController::Poll::pages, auth<0>::Type>()||
 			_root/"poll"/"referrers" << _action<PagesController::Poll::referrers, auth<0>::Type>() ||
 			_root/"poll"/"account"/"time" << _action<PagesController::Poll::Account::time, auth<0>::Type>() ||
+			
+			_root/"account"/"change_password" << _action<PagesController::Poll::Account::change_password, auth<0>::Type>() ||
+			_root/"account"/"add_website" << _action<PagesController::Poll::Account::add_website, auth<0>::Type>() ||
 			
 			//Admin panel
 			_("admin")/"panel" << _action<PagesController::Admin::index, auth<0>::Type>() ||

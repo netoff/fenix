@@ -13,6 +13,9 @@ namespace tables
 	{
 	public:
 		TABLE(User)
+		{
+			this->_password_set = false;
+		}
 		
 		STRING_FIELD(email)
 		STRING_FIELD(state)
@@ -30,6 +33,8 @@ namespace tables
 		STRING_FIELD(registration_date)
 		STRING_FIELD(last_login)
 		STRING_FIELD(last_activity)
+		
+		STRING_FIELD(token)
 
 		bool authenticate()
 		{
@@ -66,6 +71,12 @@ namespace tables
 			
 			this->last_activity(datetime::format(now, "%H:%M %d-%b-%Y GMT+0"));
 		}
+		
+		void set_password(const string& plain)
+		{
+			this->_password_set = true;
+			this->plain_password(plain);			
+		}
 	protected:
 		/*virtual bool _before_save()
 		{
@@ -97,5 +108,20 @@ namespace tables
 			
 			return true;			
 		}
+		
+		virtual bool _before_save()
+		{
+			if(this->_password_set)
+			{
+				if(!plain_password().empty() && plain_password().length() > 5)
+				{
+					this->password(crypto::sha1(this->salt() + this->plain_password()));
+				}
+			}
+			
+			return true;
+		}
+	private:
+		bool _password_set;
 	};
 }

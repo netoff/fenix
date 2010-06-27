@@ -312,11 +312,10 @@ namespace fenix
 				protected:
 					vector<string> _js_includes;
 					vector<string> _css_includes;
-
-				private:
+					
 					string escape(const string& s);
 					string sanatize(const string& s);
-
+				private:
 					template <class T>
 					string _to_s(T a)
 					{

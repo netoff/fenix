@@ -329,7 +329,7 @@ namespace fenix
 				
 				#define TABLE(name) \
 				name(Database::obj db)\
-				:Table<name>(db, #name){}
+				:Table<name>(db, #name)
 			}
 		}
 	}
