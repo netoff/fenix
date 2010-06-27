@@ -16,6 +16,7 @@ param: user
 	include_js("debug/dashboard.js");
 	#else
 	include_js("jquery.common.v" + string(JS_VERSION) + ".min.js");
+	include_js("common.v" + string(JS_VERSION) + ".min.js");
 	include_js("dashboard.v" + string(JS_VERSION) + ".min.js");
 	#endif
 	

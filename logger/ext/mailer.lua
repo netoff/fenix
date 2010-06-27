@@ -46,5 +46,6 @@ your new password:
 
 http://www.kliknik.com/analytics/login/reset?t=%s
 
+Yours truly,
 http://www.kliknik.com
 ]]
