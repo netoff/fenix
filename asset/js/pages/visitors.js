@@ -33,10 +33,10 @@ $(function (){
 								if(i < len)
 								{	
 									var country = countries[i];
-									row.push(i+1);row.push("<strong>" + lookupCountry(country.name) + "</strong>");
+									row.push(i+1);row.push(lookupCountry(country.name));
 									row.push(formatInteger(country.visits));
 									row.push(formatInteger(country.new_visits));
-									row.push(formatPercent(country.percent));
+									row.push("<strong>" + formatPercent(country.percent) + "</strong>");
 								}
 							
 								return row;

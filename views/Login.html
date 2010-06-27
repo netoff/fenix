@@ -9,15 +9,22 @@ param: signup_error
 param: active
 param: alert
 param: finish
+param: reset_password
+param: password_reset
+param: login_error
+param: reset_error
 -->
 
 <!--@
 	bool finish = args[_finish|false];
+	bool reset_password = args[_reset_password|false];
+	
 	#ifdef DEBUG
  	include_js("debug/jquery.js");
  	include_js("debug/jquery.validate.js");
  	include_js("debug/login.js");
 	#else
+	include_js("jquery.common.v" + string(JS_VERSION) + ".min.js");
 	include_js("login.v" + string(JS_VERSION) + ".min.js");
 	#endif
   
@@ -42,26 +49,42 @@ param: finish
 	      
 	      			<form method="post" action="/analytics/session/new" id="login-form">
 				<!--@
-					string email = args[_email|""];
-					string login_error = args[_login_error|""];
-			
-					if(!login_error.empty())
+					if(!reset_password)
 					{
-						this->insert("<span class='form-error'>%s</span>", login_error);
-					}
-				-->
-				<fieldset>
+						string email = args[_email|""];
+						string login_error = args[_login_error|""];
 			
-				<label for="email">Email:</label><br />
-					<input type="text" name="email" class="text required email" value="<!--@= email -->" /><br />
-				
+						if(!login_error.empty())
+						{
+							this->insert("<span class='form-error'>%s</span>", login_error);
+						}
+				-->
+								<fieldset>							
+									<label for="email">Email:</label><br />
+										<input type="text" name="email" class="text required email" value="<!--@= email -->" /><br />
+									
+										<br />
+									<label for="password">Password:</label><br />
+										<input type="password" name="password" class="text required" minlength="6" /><br />
+									<br />
+									<input type="submit" value="Login" />
+										<span class="inline-link">&nbsp;&nbsp;<a href="/analytics/login?forgot_password=1" id="forgot-password-link">Did you forget your password?</a></span>
+								</fieldset>
+<!--@ 
+					} -->			
+	      			</form>							
+							
+					<form method="post" action="/analytics/login/forgot_password" id="forgot-password-form" 
+						<!--@= !reset_password? "style=\"display:none\"":"" --> >
+					<p><em>Did you forget your password?</em></p>
+					<fieldset>
+					<label for="email">Email:</label><br />
+						<input type="text" name="email" class="text required email" /><br />
 					<br />
-				<label for="password">Password:</label><br />
-					<input type="password" name="password" class="text required" minlength="6" /><br />
-				<br />
-				<input type="submit" value="Login" />
-				</fieldset>
-	      			</form>
+					<input type="submit" value="Reset Password" />
+						<span class="inline-link">&nbsp;&nbsp;<a href="/analytics/login" id="forgot-password-cancel">Cancel</a></span>
+						</fieldset>
+					</form>
 	    		</div>
 		</div>
 		<div class="span-16" >

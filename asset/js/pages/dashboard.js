@@ -159,14 +159,7 @@ if (!dashboard)
 {
 	dashboard = (function ()
 	{
-		return {
-			site_id: "",
-			
-			setSiteId: function (id)
-			{
-				this.site_id = id;
-			},
-			
+		return {			
 			timestamp: 0,
 			timestampMin: 0,
 			timestampHour: 0,
@@ -174,8 +167,12 @@ if (!dashboard)
 	
 			init: function ()
 			{
-				var pages = $("#pages"); ;				
-
+				this.timestamp = 0;
+				this.timestampMin = 0;
+				this.timestampHour = 0;
+				this.timestampMicro = 0;
+				
+				var pages = $("#pages");
 				
 				this.chart.setCanvas($('#trafic-live-chart'));
 				this.chart.resolution = "sec";
@@ -214,12 +211,18 @@ if (!dashboard)
 				this.chartHour.draw();
 						
 				$(".sub-menu").click(function (){
-					var id = $(this).attr("id"), i, ll;
-					
-					i = parseInt(id.split("page")[1], 10);
-					ll = -960 * (i - 1); 
-					
-					pages.animate({left: ll});
+						if(!$(this).is(".active"))
+						{
+							var id = $(this).attr("id"), i, ll;
+							
+							i = parseInt(id.split("page")[1], 10);
+							ll = -960 * (i - 1); 
+							
+							pages.animate({left: ll});
+							
+							$("a.sub-menu.active").removeClass("active");
+							$(this).addClass("active");
+						}
 					
 					return false;
 				});
@@ -297,8 +300,8 @@ if (!dashboard)
 						cache: false,
 						data: {
 							'id': _site_id,
-							't': this.timestamp, 't1': this.timestampMin, 't2': this.timestampHour,
-							't0': this.timestampMicro 
+							't': this.timestamp, 't1': this.timestampMin, 
+							't2': this.timestampHour, 't0': this.timestampMicro 
 						},
 						dataType: "script",
 						complete: loop
@@ -410,8 +413,8 @@ if (!dashboard)
 						if(visitor._engine && visitor._engine != "")
 						{
 							a.push(", </span> referred by <span class='_referrer'><strong>");
-							a.push(visitor._engine);a.push("</strong> searching for ");
-							a.push(visitor._squery);
+							a.push(visitor._engine);a.push("</strong> searching for '");
+							a.push(visitor._squery);a.push("'");
 						}
 						else
 						{
@@ -425,9 +428,18 @@ if (!dashboard)
 							a.push(visitor._url);						
 						a.push("</strong></span></li>");
 					}
+					$("#visitors-list li.no-visitors").remove();
+					
 					$("#visitors-list ul").prepend(a.join(""));
 					$("#visitors-list ul li:hidden").slideDown("slow");
 					$("#visitors-list ul li:gt(20)").remove();
+				}
+				else
+				{
+					if($("#visitors-list li").length === 0)
+					{
+						$("#visitors-list ul").prepend("<li class='no-visitors'>No recent visitors...</li>");
+					}
 				}
 			},
 			
@@ -570,9 +582,12 @@ if (!dashboard)
 
 $(function ()
 {
-	dashboard.setSiteId(_site_id);
 	dashboard.init();
-
 	//Start the loop
 	dashboard.update();	
+	
+	Reload = function()
+	{
+		location.reload();
+	};
 });

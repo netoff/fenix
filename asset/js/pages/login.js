@@ -14,16 +14,36 @@ function sameHeight ()
 	}
 }
 
+function errorLabel(error, elem)
+{
+	elem.wrap($("<span style='position:relative;' />"));
+	error.insertBefore(elem);
+	error.css({top: - error.height() - 6});
+}
+
+
 $(function ()
 {
-	$("#signup-thanks input[type='submit']").click(function(){
-		$("#signup-thanks").hide();	
+	$("#forgot-password-link").click(function(){
+			$("#login-form").hide();
+			$("#forgot-password-form").fadeIn();
+			
+			sameHeight();
+			
+			return false;
+	});
+	
+	$("div.alert-window input[type='submit']").click(function(){
+		$("div.alert-window").hide();	
 		
 		return false;
 	});
 	
-	$("#login-form").validate();
-	$("#signup-form").validate();
+	
+	
+	$("#login-form").validate({errorPlacement: errorLabel});
+	$("#signup-form").validate({errorPlacement: errorLabel});
+	$("#forgot-password-form").validate({errorPlacement: errorLabel});
 
 	sameHeight();
 });

@@ -1,28 +1,54 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 	<head>
-	<!--@ 		
+	<!--@
+		shared_ptr<tables::User> user = args[_user];
 		string asset_host = "http://asset." + args[_request]._host[1] + "." + args[_request]._host[0];
+		
+		int i = 0;
+		string sites = "[";
+		
+		foreach(shared_ptr<tables::Site> site, user->sites<tables::Site>())
+		{
+			if(i == 0)
+			{
+				sites += "{id: '" + this->escape(site->id()) 
+					+ "', url: '" + this->escape(site->url()) + "'}";
+			}
+			else
+			{
+				sites += ", {id: '" + this->escape(site->id()) 
+					+ "', url: '" + this->escape(site->url()) + "'}";									
+			}	
+			
+			i++;
+		};
+		
+		sites += "]";
 	-->
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/screen.css" type="text/css" media="screen, projection" />
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/print.css" type="text/css" media="print" />	
+<script type='text/javascript'>
+/*<![CDATA[*/
+<!--@	this->insert("_sites = %s;", sites); -->
+/*]]>*/
+</script>
+
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/screen.css" type="text/css" media="screen, projection" />	
 	<!--[if lt IE 8]><link rel="stylesheet" href="<!--@= asset_host -->/css/blueprint/ie.css" type="text/css" media="screen, projection" /><![endif]-->
+	<link rel="stylesheet" href="<!--@= asset_host -->/css/main.v<!--@= CSS_VERSION-->.css" >
 	
-	<!--Overide all other css'-->
-	<link rel="stylesheet" href="<!--@= asset_host -->/css/app.css" >
-		<!--[if lte IE 6]>
-			<style type="text/css">
-				body { overflow: hidden; }
-				div#page-w { height: 100%; overflow: auto;}
-				img { behavior: url(/css/iepngfix.htc) }
-				div.mask { position: absolute; }			
-			</style>
-		<![endif]-->
-		<!--[if IE 6]>
-			<style type="text/css">
-				body { height: 100%; }
-			</style>
-		<![endif]-->
+	<!--[if lte IE 6]>
+		<style type="text/css">
+			body { overflow: hidden; }
+			div#page-w { height: 100%; overflow: auto;}
+			img { behavior: url(/css/iepngfix.htc) }
+			div.mask { position: absolute; }			
+		</style>
+	<![endif]-->
+	<!--[if IE 6]>
+		<style type="text/css">
+			body { height: 100%; }
+		</style>
+	<![endif]-->
 
 	<!--[if IE]><script type="text/javascript" src="/js/excanvas.js"></script><![endif]--> 	
 	<!--@
@@ -35,8 +61,6 @@
 		{
 			this->insert("<script type='text/javascript' src='%s/js/%s'></script>", asset_host, js_file);
 		}
-		
-		shared_ptr<tables::User> user = args[_user];
 	-->	
 	
 	<title>kliknik | <!--@=this->_title--></title>
@@ -54,7 +78,7 @@
 		<div id="account-settings" style="display:none">
 			<div class="mask"></div>
 			<div class="alert" id="account-box">
-				<h2>Account Settings</h2>
+				<h2>Admin Panel</h2>
 				<a class="close-link" href="#">Close&nbsp;[X]</a>
 				<div class="tabs">
 					<ul>
@@ -75,23 +99,21 @@
 					</form>	
 				</div>
 				<div class="tab" tabnum="2" style="display:none">
-					<p><em>Adding new website is disabled right now.</em></p>
-					<form>
+					<form method="post" id="add-website-form">
 						<label>Website URL:</label> <br />
-						<input type="text" disabled="disabled"/><br />
-						<input type="submit" disabled="disabled" value="Add" />
+						<input type="text" name="url" class="url required" value="http://" /><br />
+						<input type="submit" value="Add Website" />
 					</form>
 				</div>
 				<div class="tab" tabnum="3" style="display:none">
-					<p><em>Changing password is disabled right now.</em></p>
-					<form>
+					<form method="post" id="change-password-form">
 						<label>Old Password:</label><br />
-						<input type="password" disabled="disabled"/><br /><br />
+						<input type="password" name="old" class="required" minlength="6" /><br /><br />
 						<label>New Password:</label><br />
-						<input type="password" disabled="disabled"/><br />
+						<input type="password" id="password" name="password" class="required" minlength="6" /><br />
 						<label>Repeat Password:</label> <br />
-						<input type="password" disabled="disabled"/><br />
-						<input type="submit" value="Change" disabled="disabled" />
+						<input type="password" name="repeat_password" class="required" minlength="6" equalTo="#password"/><br />
+						<input type="submit" value="Change Password" />
 						<br /><br />
 					</form>
 				</div>
@@ -103,7 +125,7 @@
 				<div class="span-24" id="head-line">
 					<div class="clock">
 						<span id="time"><!--@= args[_time] --></span> 
-						<span>| <span id="account-link"><a class="account-link" href="#" title="Account Settings"><!--@= user->email() --></a></span> 
+						<span>| <span id="account-link"><a class="account-link" href="#" title="Admin Panel"><!--@= user->email() --></a></span> 
 						| <span id="logout-link"><a href="/analytics/logout" title="Logout">Logout</a></span></span>
 					</div>
 				</div>
@@ -123,33 +145,7 @@
 					</div>
 					<div class="span-6 last right">
 						<select value="Select site..." id="site-selector" class="span-6 last">
-						<!--@ 
-							int i = 0;
-							string sites = "[";
-							
-							foreach(shared_ptr<tables::Site> site, user->sites<tables::Site>())
-							{
-							 	if(i == 0)
-								{
-									sites += "{id: '" + site->id() + "', url: '" + site->url() + "'}";
-								}
-								else
-								{
-									sites += ", {id: '" + site->id() + "', url: '" + site->url() + "'}";									
-								}	
-								
-								this->insert("<option value='%s'>%s</option>", site->id(), site->url());
-							};
-							
-							sites += "]";
-							-->
-							</select>
-						<script type='text/javascript'>
-							/*<![CDATA[*/
-							<!--@	this->insert("_sites = %s;", sites); -->
-							if(_sites && _sites.length !== 0){_site_id = _sites[0].id;}
-							/*]]>*/
-						</script>
+							</select>						
 					</div>
 				</div>
 			</div>	
@@ -171,14 +167,10 @@
 			<div class="container">
 				<div class="span-24" id="footer">
 					&copy;<!--@= (args[_request])._timestamp.date().year() --> kliknik | Contact: <script type="text/javascript">unescapeMe = window.decodeURIComponent || unescape;eval(unescapeMe('d%6fc%75%6de%6e%74%2e%77%72%69%74e%28%27%3Ca%20%68%72ef%3D%22%26%23109%3Ba%26%23105%3B%6c%26%23116%3B%26%23111%3B%3A%26%23100%3B%26%23101%3B%26%23118%3B%26%2364%3B%26%23107%3B%26%23108%3B%26%23105%3B%26%23107%3B%26%23110%3B%26%23105%3B%26%23107%3B%26%2346%3B%26%2399%3B%26%23111%3B%26%23109%3B%22%3Ede%76%40%6b%6c%69%6b%6e%69%6b%2ec%6f%6d%3C%2fa%3E%27%29%3B'));</script> | 
-					<a class="account-link" href="#" title="Account Settings">Account Settings</a> | <a href="/analytics/logout">Logout</a>
+					<a class="account-link" href="#" title="Admin Panel">Admin Panel</a> | <a href="/analytics/logout">Logout</a>
 				</div>
 			</div>
 		</div>
-<script src='http://cdn.kliknik.com/loader.js'></script>
-<script type='text/javascript'>
-_fnx_get_tracker('4c17668984a7d1718e4b18ac');
-</script>
 <!--@
 #ifndef DEBUG
 -->
@@ -200,6 +192,12 @@ _fnx_get_tracker('4c17668984a7d1718e4b18ac');
 
   var feedback_widget = new GSFN.feedback_widget(feedback_widget_options);
 </script>
+
+<script src='http://cdn.kliknik.com/loader.js'></script>
+<script type='text/javascript'>
+_fnx_get_tracker('4c17668984a7d1718e4b18ac');
+</script>
+
 <!--@
 #endif
 -->

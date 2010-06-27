@@ -29,10 +29,10 @@ $(function(){
 								function(i){
 									a = [];
 									referrer = referrers[i];
-									a.push(i + 1); a.push("<strong>"+referrer.name+"</strong>"); 
+									a.push(i + 1); a.push(referrer.name); 
 									a.push(formatInteger(referrer.visits));
 									a.push(formatFloat(referrer.new_visits));
-									a.push(formatPercent(referrer.percent));
+									a.push("<strong>" + formatPercent(referrer.percent) + "</strong>");
 									return a;
 							});
 						}

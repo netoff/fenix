@@ -4,7 +4,7 @@ if(!_fnx_get_tracker)
 {
 	_fnx_get_tracker = function(id, callback)
 	{
-		var ___FNX_fenix_tracker_;
+		var ___FNX_fenix_tracker_, proc;
 		
 		___FNX_fenix_queue_.push([id, callback]);
 		
@@ -21,9 +21,10 @@ if(!_fnx_get_tracker)
 			
 			return;
 		}
-		if(___FNX_fenix_tracker_.proc)
+		proc = ___FNX_fenix_tracker_.proc;
+		if(proc && typeof proc === 'function')
 		{
-			___FNX_fenix_tracker_.proc();
+			proc();
 		}
 	};
 }

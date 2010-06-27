@@ -18,3 +18,4 @@ bin/
 bin/logger
 key.sec
 *.min.js
+public/js/debug
