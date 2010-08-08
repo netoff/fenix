@@ -15,8 +15,8 @@ require 'benchmark'
 #INDIA	 IN
 #HUNGARY	 HU
 
-MAX_REQUESTS = 4
-THREAD_SLEEP = 0.7
+MAX_REQUESTS = 2
+THREAD_SLEEP = 0.8
 
 TRACK_SERVER = "log.kliknik.com"
 SITE_ID = "4c18e3b26c8bdc2ac6c8bf67"

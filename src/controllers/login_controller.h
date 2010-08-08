@@ -184,20 +184,21 @@ namespace LoginController
 					
 					if(user->find(model::Query().add_cond("email", email)))
 					{
-						string token = crypto::random<RESET_TOKEN_SIZE>();
-						
-						user->token(token);
-						
-						if(user->save())
+						if(user->activated())
 						{
-							Mailers::send_reset_mail(user->email(), user->token());
+							string token = crypto::random<RESET_TOKEN_SIZE>();
+						
+							user->token(token);
+						
+							if(user->save())
+							{
+								Mailers::send_reset_mail(user->email(), user->token());
  								
-							return render_redirect("/" + string(ROOT_PATH), "/login?password_reset=1");
+								return render_redirect("/" + string(ROOT_PATH), "/login?password_reset=1");
+							}
 						}
-						else
-						{
-							return render_redirect("/" + string(ROOT_PATH), "/login?reset_password=1&reset_error=1");
-						} 
+						
+						return render_redirect("/" + string(ROOT_PATH), "/login?reset_password=1&reset_error=1"); 
 					}				
 			}
 			
