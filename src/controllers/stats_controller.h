@@ -122,10 +122,12 @@ namespace StatsController
 								<< ", " << timestamp_h << ");\n";
 					}
 					
-					//update feed
-					response 
-						<< "dashboard.updateFromFeed(" 
-							<< get_dashboard_feed(mid, site_id, timestamp_h, timestamp_d, t_micro) << ");\n";
+					if((t < timestamp) && ((timestamp%2) == 0))
+					{
+						//update feed
+						response << "dashboard.updateFromFeed(" 
+								<< get_dashboard_feed(mid, site_id, timestamp_h, timestamp_d, t_micro) << ");\n";
+					}
 					
 					mid.done();
 					
