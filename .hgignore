@@ -19,3 +19,7 @@ bin/logger
 key.sec
 *.min.js
 public/js/debug
+public/js/
+public/css/
+public/fenix.js
+public/loader.js
